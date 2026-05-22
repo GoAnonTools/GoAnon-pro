@@ -36,7 +36,7 @@
         .light-mode .sparkle { background: radial-gradient(circle, rgba(160, 160, 160, 1) 0%, transparent 70%); }
         .sparkle:nth-child(1) { top: 20%; left: 30%; width: 6px; height: 6px; background: radial-gradient(circle, rgba(255, 255, 255, 0.9) 0%, transparent 70%); animation: sparkleAnimation1 4s ease-in-out infinite; animation-delay: 1s; } .sparkle:nth-child(2) { top: 60%; left: 70%; width: 4px; height: 4px; background: radial-gradient(circle, rgba(200, 220, 255, 0.9) 0%, transparent 70%); animation: sparkleAnimation2 3.5s ease-in-out infinite; animation-delay: 2.5s; } .sparkle:nth-child(3) { top: 40%; left: 15%; width: 5px; height: 5px; background: radial-gradient(circle, rgba(255, 220, 200, 0.9) 0%, transparent 70%); animation: sparkleAnimation3 4.5s ease-in-out infinite; animation-delay: 4s; } .sparkle:nth-child(4) { top: 75%; left: 85%; width: 3px; height: 3px; background: radial-gradient(circle, rgba(220, 255, 220, 0.9) 0%, transparent 70%); animation: sparkleAnimation4 3s ease-in-out infinite; animation-delay: 5.5s; }
         @keyframes sparkleAnimation1 { 0%, 100% { opacity: 0; transform: scale(0) rotate(0deg); } 50% { opacity: 1; transform: scale(1) rotate(180deg); } } @keyframes sparkleAnimation2 { 0%, 100% { opacity: 0; transform: scale(0) translateY(0); } 50% { opacity: 1; transform: scale(1.2) translateY(-10px); } } @keyframes sparkleAnimation3 { 0%, 100% { opacity: 0; transform: scale(0) translateX(0); } 50% { opacity: 1; transform: scale(0.8) translateX(10px); } } @keyframes sparkleAnimation4 { 0%, 100% { opacity: 0; transform: scale(0) rotate(0deg) translateX(0) translateY(0); } 50% { opacity: 1; transform: scale(1.5) rotate(360deg) translateX(5px) translateY(-5px); } }
-        .mode-toggle, .why-how-toggle { position: fixed; width: 120px; height: 40px; background: rgba(255, 255, 255, 0.1); border: 2px solid rgba(255, 255, 255, 0.2); border-radius: 25px; cursor: pointer; z-index: 1000; backdrop-filter: blur(10px); transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2); display: flex; align-items: center; padding: 0; }
+        .mode-toggle, .why-how-toggle { position: fixed; width: 120px; height: 40px; background: rgba(255, 255, 255, 0.1); border: 2px solid rgba(255, 255, 255, 0.2); border-radius: 25px; cursor: pointer; z-index: 1000; backdrop-filter: blur(10px); transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2); display: flex; align-items: center; padding: 0; overflow: hidden; }
         .mode-toggle { top: 30px; left: 30px; } .why-how-toggle { top: 30px; right: 30px; }
         .light-mode .mode-toggle, .light-mode .why-how-toggle { background: rgba(0, 0, 0, 0.1); border: 2px solid rgba(0, 0, 0, 0.2); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(0, 0, 0, 0.2); }
         .mode-toggle:hover, .why-how-toggle:hover { transform: scale(1.05); box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3); animation: togglePulse 1.5s infinite; }
@@ -117,13 +117,13 @@
         .tool-card.featured .tool-name { font-size: 1.52rem; }
         .light-mode .tool-name { color: rgba(18,18,18,0.94); }
         .tool-desc { position: relative; z-index: 2; font-size: 0.98rem; line-height: 1.64; color: rgba(255,255,255,0.68); margin-bottom: 18px; }
-        .tool-card.hero-product .tool-desc { max-width: 650px; font-size: 1.05rem; }
+        .tool-card.hero-product .tool-desc { max-width: 650px; font-size: 1.05rem; } .tool-card.labs-hero { grid-column: span 2; min-height: 260px; background: linear-gradient(135deg, rgba(180, 220, 255, 0.14), rgba(255,255,255,0.035) 42%, rgba(150, 110, 255, 0.10)); } .tool-card.labs-hero .tool-name { font-size: 1.72rem; } .tool-card.labs-hero .tool-desc { font-size: 1rem; }
         .light-mode .tool-desc { color: rgba(20,20,20,0.67); }
         .tool-features { position: relative; z-index: 2; display: flex; flex-wrap: wrap; gap: 8px; padding-bottom: 44px; }
         .tool-feature { font-family: 'JetBrains Mono', monospace; font-size: 0.70rem; color: rgba(255,255,255,0.64); border: 1px solid rgba(var(--accent),0.15); background: rgba(0,0,0,0.16); border-radius: 999px; padding: 6px 9px; }
         .light-mode .tool-feature { color: rgba(20,20,20,0.6); border-color: rgba(var(--accent),0.20); background: rgba(255,255,255,0.58); }
         .tool-footer { position: absolute; z-index: 3; left: 22px; right: 22px; bottom: 18px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-        .tool-cta { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255,255,255,0.88); text-decoration: none; border-bottom: 1px solid rgba(var(--accent), 0.48); padding-bottom: 3px; }
+        .tool-cta { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255,255,255,0.88); text-decoration: none; border-bottom: 1px solid rgba(var(--accent), 0.48); padding-bottom: 3px; } .tool-cta::after { content: ""; position: absolute; inset: 0; z-index: 1; }
         .light-mode .tool-cta { color: rgba(20,20,20,0.8); border-bottom-color: rgba(20,80,110,0.28); }
         .tool-price { font-family: 'JetBrains Mono', monospace; font-size: 0.69rem; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255,255,255,0.86); border-radius: 999px; padding: 7px 10px; border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.08); box-shadow: inset 0 1px 0 rgba(255,255,255,0.08); }
         .price-free { color: rgba(170, 255, 190, 0.96); }
@@ -197,7 +197,7 @@
         /* Letter Typography Styles */
         .letter-header { text-align: center; margin-bottom: 60px; position: relative; }
         .letter-title { font-size: clamp(2.5rem, 5vw, 3.5rem); font-weight: 700; letter-spacing: -0.02em; margin-bottom: 16px; background: linear-gradient(135deg, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.8) 50%, rgba(200, 200, 200, 0.9) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; text-shadow: 0 4px 20px rgba(255, 255, 255, 0.1); }
-        .light-mode .letter-title { background: linear-gradient(135deg, rgba(20, 20, 20, 1) 0%, rgba(60, 60, 60, 0.9) 50%, rgba(100, 100, 100, 0.8) 100%); -webkit-background-clip: text; text-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); }
+        .light-mode .letter-title { background: linear-gradient(135deg, rgba(20, 20, 20, 1) 0%, rgba(60, 60, 60, 0.9) 50%, rgba(100, 100, 100, 0.8) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; text-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); }
         
         .letter-content { position: relative; z-index: 2; }
         .section { margin-bottom: 48px; }
@@ -346,16 +346,6 @@
                         <div class="tool-features"><span class="tool-feature">Private containers</span><span class="tool-feature">Burn sessions</span><span class="tool-feature">Etherana sidebar</span><span class="tool-feature">Tracker defense</span></div>
                         <div class="tool-footer"><a class="tool-cta" href="/products/browser.html">Follow build</a><span class="tool-price price-freemium">Freemium</span></div>
                     </article>
-
-                    <!-- 6. Etherana — Labs (flagship, last, full-width hero) -->
-                    <article class="tool-card hero-product accent-ai">
-                        <div class="tool-top"><div class="tool-icon">✦</div><span class="tool-status status-labs">Labs</span></div>
-                        <div class="tool-brandline">Private AI operator</div>
-                        <h3 class="tool-name">Etherana</h3>
-                        <p class="tool-desc">Your private AI companion across research, browsing, coding, files, tasks, memory, and personal workflows. A massive, long-term project at the heart of the GoAnon ecosystem.</p>
-                        <div class="tool-features"><span class="tool-feature">Voice-ready</span><span class="tool-feature">Task aware</span><span class="tool-feature">Local memory</span></div>
-                        <div class="tool-footer"><a class="tool-cta" href="/products/etherana.html">Enter labs</a><span class="tool-price price-freemium">Freemium</span></div>
-                    </article>
                 </div>
 
                                 <div class="tool-category"><h2>Privacy Utilities</h2><div class="tool-category-line"></div></div>
@@ -413,10 +403,38 @@
                         <div class="tool-features"><span class="tool-feature">UTM cleaner</span><span class="tool-feature">Prompt scan</span><span class="tool-feature">Secret alerts</span></div>
                         <div class="tool-footer"><a class="tool-cta" href="/tools/shieldana.html">Open soon</a><span class="tool-price price-free">Free</span></div>
                     </article>
+
+                    <article class="tool-card compact accent-browser">
+                        <div class="tool-top"><div class="tool-icon">↺</div><span class="tool-status status-dev">Planned</span></div>
+                        <div class="tool-brandline">Disposable session</div>
+                        <h3 class="tool-name">Session Burner</h3>
+                        <p class="tool-desc">Create a temporary isolated session for one task, then destroy cookies, cache, local storage, and history on close.</p>
+                        <div class="tool-features"><span class="tool-feature">Container session</span><span class="tool-feature">Auto-destroy</span><span class="tool-feature">No traces</span></div>
+                        <div class="tool-footer"><a class="tool-cta" href="/tools/session-burner.html">Open soon</a><span class="tool-price price-free">Free</span></div>
+                    </article>
+
+                    <article class="tool-card compact accent-identity">
+                        <div class="tool-top"><div class="tool-icon">✎</div><span class="tool-status status-dev">Planned</span></div>
+                        <div class="tool-brandline">Encrypted private notes</div>
+                        <h3 class="tool-name">GoAnon Notes</h3>
+                        <p class="tool-desc">Browser-based encrypted notes for quick private writing without creating an account or leaving a cloud trail.</p>
+                        <div class="tool-features"><span class="tool-feature">Local encrypted</span><span class="tool-feature">No account</span><span class="tool-feature">Export ready</span></div>
+                        <div class="tool-footer"><a class="tool-cta" href="/tools/notes.html">Open soon</a><span class="tool-price price-free">Free</span></div>
+                    </article>
                 </div>
 
                 <div class="tool-category"><h2>Labs</h2><div class="tool-category-line"></div></div>
                 <div class="tools-grid">
+                    <!-- Etherana — flagship Labs project, full-width -->
+                    <article class="tool-card labs-card labs-hero accent-ai">
+                        <div class="tool-top"><div class="tool-icon">✦</div><span class="tool-status status-labs">Labs</span></div>
+                        <div class="tool-brandline">Private AI operator · Flagship project</div>
+                        <h3 class="tool-name">Etherana</h3>
+                        <p class="tool-desc">Your private AI companion across research, browsing, coding, files, tasks, memory, and personal workflows. A massive, long-term project at the heart of the GoAnon ecosystem — not finished, not rushed.</p>
+                        <div class="tool-features"><span class="tool-feature">Voice-ready</span><span class="tool-feature">Task aware</span><span class="tool-feature">Local memory</span><span class="tool-feature">Long-term build</span></div>
+                        <div class="tool-footer"><a class="tool-cta" href="/products/etherana.html">Enter labs</a><span class="tool-price price-freemium">Freemium</span></div>
+                    </article>
+
                     <article class="tool-card labs-card compact accent-labs">
                         <div class="tool-top"><div class="tool-icon">◉</div><span class="tool-status status-labs">Labs</span></div>
                         <div class="tool-brandline">Browser exposure</div>
@@ -432,7 +450,7 @@
                         <h3 class="tool-name">Memory Vault</h3>
                         <p class="tool-desc">A local encrypted memory layer for Etherana, projects, notes, preferences, and documents.</p>
                         <div class="tool-features"><span class="tool-feature">Local memory</span><span class="tool-feature">Encrypted context</span><span class="tool-feature">Assistant-ready</span></div>
-                        <div class="tool-footer"><a class="tool-cta" href="/tools/breach-guide.html">Prototype</a><span class="tool-price price-freemium">Freemium</span></div>
+                        <div class="tool-footer"><a class="tool-cta" href="/tools/memory-vault.html">Prototype</a><span class="tool-price price-freemium">Freemium</span></div>
                     </article>
 
                     <article class="tool-card labs-card compact accent-browser">
@@ -441,7 +459,7 @@
                         <h3 class="tool-name">Page Auditor</h3>
                         <p class="tool-desc">Inspect trackers, analytics, pixels, external scripts, cookies, and fingerprinting attempts on a page.</p>
                         <div class="tool-features"><span class="tool-feature">Trackers</span><span class="tool-feature">Scripts</span><span class="tool-feature">Cookies</span></div>
-                        <div class="tool-footer"><a class="tool-cta" href="/tools/notes.html">Prototype</a><span class="tool-price price-free">Free</span></div>
+                        <div class="tool-footer"><a class="tool-cta" href="/tools/page-auditor.html">Prototype</a><span class="tool-price price-free">Free</span></div>
                     </article>
 
                     <article class="tool-card labs-card compact accent-security">
@@ -450,7 +468,7 @@
                         <h3 class="tool-name">Breach Guide</h3>
                         <p class="tool-desc">A step-by-step recovery assistant for exposed emails, leaked passwords, and compromised accounts without storing your information.</p>
                         <div class="tool-features"><span class="tool-feature">Recovery checklist</span><span class="tool-feature">2FA guidance</span><span class="tool-feature">No account</span></div>
-                        <div class="tool-footer"><a class="tool-cta" href="/tools/memory-vault.html">Prototype</a><span class="tool-price price-free">Free</span></div>
+                        <div class="tool-footer"><a class="tool-cta" href="/tools/breach-guide.html">Prototype</a><span class="tool-price price-free">Free</span></div>
                     </article>
                 </div>
 
