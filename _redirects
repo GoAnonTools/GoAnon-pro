@@ -1,1 +1,10 @@
+# Canonical domain
 https://www.goanon.pro/* https://goanon.pro/:splat 301
+
+# Product paths are available immediately:
+# /products/sx.html
+# /products/coder.html
+# /products/privana.html
+# /products/qryptana.html
+# /products/browser.html
+# /products/etherana.html
