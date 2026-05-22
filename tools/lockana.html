@@ -1,1 +1,1176 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Lockana — GoAnon</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="../assets/css/product.css"><style>:root{--accent:255,205,105;--accent2:255,110,110;}</style></head><body><div class="site-shell"><header class="topbar"><a class="brand" href="../index.html"><img src="../assets/images/goanon-logo.png" alt="GoAnon logo"><span>GoAnon</span></a><nav class="nav"><a href="../index.html">Ecosystem</a><a href="../tools/index.html">Tools</a><button class="theme-toggle" onclick="toggleGoAnonTheme()">Theme</button></nav></header><main class="container"><section class="hero"><div class="eyebrow">Local file encryption</div><h1>Lockana</h1><p>Encrypt files locally before storing, sending, or backing them up.</p><div class="hero-actions"><a class="btn" href="./index.html">Back to tools</a><a class="btn secondary" href="#details">Details</a></div></section><section class="section" id="details"><div class="grid two"><article class="card"><span class="status">Planned</span><h3 style="margin-top:18px;">Current status</h3><p>This page is a ready placeholder so the product can have a home while development, downloads, pricing, screenshots, or live functionality are added.</p><span class="tag price">Free</span></article><article class="card"><h3>What it should communicate</h3><p>A focused GoAnon tool page: privacy-first, useful, honest about status, and ready to become a real product page when the tool is built.</p></article></div></section><section class="section"><h2>Core direction</h2><p class="section-sub">Keep the promise clear, practical, and believable. No surveillance economy. No fake magic. Strong privacy by design.</p><article class="card"><ul class="list"><li>Password-based local encryption</li><li>Download encrypted .goanon file</li><li>Local decryption page</li><li>Batch mode can become Pro later</li></ul></article></section><section class="section"><div class="notice"><strong>Next content to add:</strong> screenshots, real availability, download/waitlist CTA, pricing, technical privacy notes, FAQ, and a short changelog.</div></section></main><footer class="footer"><div class="container"><a href="../index.html">GoAnon</a> · Private tools for a public internet.</div></footer></div><script src="../assets/js/theme.js"></script></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Lockana — Local File Encryption — GoAnon</title>
+<meta name="description" content="Encrypt files locally before sending, storing, or backing them up. Your file is locked before it leaves your device. No uploads, no servers, no tracking.">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'none'; font-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; object-src 'none'; frame-src 'none'; form-action 'none'; base-uri 'self'; manifest-src 'none';">
+<link rel="icon" href="../assets/images/goanon-logo.png" type="image/png">
+<!-- No external font requests — system font stack only. Zero network calls. -->
+<style>
+/* ────────────────────────────────────────────
+   GoAnon Design System — Lockana
+   Accent: gold (lock/security theme)
+   ──────────────────────────────────────────── */
+:root{
+  --accent:255,205,105;
+  --accent2:255,110,110;
+  --panel:rgba(255,255,255,.055);
+  --panel-2:rgba(255,255,255,.03);
+  --text:rgba(255,255,255,.92);
+  --muted:rgba(255,255,255,.62);
+  --faint:rgba(255,255,255,.38);
+  --line:rgba(255,255,255,.12);
+  --ok:#2ed573;
+  --warn:#ffd166;
+  --danger:#ff4757;
+  --radius:26px;
+  --radius-sm:14px;
+  --radius-xs:8px;
+  --mono:'SFMono-Regular',Consolas,'Liberation Mono',Menlo,monospace;
+}
+body.light-mode{
+  --panel:rgba(255,255,255,.82);
+  --panel-2:rgba(255,255,255,.58);
+  --text:rgba(18,18,18,.9);
+  --muted:rgba(18,18,18,.64);
+  --faint:rgba(18,18,18,.42);
+  --line:rgba(0,0,0,.10);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{
+  min-height:100vh;
+  font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,sans-serif;
+  background:radial-gradient(circle at 18% 12%,rgba(var(--accent),.13),transparent 34%),
+             radial-gradient(circle at 78% 18%,rgba(var(--accent2),.09),transparent 35%),
+             linear-gradient(135deg,#071019,#020306 70%);
+  color:var(--text);
+  -webkit-font-smoothing:antialiased;
+  transition:background .6s ease,color .4s ease;
+}
+body.light-mode{
+  background:radial-gradient(circle at 18% 12%,rgba(var(--accent),.10),transparent 34%),
+             radial-gradient(circle at 78% 18%,rgba(var(--accent2),.07),transparent 35%),
+             linear-gradient(135deg,#fff,#f4f5f7 70%);
+}
+a{color:inherit;text-decoration:none}
+
+/* ── Shell ── */
+.site-shell{min-height:100vh;position:relative;overflow-x:hidden}
+.site-shell::before{
+  content:"";position:fixed;inset:0;
+  background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),
+                    linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);
+  background-size:44px 44px;
+  mask-image:linear-gradient(to bottom,#000,transparent 85%);
+  pointer-events:none;z-index:0;
+}
+
+/* ── Topbar ── */
+.topbar{
+  position:sticky;top:0;z-index:30;
+  display:flex;align-items:center;justify-content:space-between;gap:18px;
+  padding:18px clamp(18px,4vw,52px);
+  backdrop-filter:blur(18px);
+  background:rgba(2,3,6,.52);
+  border-bottom:1px solid var(--line);
+}
+.light-mode .topbar{background:rgba(255,255,255,.62)}
+.brand{display:flex;align-items:center;gap:12px}
+.brand img{width:42px;height:42px;object-fit:contain}
+.brand span{font-weight:700;letter-spacing:-.03em;font-size:1.1rem}
+.nav{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.nav a,.theme-toggle{
+  font:600 .72rem/1 var(--mono);
+  letter-spacing:.08em;text-transform:uppercase;
+  color:var(--muted);border:1px solid var(--line);border-radius:999px;
+  padding:9px 13px;background:rgba(255,255,255,.035);
+  cursor:pointer;transition:all .25s ease;
+}
+.nav a:hover,.theme-toggle:hover{
+  border-color:rgba(var(--accent),.4);color:var(--text);
+  background:rgba(var(--accent),.08);
+}
+
+/* ── Container ── */
+.container{width:min(1120px,calc(100% - 36px));margin:0 auto;position:relative;z-index:1}
+
+/* ── Hero ── */
+.hero{padding:56px 0 28px}
+.eyebrow{
+  display:inline-flex;
+  font:600 .76rem/1 var(--mono);
+  letter-spacing:.12em;text-transform:uppercase;
+  color:rgba(var(--accent),.95);
+  border:1px solid rgba(var(--accent),.24);
+  background:rgba(var(--accent),.07);
+  border-radius:999px;padding:9px 14px;margin-bottom:18px;
+}
+.hero h1{
+  font-size:clamp(2.2rem,5vw,4rem);line-height:.96;
+  letter-spacing:-.06em;margin:0 0 14px;
+}
+.hero p{
+  font-size:clamp(.95rem,1.8vw,1.12rem);line-height:1.75;
+  color:var(--muted);max-width:640px;margin:0;
+}
+
+/* ── Buttons ── */
+.btn{
+  display:inline-flex;align-items:center;gap:8px;
+  border-radius:999px;padding:12px 20px;
+  font:700 .76rem/1 var(--mono);
+  letter-spacing:.08em;text-transform:uppercase;
+  border:1px solid rgba(var(--accent),.30);
+  background:rgba(var(--accent),.11);color:var(--text);
+  cursor:pointer;transition:all .3s ease;
+}
+.btn:hover{background:rgba(var(--accent),.2);border-color:rgba(var(--accent),.5);transform:translateY(-1px)}
+.btn:active{transform:translateY(0)}
+.btn.secondary{background:rgba(255,255,255,.035);border-color:var(--line);color:var(--muted)}
+.btn.secondary:hover{border-color:rgba(var(--accent),.3);color:var(--text);background:rgba(var(--accent),.06)}
+.btn.danger{border-color:rgba(255,71,87,.3);background:rgba(255,71,87,.08);color:var(--danger)}
+.btn.danger:hover{background:rgba(255,71,87,.15);border-color:rgba(255,71,87,.5)}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}
+
+/* ── Mode Switcher ── */
+.mode-switcher{
+  display:flex;gap:4px;
+  border:1px solid var(--line);border-radius:999px;
+  background:rgba(255,255,255,.03);
+  padding:4px;
+  width:fit-content;
+  margin-top:28px;
+}
+.mode-btn{
+  font:700 .72rem/1 var(--mono);
+  letter-spacing:.08em;text-transform:uppercase;
+  padding:11px 22px;border-radius:999px;
+  border:none;background:none;color:var(--muted);
+  cursor:pointer;transition:all .25s ease;
+}
+.mode-btn:hover{color:var(--text)}
+.mode-btn.active{
+  background:rgba(var(--accent),.15);
+  color:rgba(var(--accent),1);
+  border:1px solid rgba(var(--accent),.3);
+}
+
+/* ── Panels ── */
+.panel{
+  border:1px solid var(--line);border-radius:var(--radius);
+  background:linear-gradient(145deg,var(--panel),var(--panel-2));
+  backdrop-filter:blur(18px);
+  padding:36px 32px;
+  margin-top:24px;
+}
+
+/* ── Drop Zone ── */
+.drop-zone{
+  border:2px dashed rgba(var(--accent),.3);
+  border-radius:var(--radius-sm);
+  background:rgba(var(--accent),.02);
+  padding:40px 24px;
+  text-align:center;
+  cursor:pointer;
+  transition:all .3s ease;
+  margin-top:20px;
+}
+.drop-zone:hover,.drop-zone.dragover{
+  border-color:rgba(var(--accent),.6);
+  background:rgba(var(--accent),.05);
+}
+.drop-zone-icon{font-size:2rem;margin-bottom:10px;opacity:.7}
+.drop-zone h4{font-size:1rem;letter-spacing:-.01em;margin-bottom:4px}
+.drop-zone p{font-size:.84rem;color:var(--muted);line-height:1.5}
+
+/* ── File card (encrypt mode) ── */
+.file-card{
+  display:flex;align-items:center;gap:16px;
+  padding:16px 20px;margin-top:16px;
+  border:1px solid var(--line);border-radius:var(--radius-sm);
+  background:rgba(var(--accent),.03);
+}
+.file-card-icon{font-size:1.4rem;flex-shrink:0}
+.file-card-info{flex:1;min-width:0}
+.file-card-name{font-weight:600;font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.file-card-meta{font:500 .66rem/1 var(--mono);color:var(--faint);letter-spacing:.04em;margin-top:2px}
+.file-card .btn{flex-shrink:0}
+
+/* ── Decrypt result card ── */
+.decrypt-result{
+  margin-top:20px;
+  padding:20px 24px;
+  border:1px solid var(--line);border-radius:var(--radius-sm);
+  background:rgba(var(--accent),.04);
+}
+.decrypt-result h4{font-size:.92rem;margin-bottom:6px}
+.decrypt-result p{font-size:.84rem;color:var(--muted);line-height:1.5}
+
+/* ── Passphrase field ── */
+.passphrase-group{margin-top:20px}
+.passphrase-label{
+  font:600 .72rem/1 var(--mono);
+  letter-spacing:.08em;text-transform:uppercase;
+  color:var(--muted);margin-bottom:8px;display:block;
+}
+.passphrase-input{
+  width:100%;
+  background:rgba(255,255,255,.04);
+  border:1px solid var(--line);
+  border-radius:var(--radius-sm);
+  padding:14px 18px;
+  font-size:.95rem;
+  color:var(--text);
+  outline:none;
+  transition:border-color .2s;
+  font-family:var(--mono);
+  letter-spacing:.04em;
+}
+.passphrase-input:focus{border-color:rgba(var(--accent),.5)}
+.passphrase-input::placeholder{color:var(--faint);letter-spacing:0}
+.passphrase-input.wrong{border-color:var(--danger);animation:shake .4s ease}
+@keyframes shake{
+  0%,100%{transform:translateX(0)}
+  20%,60%{transform:translateX(-6px)}
+  40%,80%{transform:translateX(6px)}
+}
+.passphrase-hint{
+  font-size:.72rem;color:var(--faint);margin-top:8px;line-height:1.5;
+}
+.passphrase-hint strong{color:var(--muted);font-weight:600}
+.passphrase-toggle{
+  position:absolute;right:14px;top:50%;transform:translateY(-50%);
+  background:none;border:none;color:var(--faint);cursor:pointer;
+  font-size:.9rem;padding:4px;
+}
+.passphrase-wrap{position:relative}
+
+/* ── Strength meter ── */
+.strength-meter{margin-top:10px}
+.strength-bar{
+  height:4px;border-radius:999px;
+  background:rgba(255,255,255,.06);
+  overflow:hidden;
+}
+.strength-fill{
+  height:100%;border-radius:999px;
+  transition:width .3s ease,background .3s ease;
+  width:0%;
+}
+.strength-fill.weak{background:var(--danger);width:25%}
+.strength-fill.fair{background:var(--warn);width:50%}
+.strength-fill.good{background:rgba(var(--accent),1);width:75%}
+.strength-fill.strong{background:var(--ok);width:100%}
+.strength-label{
+  font:500 .64rem/1 var(--mono);
+  color:var(--faint);letter-spacing:.06em;text-transform:uppercase;
+  margin-top:4px;
+}
+
+/* ── Progress ── */
+.progress-wrap{margin-top:20px}
+.progress-bar{
+  height:6px;border-radius:999px;
+  background:rgba(255,255,255,.06);
+  overflow:hidden;
+}
+.progress-fill{
+  height:100%;border-radius:999px;
+  background:rgba(var(--accent),1);
+  transition:width .2s ease;
+  width:0%;
+}
+.progress-label{
+  font:600 .68rem/1 var(--mono);
+  color:var(--muted);letter-spacing:.06em;
+  margin-top:6px;
+}
+
+/* ── Info blocks ── */
+.info-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:20px;
+}
+@media(max-width:640px){.info-grid{grid-template-columns:1fr}}
+.info-cell{
+  padding:14px 16px;
+  border:1px solid var(--line);border-radius:var(--radius-sm);
+  background:rgba(var(--accent),.02);
+}
+.info-cell-label{
+  font:500 .64rem/1 var(--mono);
+  color:var(--faint);letter-spacing:.06em;text-transform:uppercase;
+  margin-bottom:4px;
+}
+.info-cell-value{font-size:.88rem;font-weight:600}
+
+/* ── Toast ── */
+.toast{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);
+  padding:14px 22px;border-radius:999px;
+  font:600 .76rem/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;
+  z-index:100;opacity:0;
+  transition:all .35s cubic-bezier(.4,0,.2,1);
+  pointer-events:none;
+  backdrop-filter:blur(18px);
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.success{background:rgba(46,213,115,.15);color:var(--ok);border:1px solid rgba(46,213,115,.3)}
+.toast.error{background:rgba(255,71,87,.15);color:var(--danger);border:1px solid rgba(255,71,87,.3)}
+.toast.info{background:rgba(var(--accent),.12);color:rgba(var(--accent),1);border:1px solid rgba(var(--accent),.3)}
+
+/* ── Footer ── */
+.footer{
+  text-align:center;padding:48px 24px 36px;
+  font-size:.82rem;color:var(--faint);
+  border-top:1px solid var(--line);margin-top:48px;
+}
+.footer span{color:rgba(var(--accent),.7)}
+
+/* ── Utility ── */
+.hidden{display:none!important}
+.fade-in{animation:fadeIn .4s ease forwards;opacity:0}
+@keyframes fadeIn{to{opacity:1}}
+
+/* ── Responsive ── */
+@media(max-width:768px){
+  .hero h1{font-size:clamp(1.8rem,7vw,2.8rem)}
+  .panel{padding:24px 18px}
+  .info-grid{grid-template-columns:1fr}
+}
+@media(max-width:480px){
+  .topbar{padding:14px 16px}
+  .brand span{display:none}
+  .nav a,.theme-toggle{font-size:.65rem;padding:7px 10px}
+  .mode-btn{padding:9px 14px;font-size:.66rem}
+}
+</style>
+</head>
+<body>
+<div class="site-shell">
+
+  <!-- Topbar -->
+  <header class="topbar">
+    <a href="../index.html" class="brand">
+      <img src="../assets/images/goanon-logo.png" alt="GoAnon" width="42" height="42">
+      <span>GoAnon</span>
+    </a>
+    <nav class="nav">
+      <a href="../tools/index.html">Tools</a>
+      <a href="../products/browser.html">Products</a>
+      <button class="theme-toggle" onclick="toggleGoAnonTheme()" aria-label="Toggle theme">Theme</button>
+    </nav>
+  </header>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <!-- Main -->
+  <main class="container">
+
+    <!-- Hero -->
+    <section class="hero">
+      <div class="eyebrow">Local file encryption</div>
+      <h1>Lockana</h1>
+      <p>Encrypt files locally before sending, storing, or backing them up. Your file is locked before it leaves your device. No uploads, no servers, no tracking.</p>
+    </section>
+
+    <!-- Mode Switcher -->
+    <div class="mode-switcher">
+      <button class="mode-btn active" id="modeEncrypt" onclick="switchMode('encrypt')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        Encrypt
+      </button>
+      <button class="mode-btn" id="modeDecrypt" onclick="switchMode('decrypt')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>
+        Decrypt
+      </button>
+    </div>
+
+    <!-- ═══════════ ENCRYPT PANEL ═══════════ -->
+    <div class="panel" id="encryptPanel">
+      <h3 style="font-size:1.1rem;letter-spacing:-.02em;margin-bottom:4px">Encrypt a file</h3>
+      <p style="font-size:.86rem;color:var(--muted);line-height:1.6">Choose any file, set a passphrase, and download an encrypted <code style="font-family:var(--mono);font-size:.82rem;color:rgba(var(--accent),1)">.goanon</code> file. Only someone with the passphrase can decrypt it.</p>
+
+      <!-- Drop Zone -->
+      <div class="drop-zone" id="encDropZone" tabindex="0" role="button" aria-label="Drop a file or click to browse">
+        <div class="drop-zone-icon">&#128206;</div>
+        <h4>Drop a file here or click to browse</h4>
+        <p>Any file type — documents, photos, archives, anything</p>
+        <input type="file" id="encFileInput" style="display:none">
+      </div>
+
+      <!-- File card (shown after selection) -->
+      <div class="file-card hidden" id="encFileCard">
+        <div class="file-card-icon">&#128196;</div>
+        <div class="file-card-info">
+          <div class="file-card-name" id="encFileName">—</div>
+          <div class="file-card-meta" id="encFileMeta">—</div>
+        </div>
+        <button class="btn secondary" onclick="clearEncFile()" style="padding:8px 14px;font-size:.68rem">Remove</button>
+      </div>
+
+      <!-- Passphrase -->
+      <div class="passphrase-group">
+        <label class="passphrase-label" for="encPassphrase">Passphrase</label>
+        <div class="passphrase-wrap">
+          <input type="password" class="passphrase-input" id="encPassphrase"
+                 placeholder="Enter a strong passphrase…"
+                 autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+                 oninput="updateStrength()">
+          <button class="passphrase-toggle" onclick="toggleVis('encPassphrase', this)" aria-label="Toggle visibility">&#128065;</button>
+        </div>
+        <div class="strength-meter">
+          <div class="strength-bar"><div class="strength-fill" id="strengthFill"></div></div>
+          <div class="strength-label" id="strengthLabel">—</div>
+        </div>
+      </div>
+
+      <!-- Confirm passphrase -->
+      <div class="passphrase-group">
+        <label class="passphrase-label" for="encConfirm">Confirm passphrase</label>
+        <div class="passphrase-wrap">
+          <input type="password" class="passphrase-input" id="encConfirm"
+                 placeholder="Re-enter your passphrase…"
+                 autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+          <button class="passphrase-toggle" onclick="toggleVis('encConfirm', this)" aria-label="Toggle visibility">&#128065;</button>
+        </div>
+      </div>
+
+      <div class="passphrase-hint">
+        <strong>Don't forget it.</strong> There is no recovery — if you lose your passphrase, your file stays encrypted forever. We cannot reset it for you.<br>
+        Your passphrase is kept in memory only while encrypting and cleared immediately after.
+      </div>
+
+      <!-- Encrypt button -->
+      <div class="btn-row" style="justify-content:flex-end">
+        <button class="btn" id="encBtn" onclick="handleEncrypt()" disabled>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          Encrypt &amp; Download
+        </button>
+      </div>
+
+      <!-- Progress (shown during encryption) -->
+      <div class="progress-wrap hidden" id="encProgress">
+        <div class="progress-bar"><div class="progress-fill" id="encProgressFill"></div></div>
+        <div class="progress-label" id="encProgressLabel">Encrypting…</div>
+      </div>
+    </div>
+
+    <!-- ═══════════ DECRYPT PANEL ═══════════ -->
+    <div class="panel hidden" id="decryptPanel">
+      <h3 style="font-size:1.1rem;letter-spacing:-.02em;margin-bottom:4px">Decrypt a file</h3>
+      <p style="font-size:.86rem;color:var(--muted);line-height:1.6">Select an encrypted <code style="font-family:var(--mono);font-size:.82rem;color:rgba(var(--accent),1)">.goanon</code> file, enter the passphrase, and download the original file.</p>
+
+      <!-- Drop Zone -->
+      <div class="drop-zone" id="decDropZone" tabindex="0" role="button" aria-label="Drop a .goanon file or click to browse">
+        <div class="drop-zone-icon">&#128274;</div>
+        <h4>Drop a .goanon file here or click to browse</h4>
+        <p>Only files encrypted by Lockana</p>
+        <input type="file" id="decFileInput" accept=".goanon" style="display:none">
+      </div>
+
+      <!-- File card -->
+      <div class="file-card hidden" id="decFileCard">
+        <div class="file-card-icon">&#128274;</div>
+        <div class="file-card-info">
+          <div class="file-card-name" id="decFileName">—</div>
+          <div class="file-card-meta" id="decFileMeta">—</div>
+        </div>
+        <button class="btn secondary" onclick="clearDecFile()" style="padding:8px 14px;font-size:.68rem">Remove</button>
+      </div>
+
+      <!-- Passphrase -->
+      <div class="passphrase-group">
+        <label class="passphrase-label" for="decPassphrase">Passphrase</label>
+        <div class="passphrase-wrap">
+          <input type="password" class="passphrase-input" id="decPassphrase"
+                 placeholder="Enter the passphrase…"
+                 autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+          <button class="passphrase-toggle" onclick="toggleVis('decPassphrase', this)" aria-label="Toggle visibility">&#128065;</button>
+        </div>
+      </div>
+
+      <!-- Decrypt button -->
+      <div class="btn-row" style="justify-content:flex-end">
+        <button class="btn" id="decBtn" onclick="handleDecrypt()" disabled>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>
+          Decrypt &amp; Download
+        </button>
+      </div>
+
+      <!-- Progress -->
+      <div class="progress-wrap hidden" id="decProgress">
+        <div class="progress-bar"><div class="progress-fill" id="decProgressFill"></div></div>
+        <div class="progress-label" id="decProgressLabel">Decrypting…</div>
+      </div>
+
+      <!-- Decrypt result -->
+      <div class="decrypt-result hidden" id="decResult">
+        <h4 id="decResultTitle">—</h4>
+        <p id="decResultMeta">—</p>
+        <div class="info-grid" id="decResultGrid"></div>
+      </div>
+    </div>
+
+    <!-- ═══════════ FORMAT INFO ═══════════ -->
+    <div class="panel" style="margin-top:16px;padding:24px 28px">
+      <h3 style="font-size:.92rem;letter-spacing:-.01em;margin-bottom:12px">How it works</h3>
+      <div class="info-grid">
+        <div class="info-cell">
+          <div class="info-cell-label">Encryption</div>
+          <div class="info-cell-value">AES-256-GCM</div>
+        </div>
+        <div class="info-cell">
+          <div class="info-cell-label">Key derivation</div>
+          <div class="info-cell-value">PBKDF2-SHA256, 600k iterations</div>
+        </div>
+        <div class="info-cell">
+          <div class="info-cell-label">File format</div>
+          <div class="info-cell-value">.goanon</div>
+        </div>
+        <div class="info-cell">
+          <div class="info-cell-label">Data leaves device?</div>
+          <div class="info-cell-value" style="color:var(--ok)">Never</div>
+        </div>
+      </div>
+      <p style="font-size:.78rem;color:var(--faint);line-height:1.6;margin-top:14px">
+        The .goanon format stores: a format header, a 128-bit salt, a 96-bit IV, the original filename, the original MIME type, and the AES-256-GCM ciphertext — all in a forward-parseable layout. Your passphrase is used to derive the encryption key via PBKDF2 — it is never stored anywhere and is cleared from memory after use.
+      </p>
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <span>GoAnon</span> · Private tools for a public internet
+  </footer>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ═══════════════════════════════════════════
+     LOCKANA — LOCAL FILE ENCRYPTION ENGINE
+     ──────────────────────────────────────────
+     Design principles:
+     1. ZERO network calls — no analytics, no uploads, no phoning home
+     2. AES-256-GCM via Web Crypto API — no custom crypto
+     3. PBKDF2 key derivation (600k iterations, SHA-256)
+     4. .goanon format: header + salt + iv + filename + mime + ciphertext
+     5. Passphrase kept in memory only during operation, cleared after
+     6. No Math.random() — crypto.getRandomValues only
+     7. Memory hygiene: file data and passphrase nulled after use
+     ═══════════════════════════════════════════ */
+
+  /* ── Constants ── */
+  const FORMAT_VERSION = 1;
+  const HEADER_MAGIC = "GOANON1";     // 7 bytes ASCII
+  const PBKDF2_ITERATIONS = 600000;
+  const SALT_LENGTH = 16;              // 128-bit salt
+  const IV_LENGTH = 12;                // 96-bit IV for GCM
+
+  /* ── State ── */
+  let encFile = null;    // File object for encryption
+  let decFile = null;    // File object for decryption
+  let decFileBuffer = null; // ArrayBuffer for decryption
+
+  /* ═══════════════════════════════════════════
+     CRYPTO ENGINE
+     ═══════════════════════════════════════════ */
+
+  const Crypto = {
+    /**
+     * Derive an AES-256-GCM key from passphrase + salt
+     */
+    async deriveKey(passphrase, salt) {
+      const encoded = new TextEncoder().encode(passphrase);
+      const keyMaterial = await crypto.subtle.importKey(
+        "raw", encoded, "PBKDF2", false, ["deriveKey"]
+      );
+      return crypto.subtle.deriveKey(
+        { name: "PBKDF2", salt: salt, iterations: PBKDF2_ITERATIONS, hash: "SHA-256" },
+        keyMaterial,
+        { name: "AES-GCM", length: 256 },
+        false,
+        ["encrypt", "decrypt"]
+      );
+    },
+
+    /**
+     * Encrypt an ArrayBuffer with AES-256-GCM
+     * Returns: salt(16) + iv(12) + ciphertext
+     */
+    async encrypt(plaintext, passphrase) {
+      const salt = crypto.getRandomValues(new Uint8Array(SALT_LENGTH));
+      const iv = crypto.getRandomValues(new Uint8Array(IV_LENGTH));
+      const key = await this.deriveKey(passphrase, salt);
+      const ciphertext = await crypto.subtle.encrypt(
+        { name: "AES-GCM", iv: iv }, key, plaintext
+      );
+      // Combine: salt + iv + ciphertext
+      const result = new Uint8Array(SALT_LENGTH + IV_LENGTH + ciphertext.byteLength);
+      result.set(salt, 0);
+      result.set(iv, SALT_LENGTH);
+      result.set(new Uint8Array(ciphertext), SALT_LENGTH + IV_LENGTH);
+      return result;
+    },
+
+    /**
+     * Decrypt using separate salt, iv, and ciphertext
+     * Returns null on wrong passphrase or corrupted data
+     */
+    async decrypt(salt, iv, ciphertext, passphrase) {
+      try {
+        const key = await this.deriveKey(passphrase, salt);
+        return await crypto.subtle.decrypt(
+          { name: "AES-GCM", iv: iv }, key, ciphertext
+        );
+      } catch(e) {
+        return null; // Wrong passphrase or corrupted data
+      }
+    }
+  };
+
+  /* ═══════════════════════════════════════════
+     .GOANON FORMAT
+     ──────────────────────────────────────────
+     Binary format (forward-parseable):
+       [0-6]     7 bytes  Magic header "GOANON1"
+       [7]       1 byte   Format version (uint8)
+       [8-23]    16 bytes Salt
+       [24-35]   12 bytes IV
+       [36-37]   2 bytes  Filename length (uint16 BE)
+       [38..]    N bytes  Filename (UTF-8)
+       [..]      2 bytes  MIME type length (uint16 BE)
+       [..]      M bytes  MIME type (ASCII)
+       [..]      rest      AES-256-GCM ciphertext
+     ═══════════════════════════════════════════ */
+
+  const GoanonFormat = {
+    /**
+     * Build a .goanon file
+     * Layout: header + version + salt + iv + nameLen + name + mimeLen + mime + ciphertext
+     */
+    build(encryptedPayload, originalName, originalMime) {
+      const nameBytes = new TextEncoder().encode(originalName);
+      const mimeBytes = new TextEncoder().encode(originalMime);
+      const salt = encryptedPayload.slice(0, SALT_LENGTH);
+      const iv = encryptedPayload.slice(SALT_LENGTH, SALT_LENGTH + IV_LENGTH);
+      const ciphertext = encryptedPayload.slice(SALT_LENGTH + IV_LENGTH);
+
+      const totalLen = 8 + SALT_LENGTH + IV_LENGTH + 2 + nameBytes.length + 2 + mimeBytes.length + ciphertext.length;
+      const result = new Uint8Array(totalLen);
+      let offset = 0;
+
+      // Magic header (7 bytes)
+      for (let i = 0; i < HEADER_MAGIC.length; i++) {
+        result[offset++] = HEADER_MAGIC.charCodeAt(i);
+      }
+      // Version (1 byte)
+      result[offset++] = FORMAT_VERSION;
+      // Salt (16 bytes)
+      result.set(salt, offset);
+      offset += SALT_LENGTH;
+      // IV (12 bytes)
+      result.set(iv, offset);
+      offset += IV_LENGTH;
+      // Filename length (uint16 BE)
+      result[offset++] = (nameBytes.length >> 8) & 0xFF;
+      result[offset++] = nameBytes.length & 0xFF;
+      // Filename (N bytes)
+      result.set(nameBytes, offset);
+      offset += nameBytes.length;
+      // MIME length (uint16 BE)
+      result[offset++] = (mimeBytes.length >> 8) & 0xFF;
+      result[offset++] = mimeBytes.length & 0xFF;
+      // MIME type (M bytes)
+      result.set(mimeBytes, offset);
+      offset += mimeBytes.length;
+      // Ciphertext (rest)
+      result.set(ciphertext, offset);
+
+      return result;
+    },
+
+    /**
+     * Parse a .goanon file (forward parsing)
+     * Returns {salt, iv, ciphertext, fileName, mimeType} or null on invalid format
+     */
+    parse(buffer) {
+      try {
+        const view = new DataView(buffer);
+        const bytes = new Uint8Array(buffer);
+
+        // Minimum valid size: header(8) + salt(16) + iv(12) + nameLen(2) + mimeLen(2) + ciphertext(1) = 41
+        if (bytes.length < 41) return null;
+
+        let offset = 0;
+
+        // Validate magic header (7 bytes)
+        let magic = "";
+        for (let i = 0; i < HEADER_MAGIC.length; i++) {
+          magic += String.fromCharCode(bytes[offset++]);
+        }
+        if (magic !== HEADER_MAGIC) return null;
+
+        // Version (1 byte)
+        const version = bytes[offset++];
+        if (version !== FORMAT_VERSION) return null;
+
+        // Salt (16 bytes)
+        const salt = bytes.slice(offset, offset + SALT_LENGTH);
+        offset += SALT_LENGTH;
+
+        // IV (12 bytes)
+        const iv = bytes.slice(offset, offset + IV_LENGTH);
+        offset += IV_LENGTH;
+
+        // Filename length (uint16 BE)
+        if (offset + 2 > bytes.length) return null;
+        const nameLength = view.getUint16(offset);
+        offset += 2;
+        if (nameLength > 1024 || offset + nameLength > bytes.length) return null;
+
+        // Filename (N bytes)
+        const fileName = new TextDecoder().decode(bytes.slice(offset, offset + nameLength));
+        offset += nameLength;
+
+        // MIME length (uint16 BE)
+        if (offset + 2 > bytes.length) return null;
+        const mimeLength = view.getUint16(offset);
+        offset += 2;
+        if (mimeLength > 256 || offset + mimeLength > bytes.length) return null;
+
+        // MIME type (M bytes)
+        const mimeType = new TextDecoder().decode(bytes.slice(offset, offset + mimeLength));
+        offset += mimeLength;
+
+        // Ciphertext (rest of file)
+        if (offset >= bytes.length) return null;
+        const ciphertext = bytes.slice(offset);
+
+        return { salt, iv, ciphertext, fileName, mimeType };
+      } catch(e) {
+        return null;
+      }
+    }
+  };
+
+  /* ═══════════════════════════════════════════
+     PASSPHRASE STRENGTH
+     ═══════════════════════════════════════════ */
+
+  function evaluateStrength(passphrase) {
+    if (!passphrase) return { level: "", label: "—" };
+    if (passphrase.length < 8) return { level: "weak", label: "Too short — minimum 8 characters" };
+    let score = 0;
+    if (passphrase.length >= 12) score++;
+    if (passphrase.length >= 20) score++;
+    if (/[a-z]/.test(passphrase) && /[A-Z]/.test(passphrase)) score++;
+    if (/\d/.test(passphrase)) score++;
+    if (/[^a-zA-Z0-9]/.test(passphrase)) score++;
+    if (passphrase.length >= 16 && /[^a-zA-Z0-9]/.test(passphrase)) score++;
+
+    if (score <= 1) return { level: "weak", label: "Weak — use more length and variety" };
+    if (score <= 3) return { level: "fair", label: "Fair — add symbols or more length" };
+    if (score <= 4) return { level: "good", label: "Good" };
+    return { level: "strong", label: "Strong" };
+  }
+
+  window.updateStrength = function() {
+    const passphrase = document.getElementById("encPassphrase").value;
+    const strength = evaluateStrength(passphrase);
+    const fill = document.getElementById("strengthFill");
+    const label = document.getElementById("strengthLabel");
+
+    fill.className = "strength-fill" + (strength.level ? " " + strength.level : "");
+    label.textContent = strength.label;
+
+    validateEncForm();
+  };
+
+  /* ═══════════════════════════════════════════
+     FORM VALIDATION
+     ═══════════════════════════════════════════ */
+
+  function validateEncForm() {
+    const passphrase = document.getElementById("encPassphrase").value;
+    const confirm = document.getElementById("encConfirm").value;
+    const btn = document.getElementById("encBtn");
+    btn.disabled = !(encFile && passphrase.length >= 8 && passphrase === confirm);
+  }
+
+  function validateDecForm() {
+    const passphrase = document.getElementById("decPassphrase").value;
+    const btn = document.getElementById("decBtn");
+    btn.disabled = !(decFile && passphrase.length >= 1);
+  }
+
+  /* ═══════════════════════════════════════════
+     MODE SWITCHING
+     ═══════════════════════════════════════════ */
+
+  window.switchMode = function(mode) {
+    const encPanel = document.getElementById("encryptPanel");
+    const decPanel = document.getElementById("decryptPanel");
+    const encBtn = document.getElementById("modeEncrypt");
+    const decBtn = document.getElementById("modeDecrypt");
+
+    if (mode === "encrypt") {
+      encPanel.classList.remove("hidden");
+      decPanel.classList.add("hidden");
+      encBtn.classList.add("active");
+      decBtn.classList.remove("active");
+    } else {
+      encPanel.classList.add("hidden");
+      decPanel.classList.remove("hidden");
+      encBtn.classList.remove("active");
+      decBtn.classList.add("active");
+    }
+  };
+
+  /* ═══════════════════════════════════════════
+     ENCRYPT
+     ═══════════════════════════════════════════ */
+
+  window.handleEncrypt = async function() {
+    if (!encFile) return;
+    const passphrase = document.getElementById("encPassphrase").value;
+    if (!passphrase || passphrase !== document.getElementById("encConfirm").value) {
+      showToast("Passphrases don't match", "error");
+      return;
+    }
+
+    const btn = document.getElementById("encBtn");
+    const progress = document.getElementById("encProgress");
+    const progressFill = document.getElementById("encProgressFill");
+    const progressLabel = document.getElementById("encProgressLabel");
+
+    btn.disabled = true;
+    progress.classList.remove("hidden");
+    progressFill.style.width = "10%";
+    progressLabel.textContent = "Reading file…";
+
+    try {
+      // Read file
+      let fileBuffer = await encFile.arrayBuffer();
+      progressFill.style.width = "30%";
+      progressLabel.textContent = "Deriving key…";
+
+      // Encrypt
+      const encrypted = await Crypto.encrypt(fileBuffer, passphrase);
+      progressFill.style.width = "70%";
+      progressLabel.textContent = "Building .goanon file…";
+
+      // Build .goanon format
+      const goanonData = GoanonFormat.build(encrypted, encFile.name, encFile.type || "application/octet-stream");
+      progressFill.style.width = "100%";
+      progressLabel.textContent = "Done!";
+
+      // Download
+      const blob = new Blob([goanonData], { type: "application/octet-stream" });
+      const baseName = encFile.name.replace(/\.[^.]+$/, "");
+      downloadBlob(blob, baseName + ".goanon");
+
+      showToast("File encrypted & downloaded", "success");
+
+      // Memory hygiene — clear file data
+      fileBuffer = null;
+
+      // Clear passphrase from input fields
+      document.getElementById("encPassphrase").value = "";
+      document.getElementById("encConfirm").value = "";
+      updateStrength();
+
+    } catch(e) {
+      showToast("Encryption failed: " + e.message, "error");
+    }
+
+    // Reset
+    setTimeout(() => {
+      btn.disabled = false;
+      progress.classList.add("hidden");
+      progressFill.style.width = "0%";
+    }, 800);
+  };
+
+  /* ═══════════════════════════════════════════
+     DECRYPT
+     ═══════════════════════════════════════════ */
+
+  window.handleDecrypt = async function() {
+    if (!decFile || !decFileBuffer) return;
+    const passphrase = document.getElementById("decPassphrase").value;
+    if (!passphrase) {
+      showToast("Enter a passphrase", "error");
+      return;
+    }
+
+    const btn = document.getElementById("decBtn");
+    const progress = document.getElementById("decProgress");
+    const progressFill = document.getElementById("decProgressFill");
+    const progressLabel = document.getElementById("decProgressLabel");
+    const result = document.getElementById("decResult");
+
+    btn.disabled = true;
+    progress.classList.remove("hidden");
+    result.classList.add("hidden");
+    progressFill.style.width = "10%";
+    progressLabel.textContent = "Parsing .goanon file…";
+
+    try {
+      // Parse .goanon format
+      const parsed = GoanonFormat.parse(decFileBuffer);
+      if (!parsed) {
+        showToast("Not a valid .goanon file", "error");
+        progress.classList.add("hidden");
+        btn.disabled = false;
+        return;
+      }
+
+      progressFill.style.width = "30%";
+      progressLabel.textContent = "Deriving key…";
+
+      progressFill.style.width = "50%";
+      progressLabel.textContent = "Decrypting…";
+
+      // Decrypt — pass salt, iv, ciphertext directly
+      const decrypted = await Crypto.decrypt(parsed.salt, parsed.iv, parsed.ciphertext, passphrase);
+      progressFill.style.width = "90%";
+
+      if (!decrypted) {
+        // Wrong passphrase
+        const input = document.getElementById("decPassphrase");
+        input.classList.add("wrong");
+        input.value = "";
+        setTimeout(() => input.classList.remove("wrong"), 600);
+        showToast("Wrong passphrase or corrupted file", "error");
+        progressLabel.textContent = "Failed — wrong passphrase";
+        progressFill.style.width = "0%";
+        setTimeout(() => { progress.classList.add("hidden"); btn.disabled = false; }, 800);
+        return;
+      }
+
+      progressFill.style.width = "100%";
+      progressLabel.textContent = "Done!";
+
+      // Download decrypted file
+      const blob = new Blob([decrypted], { type: parsed.mimeType || "application/octet-stream" });
+      downloadBlob(blob, parsed.fileName);
+
+      // Show result info
+      document.getElementById("decResultTitle").textContent = "Decrypted: " + escapeHtml(parsed.fileName);
+      document.getElementById("decResultMeta").textContent = "Original file restored and downloaded.";
+      const grid = document.getElementById("decResultGrid");
+      grid.innerHTML =
+        '<div class="info-cell"><div class="info-cell-label">Original filename</div><div class="info-cell-value">' + escapeHtml(parsed.fileName) + '</div></div>' +
+        '<div class="info-cell"><div class="info-cell-label">Original MIME type</div><div class="info-cell-value">' + escapeHtml(parsed.mimeType) + '</div></div>' +
+        '<div class="info-cell"><div class="info-cell-label">Decrypted size</div><div class="info-cell-value">' + formatSize(decrypted.byteLength) + '</div></div>' +
+        '<div class="info-cell"><div class="info-cell-label">Format version</div><div class="info-cell-value">v' + FORMAT_VERSION + '</div></div>';
+      result.classList.remove("hidden");
+
+      showToast("File decrypted & downloaded", "success");
+
+      // Memory hygiene — clear decryption buffer
+      decFileBuffer = null;
+
+      // Clear passphrase
+      document.getElementById("decPassphrase").value = "";
+
+    } catch(e) {
+      showToast("Decryption failed: " + e.message, "error");
+    }
+
+    setTimeout(() => {
+      btn.disabled = false;
+      progress.classList.add("hidden");
+      progressFill.style.width = "0%";
+    }, 800);
+  };
+
+  /* ═══════════════════════════════════════════
+     FILE SELECTION HANDLERS
+     ═══════════════════════════════════════════ */
+
+  // ── Encrypt mode ──
+  const encDropZone = document.getElementById("encDropZone");
+  const encFileInput = document.getElementById("encFileInput");
+
+  encDropZone.addEventListener("click", () => encFileInput.click());
+  encDropZone.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); encFileInput.click(); }
+  });
+  encFileInput.addEventListener("change", (e) => {
+    if (e.target.files[0]) selectEncFile(e.target.files[0]);
+    encFileInput.value = "";
+  });
+  encDropZone.addEventListener("dragover", (e) => { e.preventDefault(); encDropZone.classList.add("dragover"); });
+  encDropZone.addEventListener("dragleave", () => encDropZone.classList.remove("dragover"));
+  encDropZone.addEventListener("drop", (e) => {
+    e.preventDefault(); encDropZone.classList.remove("dragover");
+    if (e.dataTransfer.files[0]) selectEncFile(e.dataTransfer.files[0]);
+  });
+
+  function selectEncFile(file) {
+    encFile = file;
+    document.getElementById("encFileCard").classList.remove("hidden");
+    document.getElementById("encFileName").textContent = file.name;
+    document.getElementById("encFileMeta").textContent = formatSize(file.size) + " · " + (file.type || "unknown type");
+    encDropZone.classList.add("hidden");
+    validateEncForm();
+  }
+
+  window.clearEncFile = function() {
+    encFile = null;
+    document.getElementById("encFileCard").classList.add("hidden");
+    encDropZone.classList.remove("hidden");
+    validateEncForm();
+  };
+
+  // ── Decrypt mode ──
+  const decDropZone = document.getElementById("decDropZone");
+  const decFileInput = document.getElementById("decFileInput");
+
+  decDropZone.addEventListener("click", () => decFileInput.click());
+  decDropZone.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); decFileInput.click(); }
+  });
+  decFileInput.addEventListener("change", async (e) => {
+    if (e.target.files[0]) await selectDecFile(e.target.files[0]);
+    decFileInput.value = "";
+  });
+  decDropZone.addEventListener("dragover", (e) => { e.preventDefault(); decDropZone.classList.add("dragover"); });
+  decDropZone.addEventListener("dragleave", () => decDropZone.classList.remove("dragover"));
+  decDropZone.addEventListener("drop", async (e) => {
+    e.preventDefault(); decDropZone.classList.remove("dragover");
+    if (e.dataTransfer.files[0]) await selectDecFile(e.dataTransfer.files[0]);
+  });
+
+  async function selectDecFile(file) {
+    decFile = file;
+    decFileBuffer = await file.arrayBuffer();
+    document.getElementById("decFileCard").classList.remove("hidden");
+    document.getElementById("decFileName").textContent = file.name;
+    document.getElementById("decFileMeta").textContent = formatSize(file.size);
+
+    // Quick format validation
+    const parsed = GoanonFormat.parse(decFileBuffer);
+    if (!parsed) {
+      document.getElementById("decFileMeta").textContent = formatSize(file.size) + " · Invalid format";
+      showToast("This doesn't appear to be a .goanon file", "error");
+    }
+
+    decDropZone.classList.add("hidden");
+    validateDecForm();
+  }
+
+  window.clearDecFile = function() {
+    decFile = null;
+    decFileBuffer = null;
+    document.getElementById("decFileCard").classList.add("hidden");
+    document.getElementById("decResult").classList.add("hidden");
+    decDropZone.classList.remove("hidden");
+    validateDecForm();
+  };
+
+  // Passphrase input listeners for validation
+  document.getElementById("encPassphrase").addEventListener("input", validateEncForm);
+  document.getElementById("encConfirm").addEventListener("input", validateEncForm);
+  document.getElementById("decPassphrase").addEventListener("input", validateDecForm);
+
+  /* ═══════════════════════════════════════════
+     PASSPHRASE VISIBILITY TOGGLE
+     ═══════════════════════════════════════════ */
+
+  window.toggleVis = function(inputId, btn) {
+    const input = document.getElementById(inputId);
+    if (input.type === "password") {
+      input.type = "text";
+      btn.textContent = "\u2014"; // dash = hide
+    } else {
+      input.type = "password";
+      btn.textContent = "\uD83D\uDC41"; // eye = show
+    }
+  };
+
+  /* ═══════════════════════════════════════════
+     MEMORY HYGIENE
+     ═══════════════════════════════════════════ */
+
+  window.addEventListener("beforeunload", () => {
+    encFile = null;
+    decFile = null;
+    decFileBuffer = null;
+    document.getElementById("encPassphrase").value = "";
+    document.getElementById("encConfirm").value = "";
+    document.getElementById("decPassphrase").value = "";
+  });
+
+  /* ═══════════════════════════════════════════
+     UTILITIES
+     ═══════════════════════════════════════════ */
+
+  function downloadBlob(blob, filename) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function formatSize(bytes) {
+    if (bytes < 0) bytes = 0;
+    if (bytes < 1024) return bytes + " B";
+    if (bytes < 1048576) return (bytes / 1024).toFixed(1) + " KB";
+    return (bytes / 1048576).toFixed(1) + " MB";
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement("div");
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  /* ═══════════════════════════════════════════
+     TOAST NOTIFICATIONS
+     ═══════════════════════════════════════════ */
+  let toastTimer = null;
+  function showToast(message, type) {
+    const toast = document.getElementById("toast");
+    toast.textContent = message;
+    toast.className = "toast " + type;
+    clearTimeout(toastTimer);
+    requestAnimationFrame(() => {
+      toast.classList.add("show");
+      toastTimer = setTimeout(() => toast.classList.remove("show"), 2500);
+    });
+  }
+
+  /* ═══════════════════════════════════════════
+     THEME TOGGLE
+     ═══════════════════════════════════════════ */
+  (function(){
+    const key = "goanon-theme";
+    const saved = localStorage.getItem(key);
+    const cookie = (document.cookie.match(/(?:^|; )goanon_theme=([^;]+)/) || [])[1];
+    const theme = saved || cookie;
+    if (theme === "light") document.body.classList.add("light-mode");
+
+    window.toggleGoAnonTheme = function() {
+      const light = document.body.classList.toggle("light-mode");
+      const value = light ? "light" : "dark";
+      localStorage.setItem(key, value);
+      document.cookie = "goanon_theme=" + value + "; path=/; domain=.goanon.pro; max-age=31536000; SameSite=Lax";
+    };
+  })();
+
+})();
+</script>
+</body>
+</html>
