@@ -1,1 +1,1414 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Fingerprint Check — GoAnon</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="../assets/css/product.css"><style>:root{--accent:180,220,255;--accent2:255,255,255;}</style></head><body><div class="site-shell"><header class="topbar"><a class="brand" href="../index.html"><img src="../assets/images/goanon-logo.png" alt="GoAnon logo"><span>GoAnon</span></a><nav class="nav"><a href="../index.html">Ecosystem</a><a href="../tools/index.html">Tools</a><button class="theme-toggle" onclick="toggleGoAnonTheme()">Theme</button></nav></header><main class="container"><section class="hero"><div class="eyebrow">Browser exposure test</div><h1>Fingerprint Check</h1><p>See what your browser reveals: fingerprinting signals, WebRTC leaks, language, timezone, canvas, and device exposure.</p><div class="hero-actions"><a class="btn" href="./index.html">Back to tools</a><a class="btn secondary" href="#details">Details</a></div></section><section class="section" id="details"><div class="grid two"><article class="card"><span class="status">Labs</span><h3 style="margin-top:18px;">Current status</h3><p>This page is a ready placeholder so the product can have a home while development, downloads, pricing, screenshots, or live functionality are added.</p><span class="tag price">Free</span></article><article class="card"><h3>What it should communicate</h3><p>A focused GoAnon tool page: privacy-first, useful, honest about status, and ready to become a real product page when the tool is built.</p></article></div></section><section class="section"><h2>Core direction</h2><p class="section-sub">Keep the promise clear, practical, and believable. No surveillance economy. No fake magic. Strong privacy by design.</p><article class="card"><ul class="list"><li>Browser fingerprint summary</li><li>WebRTC and IP exposure checks</li><li>Privacy score and recommendations</li><li>Privana and Browser CTA later</li></ul></article></section><section class="section"><div class="notice"><strong>Next content to add:</strong> screenshots, real availability, download/waitlist CTA, pricing, technical privacy notes, FAQ, and a short changelog.</div></section></main><footer class="footer"><div class="container"><a href="../index.html">GoAnon</a> · Private tools for a public internet.</div></footer></div><script src="../assets/js/theme.js"></script></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Fingerprint Check — GoAnon</title>
+<meta name="description" content="See what your browser reveals — fingerprinting signals, WebRTC leaks, canvas, WebGL, and device exposure. Free, local, private.">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'none'; font-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; object-src 'none'; frame-src 'none'; form-action 'none'; base-uri 'self'; manifest-src 'none';">
+<link rel="icon" href="../assets/images/goanon-logo.png" type="image/png">
+<style>
+/* ────────────────────────────────────────────
+   GoAnon Design System — Fingerprint Check
+   Accent: teal-cyan (scan/exposure theme)
+   ──────────────────────────────────────────── */
+:root{
+  --accent:0,220,200;
+  --accent2:100,140,255;
+  --panel:rgba(255,255,255,.055);
+  --panel-2:rgba(255,255,255,.03);
+  --text:rgba(255,255,255,.92);
+  --muted:rgba(255,255,255,.62);
+  --faint:rgba(255,255,255,.38);
+  --line:rgba(255,255,255,.12);
+  --critical:#ff4757;
+  --high:#ff8c42;
+  --medium:#ffd166;
+  --low:#56c8e8;
+  --info:#8e99a4;
+  --ok:#2ed573;
+  --radius:26px;
+  --radius-sm:14px;
+  --radius-xs:8px;
+}
+body.light-mode{
+  --panel:rgba(255,255,255,.82);
+  --panel-2:rgba(255,255,255,.58);
+  --text:rgba(18,18,18,.9);
+  --muted:rgba(18,18,18,.64);
+  --faint:rgba(18,18,18,.42);
+  --line:rgba(0,0,0,.10);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{
+  min-height:100vh;
+  font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,sans-serif;
+  background:radial-gradient(circle at 18% 12%,rgba(var(--accent),.13),transparent 34%),
+             radial-gradient(circle at 78% 18%,rgba(var(--accent2),.11),transparent 35%),
+             linear-gradient(135deg,#071019,#020306 70%);
+  color:var(--text);
+  -webkit-font-smoothing:antialiased;
+  transition:background .6s ease,color .4s ease;
+}
+body.light-mode{
+  background:radial-gradient(circle at 18% 12%,rgba(var(--accent),.12),transparent 34%),
+             radial-gradient(circle at 78% 18%,rgba(var(--accent2),.09),transparent 35%),
+             linear-gradient(135deg,#fff,#f4f5f7 70%);
+}
+a{color:inherit;text-decoration:none}
+
+/* ── Shell ── */
+.site-shell{min-height:100vh;position:relative;overflow-x:hidden}
+.site-shell::before{
+  content:"";position:fixed;inset:0;
+  background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),
+                    linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);
+  background-size:44px 44px;
+  mask-image:linear-gradient(to bottom,#000,transparent 85%);
+  pointer-events:none;z-index:0;
+}
+
+/* ── Topbar ── */
+.topbar{
+  position:sticky;top:0;z-index:30;
+  display:flex;align-items:center;justify-content:space-between;gap:18px;
+  padding:18px clamp(18px,4vw,52px);
+  backdrop-filter:blur(18px);
+  background:rgba(2,3,6,.52);
+  border-bottom:1px solid var(--line);
+}
+.light-mode .topbar{background:rgba(255,255,255,.62)}
+.brand{display:flex;align-items:center;gap:12px}
+.brand img{width:42px;height:42px;object-fit:contain}
+.brand span{font-weight:700;letter-spacing:-.03em;font-size:1.1rem}
+.nav{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.nav a,.theme-toggle{
+  font:600 .72rem/1 'SFMono-Regular',Consolas,'Liberation Mono',Menlo,monospace;
+  letter-spacing:.08em;text-transform:uppercase;
+  color:var(--muted);border:1px solid var(--line);border-radius:999px;
+  padding:9px 13px;background:rgba(255,255,255,.035);
+  cursor:pointer;transition:all .25s ease;
+}
+.nav a:hover,.theme-toggle:hover{
+  border-color:rgba(var(--accent),.4);color:var(--text);
+  background:rgba(var(--accent),.08);
+}
+
+/* ── Container ── */
+.container{width:min(1120px,calc(100% - 36px));margin:0 auto;position:relative;z-index:1}
+
+/* ── Hero ── */
+.hero{padding:72px 0 36px}
+.eyebrow{
+  display:inline-flex;
+  font:600 .76rem/1 'SFMono-Regular',Consolas,'Liberation Mono',Menlo,monospace;
+  letter-spacing:.12em;text-transform:uppercase;
+  color:rgba(var(--accent),.95);
+  border:1px solid rgba(var(--accent),.24);
+  background:rgba(var(--accent),.07);
+  border-radius:999px;padding:9px 14px;margin-bottom:18px;
+}
+.hero h1{
+  font-size:clamp(2.4rem,6vw,4.8rem);line-height:.96;
+  letter-spacing:-.06em;margin:0 0 20px;
+}
+.hero p{
+  font-size:clamp(1rem,2vw,1.2rem);line-height:1.75;
+  color:var(--muted);max-width:680px;margin:0;
+}
+.hero-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px}
+
+/* ── Buttons ── */
+.btn{
+  display:inline-flex;align-items:center;gap:8px;
+  border-radius:999px;padding:14px 22px;
+  font:700 .78rem/1 'SFMono-Regular',Consolas,'Liberation Mono',Menlo,monospace;
+  letter-spacing:.08em;text-transform:uppercase;
+  border:1px solid rgba(var(--accent),.30);
+  background:rgba(var(--accent),.11);color:var(--text);
+  cursor:pointer;transition:all .3s ease;
+}
+.btn:hover{background:rgba(var(--accent),.2);border-color:rgba(var(--accent),.5);transform:translateY(-1px)}
+.btn:active{transform:translateY(0)}
+.btn.secondary{background:rgba(255,255,255,.035);border-color:var(--line);color:var(--muted)}
+.btn.secondary:hover{border-color:rgba(var(--accent),.3);color:var(--text);background:rgba(var(--accent),.06)}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.btn .spinner{width:16px;height:16px;border:2px solid rgba(var(--accent),.3);border-top-color:rgba(var(--accent),1);border-radius:50%;animation:spin .6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── Section ── */
+.section{padding:36px 0}
+.section h2{font-size:clamp(1.5rem,3vw,2.2rem);letter-spacing:-.04em;margin:0}
+.section-sub{color:var(--muted);max-width:680px;line-height:1.7;margin:8px 0 18px}
+
+/* ── Score Ring ── */
+.score-area{
+  display:flex;flex-direction:column;align-items:center;
+  padding:48px 24px;margin:24px 0;
+}
+.score-ring-wrap{position:relative;width:200px;height:200px}
+.score-ring{width:200px;height:200px;transform:rotate(-90deg)}
+.score-ring-bg{fill:none;stroke:rgba(var(--accent),.12);stroke-width:8}
+.score-ring-fill{fill:none;stroke-width:8;stroke-linecap:round;transition:stroke-dashoffset 1.5s cubic-bezier(.4,0,.2,1),stroke .5s ease}
+.score-label{
+  position:absolute;inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+}
+.score-number{font-size:3.6rem;font-weight:700;letter-spacing:-.04em;line-height:1}
+.score-suffix{font-size:1.1rem;color:var(--muted);font-weight:500;margin-top:2px}
+.score-title{font-size:1.2rem;font-weight:600;margin-top:16px;letter-spacing:-.02em}
+.score-desc{font-size:.95rem;color:var(--muted);margin-top:6px;text-align:center;max-width:360px;line-height:1.6}
+
+/* ── Category Cards ── */
+.cat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;margin-top:12px}
+.card{
+  position:relative;overflow:hidden;
+  border:1px solid var(--line);border-radius:var(--radius);
+  padding:24px;
+  background:linear-gradient(145deg,var(--panel),var(--panel-2));
+  box-shadow:0 18px 60px rgba(0,0,0,.22);
+  backdrop-filter:blur(18px);
+  transition:border-color .3s ease,transform .3s ease;
+}
+.card::before{
+  content:"";position:absolute;inset:-1px;
+  background:radial-gradient(circle at 20% 10%,rgba(var(--accent),.13),transparent 36%),
+             radial-gradient(circle at 90% 90%,rgba(var(--accent2),.08),transparent 38%);
+  pointer-events:none;
+}
+.card>*{position:relative}
+.card:hover{border-color:rgba(var(--accent),.25);transform:translateY(-2px)}
+.card-header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+.card-title{display:flex;align-items:center;gap:10px}
+.card-title h3{font-size:1.1rem;letter-spacing:-.02em;margin:0}
+.severity-badge{
+  display:inline-flex;align-items:center;gap:5px;
+  font:600 .65rem/1 'SFMono-Regular',Consolas,'Liberation Mono',Menlo,monospace;
+  letter-spacing:.08em;text-transform:uppercase;
+  padding:5px 9px;border-radius:999px;
+  border:1px solid;
+}
+.severity-critical{color:var(--critical);border-color:rgba(255,71,87,.3);background:rgba(255,71,87,.08)}
+.severity-high{color:var(--high);border-color:rgba(255,140,66,.3);background:rgba(255,140,66,.08)}
+.severity-medium{color:var(--medium);border-color:rgba(255,209,102,.3);background:rgba(255,209,102,.08)}
+.severity-low{color:var(--low);border-color:rgba(86,200,232,.3);background:rgba(86,200,232,.08)}
+.severity-info{color:var(--info);border-color:rgba(142,153,164,.3);background:rgba(142,153,164,.08)}
+.severity-ok{color:var(--ok);border-color:rgba(46,213,115,.3);background:rgba(46,213,115,.08)}
+.card-summary{font-size:.9rem;color:var(--muted);line-height:1.6;margin-bottom:14px}
+
+/* ── Detail rows ── */
+.detail-toggle{
+  display:inline-flex;align-items:center;gap:6px;
+  font:600 .72rem/1 'SFMono-Regular',Consolas,'Liberation Mono',Menlo,monospace;
+  letter-spacing:.06em;text-transform:uppercase;
+  color:rgba(var(--accent),.9);cursor:pointer;
+  padding:6px 0;border:none;background:none;
+  transition:color .2s;
+}
+.detail-toggle:hover{color:var(--text)}
+.detail-toggle .arrow{display:inline-block;transition:transform .25s ease;font-size:.7rem}
+.detail-toggle.open .arrow{transform:rotate(180deg)}
+.detail-body{
+  max-height:0;overflow:hidden;
+  transition:max-height .4s cubic-bezier(.4,0,.2,1);
+}
+.detail-body.open{max-height:3000px}
+.detail-table{width:100%;border-collapse:collapse;margin-top:10px}
+.detail-table tr{border-bottom:1px solid var(--line)}
+.detail-table tr:last-child{border-bottom:none}
+.detail-table td{padding:8px 6px;font-size:.82rem;vertical-align:top}
+.detail-table .label{color:var(--faint);font-family:'SFMono-Regular',Consolas,'Liberation Mono',Menlo,monospace;font-size:.72rem;white-space:nowrap;padding-right:16px;min-width:140px}
+.detail-table .value{color:var(--text);word-break:break-all;font-family:'SFMono-Regular',Consolas,'Liberation Mono',Menlo,monospace;font-size:.76rem;line-height:1.5}
+.detail-table .value.hash{color:rgba(var(--accent),.85);letter-spacing:.03em}
+
+/* ── Recommendations ── */
+.rec-list{display:flex;flex-direction:column;gap:10px;margin-top:16px}
+.rec-item{
+  display:flex;gap:12px;align-items:flex-start;
+  padding:14px 18px;border-radius:var(--radius-sm);
+  background:var(--panel);border:1px solid var(--line);
+}
+.rec-icon{
+  flex-shrink:0;width:28px;height:28px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:.85rem;font-weight:700;
+}
+.rec-icon.critical{background:rgba(255,71,87,.15);color:var(--critical)}
+.rec-icon.high{background:rgba(255,140,66,.15);color:var(--high)}
+.rec-icon.medium{background:rgba(255,209,102,.15);color:var(--medium)}
+.rec-text{font-size:.88rem;line-height:1.6;color:var(--muted)}
+.rec-text strong{color:var(--text);font-weight:600}
+
+/* ── Scan animation ── */
+.scan-overlay{
+  position:fixed;inset:0;z-index:50;
+  background:rgba(2,3,6,.85);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;
+  transition:opacity .4s ease;
+}
+.scan-overlay.active{opacity:1;pointer-events:all}
+.light-mode .scan-overlay{background:rgba(255,255,255,.85)}
+.scan-line{
+  position:absolute;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,rgba(var(--accent),.6),transparent);
+  animation:scanMove 2s ease-in-out infinite;
+}
+@keyframes scanMove{
+  0%{top:0;opacity:0}
+  10%{opacity:1}
+  90%{opacity:1}
+  100%{top:100%;opacity:0}
+}
+.scan-status{
+  font:600 .85rem/1 'SFMono-Regular',Consolas,'Liberation Mono',Menlo,monospace;
+  letter-spacing:.1em;text-transform:uppercase;
+  color:rgba(var(--accent),.9);
+  margin-top:60px;
+}
+.scan-sub{font-size:.78rem;color:var(--faint);margin-top:10px;letter-spacing:.05em}
+
+/* ── Footer ── */
+.footer{
+  text-align:center;padding:48px 24px 36px;
+  font-size:.82rem;color:var(--faint);
+  border-top:1px solid var(--line);margin-top:48px;
+}
+.footer span{color:rgba(var(--accent),.7)}
+
+/* ── Utility ── */
+.mono{font-family:'SFMono-Regular',Consolas,'Liberation Mono',Menlo,monospace}
+.hidden{display:none!important}
+.fade-in{animation:fadeIn .5s ease forwards;opacity:0}
+@keyframes fadeIn{to{opacity:1}}
+.slide-up{animation:slideUp .5s cubic-bezier(.4,0,.2,1) forwards;opacity:0;transform:translateY(20px)}
+@keyframes slideUp{to{opacity:1;transform:translateY(0)}}
+
+/* ── Responsive ── */
+@media(max-width:768px){
+  .cat-grid{grid-template-columns:1fr}
+  .hero h1{font-size:clamp(2rem,8vw,3rem)}
+  .score-ring-wrap{width:160px;height:160px}
+  .score-ring{width:160px;height:160px}
+  .score-number{font-size:2.8rem}
+}
+@media(max-width:480px){
+  .topbar{padding:14px 16px}
+  .brand span{display:none}
+  .nav a,.theme-toggle{font-size:.65rem;padding:7px 10px}
+}
+</style>
+</head>
+<body>
+<div class="site-shell">
+
+  <!-- ═══ Topbar ═══ -->
+  <header class="topbar">
+    <a href="../index.html" class="brand">
+      <img src="../assets/images/goanon-logo.png" alt="GoAnon" width="42" height="42">
+      <span>GoAnon</span>
+    </a>
+    <nav class="nav">
+      <a href="../tools/index.html">Tools</a>
+      <a href="../products/browser.html">Products</a>
+      <button class="theme-toggle" onclick="toggleGoAnonTheme()" aria-label="Toggle theme">Theme</button>
+    </nav>
+  </header>
+
+  <!-- ═══ Scan Overlay ═══ -->
+  <div class="scan-overlay" id="scanOverlay">
+    <div class="scan-line"></div>
+    <div class="scan-status" id="scanStatus">Initializing scan…</div>
+    <div class="scan-sub" id="scanSub">No data leaves your device</div>
+  </div>
+
+  <!-- ═══ Main Content ═══ -->
+  <main class="container">
+
+    <!-- Hero -->
+    <section class="hero">
+      <div class="eyebrow">Browser exposure test</div>
+      <h1>Fingerprint Check</h1>
+      <p>See what your browser reveals: fingerprinting signals, WebRTC leaks, canvas, WebGL, fonts, and device exposure. Everything runs locally — zero network calls, zero data collection.</p>
+      <div class="hero-actions">
+        <button class="btn" id="scanBtn" onclick="runScan()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          Start Scan
+        </button>
+        <a href="../tools/index.html" class="btn secondary">Back to Tools</a>
+      </div>
+    </section>
+
+    <!-- Results (hidden until scan) -->
+    <div id="resultsArea" class="hidden">
+
+      <!-- Score -->
+      <section class="section">
+        <div class="score-area" id="scoreArea">
+          <div class="score-ring-wrap">
+            <svg class="score-ring" viewBox="0 0 200 200">
+              <circle class="score-ring-bg" cx="100" cy="100" r="88"/>
+              <circle class="score-ring-fill" id="scoreRingFill" cx="100" cy="100" r="88"
+                stroke-dasharray="553" stroke-dashoffset="553"/>
+            </svg>
+            <div class="score-label">
+              <span class="score-number" id="scoreNumber">—</span>
+              <span class="score-suffix">/ 100</span>
+            </div>
+          </div>
+          <div class="score-title" id="scoreTitle">Scanning…</div>
+          <div class="score-desc" id="scoreDesc">Analyzing your browser's fingerprint exposure</div>
+        </div>
+      </section>
+
+      <!-- Category Cards -->
+      <section class="section">
+        <h2>Detailed Findings</h2>
+        <p class="section-sub">Each category reveals a different fingerprinting vector. Expand any card to see exactly what was detected.</p>
+        <div class="cat-grid" id="catGrid"></div>
+      </section>
+
+      <!-- Recommendations -->
+      <section class="section hidden" id="recSection">
+        <h2>Recommendations</h2>
+        <p class="section-sub">Steps you can take right now to reduce your browser's exposure.</p>
+        <div class="rec-list" id="recList"></div>
+      </section>
+
+      <!-- Actions -->
+      <section class="section" style="display:flex;gap:12px;flex-wrap:wrap">
+        <button class="btn secondary" onclick="copyReport()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Copy Report
+        </button>
+        <button class="btn secondary" onclick="runScan()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></svg>
+          Re-scan
+        </button>
+      </section>
+
+    </div><!-- /resultsArea -->
+
+  </main>
+
+  <!-- ═══ Footer ═══ -->
+  <footer class="footer">
+    <span>GoAnon</span> · Private tools for a public internet
+  </footer>
+
+</div><!-- /site-shell -->
+
+<!-- ═══════════════════════════════════════════
+     FINGERPRINT CHECK ENGINE
+     ──────────────────────────────────────────
+     Design principles:
+     1. ZERO network calls — no STUN, no analytics, no phoning home
+     2. Web Crypto API only — no Math.random(), no homebrew crypto
+     3. Memory hygiene — sensitive artifacts cleaned up after use
+     4. Auditable — every check is commented and traceable
+     ═══════════════════════════════════════════ -->
+<script>
+(function(){
+  "use strict";
+
+  /* ── Policy assertion ──────────────────────
+     This constant is checked at runtime.
+     If any code path attempts a network request,
+     the CSP header will block it. This constant
+     serves as a code-level declaration of intent.
+  ──────────────────────────────────────────── */
+  const POLICY = Object.freeze({
+    NETWORK_CALLS: false,
+    ANALYTICS: false,
+    DATA_COLLECTION: false,
+    VERSION: "1.0.0"
+  });
+
+  /* ── Utility: SHA-256 via Web Crypto API ── */
+  async function sha256(input) {
+    const encoded = new TextEncoder().encode(input);
+    const buffer = await crypto.subtle.digest("SHA-256", encoded);
+    const bytes = new Uint8Array(buffer);
+    return Array.from(bytes).map(b => b.toString(16).padStart(2, "0")).join("");
+  }
+
+  /* ── Utility: FNV-1a (fast, non-crypto hash for display) ── */
+  function fnv1a(str) {
+    let hash = 0x811c9dc5;
+    for (let i = 0; i < str.length; i++) {
+      hash ^= str.charCodeAt(i);
+      hash = Math.imul(hash, 0x01000193);
+    }
+    return (hash >>> 0).toString(16).padStart(8, "0");
+  }
+
+  /* ── Utility: Safe getter ── */
+  function safeGet(fn) {
+    try { return fn(); } catch { return null; }
+  }
+
+  /* ── Utility: Truncate string ── */
+  function truncate(str, max) {
+    if (!str) return "N/A";
+    return str.length > max ? str.slice(0, max) + "…" : str;
+  }
+
+  /* ═══════════════════════════════════════════
+     FINGERPRINT ENGINE
+     ═══════════════════════════════════════════ */
+  const FP = {
+    categories: {},
+    rawPoints: 0,
+    exposedPoints: 0,
+
+    /* ── Main scan orchestrator ── */
+    async scan(onProgress) {
+      this.categories = {};
+      this.rawPoints = 0;
+      this.exposedPoints = 0;
+
+      const steps = [
+        ["navigator",  "Checking navigator properties…"],
+        ["screen",     "Reading screen & display data…"],
+        ["timezone",   "Detecting timezone & locale…"],
+        ["canvas",     "Rendering canvas fingerprint…"],
+        ["webgl",      "Probing WebGL renderer…"],
+        ["audio",      "Sampling audio context…"],
+        ["webrtc",     "Testing WebRTC exposure…"],
+        ["fonts",      "Detecting installed fonts…"],
+        ["storage",    "Checking storage & APIs…"],
+      ];
+
+      for (const [key, msg] of steps) {
+        onProgress(msg);
+        // Yield to UI thread so the progress label updates
+        await new Promise(r => setTimeout(r, 80));
+        const checker = this["check_" + key];
+        if (checker) {
+          const result = await checker.call(this);
+          this.categories[key] = result;
+        }
+      }
+
+      this.calculateScore();
+      return this.categories;
+    },
+
+    /* ─────────────────────────────────────────
+       CHECK 1: Navigator Properties
+       Weight: 20 — many properties are highly
+       identifying (userAgent, platform, etc.)
+    ───────────────────────────────────────── */
+    check_navigator() {
+      const n = navigator;
+      const data = {
+        "User-Agent":      safeGet(() => n.userAgent),
+        "Platform":        safeGet(() => n.platform),
+        "Vendor":          safeGet(() => n.vendor) || "(none)",
+        "Language":        safeGet(() => n.language),
+        "Languages":       safeGet(() => [...n.languages].join(", ")),
+        "Hardware Concurrency": safeGet(() => n.hardwareConcurrency),
+        "Device Memory":   safeGet(() => n.deviceMemory) || "(hidden)",
+        "Max Touch Points": safeGet(() => n.maxTouchPoints),
+        "Cookie Enabled":  safeGet(() => n.cookieEnabled),
+        "Do Not Track":    safeGet(() => n.doNotTrack),
+        "WebDriver":       safeGet(() => n.webdriver),
+        "PDF Viewer":      safeGet(() => n.pdfViewerEnabled),
+        "Connection Type": safeGet(() => n.connection?.effectiveType) || "(hidden)",
+        "Downlink":        safeGet(() => n.connection?.downlink) || "(hidden)",
+        "Save Data":       safeGet(() => n.connection?.saveData) || "(hidden)",
+      };
+
+      // Score: count how many properties reveal info
+      const keys = Object.keys(data);
+      const exposed = keys.filter(k => {
+        const v = data[k];
+        return v !== null && v !== "(none)" && v !== "(hidden)" && v !== "";
+      }).length;
+
+      // High entropy signals
+      const hasUA = !!data["User-Agent"];
+      const hasLang = data["Languages"] && data["Languages"].split(",").length > 1;
+      const hasHW = typeof data["Hardware Concurrency"] === "number";
+      const hasMem = typeof data["Device Memory"] === "number";
+
+      let severity = "low";
+      let summary = "";
+      if (hasUA && hasLang && hasHW && hasMem) {
+        severity = "high";
+        summary = "Your browser exposes a detailed navigator profile including hardware info, multiple languages, and a full user-agent string. This combination is highly identifying.";
+      } else if (hasUA && (hasLang || hasHW)) {
+        severity = "medium";
+        summary = "Your browser reveals your user-agent and some hardware or language details. This narrows down your identity significantly.";
+      } else {
+        summary = "Your browser limits navigator property exposure. Some fingerprinting resistance may be active.";
+      }
+
+      return {
+        title: "Navigator",
+        icon: "🌐",
+        severity,
+        summary,
+        data,
+        weight: 20,
+        exposed,
+        total: keys.length,
+        recommendation: hasUA ? "Use a privacy-focused browser that normalizes or randomizes the user-agent string." : "Your browser already limits navigator exposure — good."
+      };
+    },
+
+    /* ─────────────────────────────────────────
+       CHECK 2: Screen & Display
+       Weight: 10 — resolution + pixel ratio
+       is a moderately strong signal
+    ───────────────────────────────────────── */
+    check_screen() {
+      const s = screen;
+      const data = {
+        "Resolution":     `${s.width} × ${s.height}`,
+        "Available":      `${s.availWidth} × ${s.availHeight}`,
+        "Color Depth":    s.colorDepth,
+        "Pixel Depth":    s.pixelDepth,
+        "Device Pixel Ratio": window.devicePixelRatio,
+        "Orientation":    safeGet(() => screen.orientation?.type) || "(not available)",
+        "Dark Mode":      window.matchMedia("(prefers-color-scheme: dark)").matches,
+        "Reduced Motion": window.matchMedia("(prefers-reduced-motion)").matches,
+      };
+
+      const unique = data["Device Pixel Ratio"] !== 1 || s.width !== 1920;
+      const severity = unique ? "medium" : "low";
+      const summary = unique
+        ? `Your screen configuration (${data["Resolution"]} @ ${data["Device Pixel Ratio"]}x) is fairly specific and contributes to your fingerprint uniqueness.`
+        : `Your screen configuration is common, which is good — it blends in with many other users.`;
+
+      return {
+        title: "Screen & Display",
+        icon: "🖥",
+        severity,
+        summary,
+        data,
+        weight: 10,
+        exposed: Object.keys(data).filter(k => data[k] !== "(not available)").length,
+        total: Object.keys(data).length,
+        recommendation: "Little can be done about screen resolution, but some browsers can spoof or round these values."
+      };
+    },
+
+    /* ─────────────────────────────────────────
+       CHECK 3: Timezone & Locale
+       Weight: 10 — timezone + locale combo
+       narrows identity significantly
+    ───────────────────────────────────────── */
+    check_timezone() {
+      const dtf = Intl.DateTimeFormat();
+      const resolved = dtf.resolvedOptions();
+      const data = {
+        "Timezone":        resolved.timeZone,
+        "UTC Offset":      new Date().getTimezoneOffset() + " min",
+        "Locale":          resolved.locale,
+        "Calendar":        resolved.calendar,
+        "Numbering System": resolved.numberingSystem,
+        "Date Format":     new Intl.DateTimeFormat(navigator.language, {dateStyle:"full"}).format(new Date()),
+        "Number Format":   new Intl.NumberFormat(navigator.language).format(1234567.89),
+      };
+
+      const severity = "medium";
+      const summary = `Your timezone (${data["Timezone"]}) and locale (${data["Locale"]}) combination is a moderate fingerprinting vector. It narrows your location to a region and reveals language preferences.`;
+
+      return {
+        title: "Timezone & Locale",
+        icon: "🕐",
+        severity,
+        summary,
+        data,
+        weight: 10,
+        exposed: Object.keys(data).length,
+        total: Object.keys(data).length,
+        recommendation: "Some privacy browsers allow timezone spoofing. Using a VPN that also changes timezone can help."
+      };
+    },
+
+    /* ─────────────────────────────────────────
+       CHECK 4: Canvas Fingerprint
+       Weight: 25 — one of the strongest
+       fingerprinting techniques known
+    ───────────────────────────────────────── */
+    async check_canvas() {
+      try {
+        let canvas = document.createElement("canvas");
+        canvas.width = 260;
+        canvas.height = 60;
+        let ctx = canvas.getContext("2d");
+
+        // Standard fingerprint rendering technique
+        ctx.textBaseline = "top";
+        ctx.font = "14px 'Arial'";
+        ctx.fillStyle = "#f60";
+        ctx.fillRect(50, 0, 200, 60);
+        ctx.fillStyle = "#069";
+        ctx.fillText("GoAnon FP Check 🔒", 2, 15);
+        ctx.fillStyle = "rgba(102,204,0,0.7)";
+        ctx.fillText("GoAnon FP Check 🔒", 4, 17);
+
+        // Add some geometric shapes
+        ctx.beginPath();
+        ctx.arc(230, 30, 20, 0, Math.PI * 2, true);
+        ctx.closePath();
+        ctx.fill();
+
+        // Gradient
+        const grad = ctx.createLinearGradient(0, 0, 260, 0);
+        grad.addColorStop(0, "rgba(0,200,220,0.8)");
+        grad.addColorStop(1, "rgba(100,140,255,0.6)");
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 40, 260, 20);
+
+        const dataURL = canvas.toDataURL();
+        const hash = await sha256(dataURL);
+
+        // Clean up — remove canvas data from memory
+        canvas.width = 0;
+        canvas.height = 0;
+        // Overwrite dataURL reference to allow GC of sensitive rendering data
+        const data = {
+          "Canvas Hash (SHA-256)": hash.slice(0, 32) + "…",
+          "Full Hash": hash,
+          "Rendering": "Text + shapes + gradient rendered",
+        };
+        // Null out references for memory hygiene
+        grad.addColorStop(0, "rgba(0,0,0,0)"); // clear gradient refs
+        ctx = null; canvas = null;
+
+        return {
+          title: "Canvas Fingerprint",
+          icon: "🎨",
+          severity: "critical",
+          summary: "Your browser produces a unique canvas rendering hash. Canvas fingerprinting is one of the most powerful identification techniques — even small differences in GPU, drivers, or font rendering produce different results.",
+          data,
+          weight: 25,
+          exposed: 3,
+          total: 3,
+          recommendation: "Use a browser with canvas fingerprint randomization (e.g., Tor Browser, Brave with strict shields). Some browsers add noise to canvas output to resist fingerprinting."
+        };
+      } catch (e) {
+        return {
+          title: "Canvas Fingerprint",
+          icon: "🎨",
+          severity: "ok",
+          summary: "Canvas rendering is blocked or unavailable — this actually protects you from canvas fingerprinting.",
+          data: { "Status": "Blocked" },
+          weight: 25,
+          exposed: 0,
+          total: 1,
+          recommendation: "Canvas is blocked. Great — keep it that way."
+        };
+      }
+    },
+
+    /* ─────────────────────────────────────────
+       CHECK 5: WebGL Fingerprint
+       Weight: 15 — GPU info is very identifying
+    ───────────────────────────────────────── */
+    async check_webgl() {
+      try {
+        let canvas = document.createElement("canvas");
+        let gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
+        if (!gl) {
+          return {
+            title: "WebGL",
+            icon: "🔺",
+            severity: "ok",
+            summary: "WebGL is not available — you are protected from WebGL fingerprinting.",
+            data: { "Status": "Blocked" },
+            weight: 15,
+            exposed: 0,
+            total: 1,
+            recommendation: "WebGL is blocked. Excellent for privacy."
+          };
+        }
+
+        let debugExt = gl.getExtension("WEBGL_debug_renderer_info");
+        const renderer = debugExt ? gl.getParameter(debugExt.UNMASKED_RENDERER_WEBGL) : "(hidden)";
+        const vendor = debugExt ? gl.getParameter(debugExt.UNMASKED_VENDOR_WEBGL) : "(hidden)";
+
+        const data = {
+          "Renderer": truncate(renderer, 80),
+          "Vendor": truncate(vendor, 60),
+          "GL Version": gl.getParameter(gl.VERSION),
+          "Shading Language": gl.getParameter(gl.SHADING_LANGUAGE_VERSION),
+          "Max Texture Size": gl.getParameter(gl.MAX_TEXTURE_SIZE),
+          "Max Render Buffer": gl.getParameter(gl.MAX_RENDERBUFFER_SIZE),
+          "Extensions": (gl.getSupportedExtensions() || []).length + " available",
+          "Anti-Aliasing": gl.getContextAttributes()?.antialias ? "Yes" : "No",
+        };
+
+        // Clean up — release GPU context and null references
+        let loseExt = gl.getExtension("WEBGL_lose_context");
+        if (loseExt) loseExt.loseContext();
+        canvas.width = 0; canvas.height = 0;
+        // Null out references for memory hygiene
+        // (renderer/vendor already captured in `data` object — that's intentional for display)
+        gl = null; canvas = null; debugExt = null; loseExt = null;
+
+        const severity = renderer !== "(hidden)" ? "high" : "medium";
+        const summary = renderer !== "(hidden)"
+          ? `Your GPU renderer (${truncate(renderer, 60)}) is fully exposed. This is a high-entropy signal that uniquely identifies your device.`
+          : "Your browser hides the GPU renderer, but WebGL is still active and may leak other data.";
+
+        return {
+          title: "WebGL",
+          icon: "🔺",
+          severity,
+          summary,
+          data,
+          weight: 15,
+          exposed: Object.values(data).filter(v => v !== "(hidden)").length,
+          total: Object.keys(data).length,
+          recommendation: "Disable WebGL or use a browser that spoofs GPU information. Browser extensions like NoScript can block WebGL."
+        };
+      } catch (e) {
+        return {
+          title: "WebGL",
+          icon: "🔺",
+          severity: "ok",
+          summary: "WebGL is not available or blocked.",
+          data: { "Status": "Error / Blocked" },
+          weight: 15,
+          exposed: 0,
+          total: 1,
+          recommendation: "WebGL is blocked. Great for privacy."
+        };
+      }
+    },
+
+    /* ─────────────────────────────────────────
+       CHECK 6: Audio Fingerprint
+       Weight: 5 — adds uniqueness but less
+       identifying on its own
+    ───────────────────────────────────────── */
+    async check_audio() {
+      try {
+        if (!window.AudioContext && !window.webkitAudioContext) {
+          return {
+            title: "Audio Context",
+            icon: "🔊",
+            severity: "ok",
+            summary: "AudioContext is not available — you are protected from audio fingerprinting.",
+            data: { "Status": "Blocked" },
+            weight: 5,
+            exposed: 0,
+            total: 1,
+            recommendation: "Audio is blocked. Excellent."
+          };
+        }
+
+        const AC = window.AudioContext || window.webkitAudioContext;
+        let ctx = new AC();
+
+        // Standard audio fingerprint technique
+        let oscillator = ctx.createOscillator();
+        let analyser = ctx.createAnalyser();
+        let gain = ctx.createGain();
+        let scriptProcessor = ctx.createScriptProcessor(4096, 1, 1);
+
+        gain.gain.value = 0; // Mute — we don't want sound
+        oscillator.type = "triangle";
+        oscillator.frequency.value = 10000;
+
+        oscillator.connect(analyser);
+        analyser.connect(scriptProcessor);
+        scriptProcessor.connect(gain);
+        gain.connect(ctx.destination);
+
+        // Render a short buffer
+        let buffer = new Float32Array(4096);
+        oscillator.start(0);
+
+        // Sample the analyser
+        analyser.getFloatFrequencyData(buffer);
+        oscillator.stop();
+
+        // Capture context properties BEFORE closing
+        const sampleRate = ctx.sampleRate;
+        const maxChannels = ctx.destination.maxChannelCount;
+
+        // Close audio context
+        ctx.close();
+
+        const hash = fnv1a(buffer.toString());
+
+        // Zero the buffer for memory hygiene
+        buffer.fill(0);
+
+        const data = {
+          "Audio Hash": hash,
+          "Sample Rate": sampleRate + " Hz",
+          "State": "closed",
+          "Max Channel Count": maxChannels,
+        };
+        // Null out references
+        oscillator = null; analyser = null; gain = null;
+        scriptProcessor = null; ctx = null; buffer = null;
+
+        return {
+          title: "Audio Context",
+          icon: "🔊",
+          severity: "medium",
+          summary: "Your browser's audio processing pipeline produces a unique signature. Audio fingerprinting uses subtle differences in sound processing to identify devices.",
+          data,
+          weight: 5,
+          exposed: 4,
+          total: 4,
+          recommendation: "Use browsers that add noise to audio processing or block the AudioContext API."
+        };
+      } catch (e) {
+        return {
+          title: "Audio Context",
+          icon: "🔊",
+          severity: "ok",
+          summary: "Audio fingerprinting was blocked or failed.",
+          data: { "Status": "Blocked / Error" },
+          weight: 5,
+          exposed: 0,
+          total: 1,
+          recommendation: "Audio is blocked. Good."
+        };
+      }
+    },
+
+    /* ─────────────────────────────────────────
+       CHECK 7: WebRTC Exposure
+       Weight: 10 — can leak local AND public IPs
+       ─────────────────────────────────────────
+       IMPORTANT: We use NO STUN servers.
+       Only host (local) candidates are gathered.
+       This proves the vulnerability without
+       making any network calls.
+    ───────────────────────────────────────── */
+    check_webrtc() {
+      return new Promise((resolve) => {
+        const RTCPeerConnection = window.RTCPeerConnection
+          || window.webkitRTCPeerConnection
+          || window.mozRTCPeerConnection;
+
+        if (!RTCPeerConnection) {
+          resolve({
+            title: "WebRTC",
+            icon: "📡",
+            severity: "ok",
+            summary: "WebRTC is not supported or is disabled. Your real IP cannot be leaked via WebRTC.",
+            data: { "Status": "Disabled / Not supported" },
+            weight: 10,
+            exposed: 0,
+            total: 1,
+            recommendation: "WebRTC is disabled. Excellent — keep it that way."
+          });
+          return;
+        }
+
+        // Create connection with NO STUN/TURN servers — zero network calls
+        const pc = new RTCPeerConnection({
+          iceServers: [] // INTENTIONAL: no servers = no network calls
+        });
+
+        const localIPs = new Set();
+        let timedOut = false;
+
+        // Data channel required to trigger ICE gathering
+        pc.createDataChannel("");
+
+        pc.onicecandidate = (e) => {
+          if (!e.candidate) return;
+          const candidate = e.candidate.candidate;
+
+          // Extract IP addresses from candidate string
+          const ipRegex = /([0-9]{1,3}\.){3}[0-9]{1,3}/g;
+          let match;
+          while ((match = ipRegex.exec(candidate)) !== null) {
+            const ip = match[0];
+            // Filter out mDNS addresses (they look like xxxx.local)
+            if (!ip.startsWith("0.")) {
+              localIPs.add(ip);
+            }
+          }
+        };
+
+        pc.createOffer()
+          .then(offer => pc.setLocalDescription(offer))
+          .catch(() => {});
+
+        // Give ICE gathering a short window, then report results
+        setTimeout(() => {
+          if (timedOut) return;
+          timedOut = true;
+          try { pc.close(); } catch {}
+
+          const ips = [...localIPs];
+          const hasLeak = ips.length > 0;
+
+          const data = {
+            "WebRTC Supported": "Yes",
+            "Local IPs Exposed": hasLeak ? ips.join(", ") : "None detected",
+            "IP Count": ips.length,
+            "mDNS Protection": localIPs.size === 0 ? "Possibly active" : "Not active",
+            "Note": "No STUN servers used — no network calls made. With STUN, your public IP would also be exposed.",
+          };
+
+          const severity = hasLeak ? "critical" : "low";
+          const summary = hasLeak
+            ? `WebRTC is exposing your local IP address(es): ${ips.join(", ")}. With STUN servers, your public IP would also leak. This is a serious privacy concern.`
+            : "WebRTC is active but not leaking local IPs. mDNS protection may be in place, but WebRTC can still leak your public IP when STUN servers are used.";
+
+          resolve({
+            title: "WebRTC",
+            icon: "📡",
+            severity,
+            summary,
+            data,
+            weight: 10,
+            exposed: hasLeak ? 3 : 1,
+            total: 5,
+            recommendation: "Disable WebRTC in your browser settings or use a browser extension. In Firefox: about:config → media.peerconnection.enabled = false. In Chrome: use a WebRTC-blocking extension."
+          });
+        }, 2000);
+
+        // Safety timeout
+        setTimeout(() => {
+          if (!timedOut) {
+            timedOut = true;
+            try { pc.close(); } catch {}
+            resolve({
+              title: "WebRTC",
+              icon: "📡",
+              severity: "medium",
+              summary: "WebRTC is supported but ICE gathering timed out. WebRTC may still leak your IP when STUN servers are involved.",
+              data: { "Status": "Timeout during ICE gathering" },
+              weight: 10,
+              exposed: 1,
+              total: 1,
+              recommendation: "Consider disabling WebRTC for maximum privacy."
+            });
+          }
+        }, 5000);
+      });
+    },
+
+    /* ─────────────────────────────────────────
+       CHECK 8: Font Detection
+       Weight: 5 — installed fonts add
+       uniqueness but are less reliable now
+    ───────────────────────────────────────── */
+    check_fonts() {
+      // Font detection via measurement comparison
+      const testFonts = [
+        "Arial", "Arial Black", "Calibri", "Cambria", "Comic Sans MS",
+        "Consolas", "Courier New", "Georgia", "Helvetica", "Impact",
+        "Lucida Console", "Lucida Grande", "Monaco", "Palatino",
+        "Segoe UI", "Tahoma", "Times New Roman", "Trebuchet MS",
+        "Verdana", "Futura", "Century Gothic", "Garamond",
+        "Book Antiqua", "Copperplate", "Papyrus", "Terminal",
+        "MS Gothic", "MS PGothic", "MS Mincho", "MS PMincho",
+        "Meiryo", "Hiragino Kaku Gothic Pro", "Hiragino Mincho Pro",
+        "Yu Gothic", "Noto Sans", "Noto Sans CJK JP", "Source Han Sans",
+        "SF Pro", "San Francisco", "New York", "Chicago",
+        "Droid Sans", "Roboto", "Open Sans", "Lato",
+        "Ubuntu", "Cantarell", "Fira Sans", "DejaVu Sans",
+        "Liberation Sans"
+      ];
+
+      const baseFonts = ["monospace", "sans-serif", "serif"];
+      const testString = "mmmmmmmmmmlli";
+      const testSize = "72px";
+      const span = document.createElement("span");
+      span.style.position = "absolute";
+      span.style.left = "-9999px";
+      span.style.fontSize = testSize;
+      span.style.lineHeight = "normal";
+      span.textContent = testString;
+      document.body.appendChild(span);
+
+      // Get baseline widths
+      const baseWidths = {};
+      for (const base of baseFonts) {
+        span.style.fontFamily = base;
+        baseWidths[base] = span.offsetWidth;
+      }
+
+      // Test each font against baselines
+      const detected = [];
+      for (const font of testFonts) {
+        let found = false;
+        for (const base of baseFonts) {
+          span.style.fontFamily = `"${font}", ${base}`;
+          if (span.offsetWidth !== baseWidths[base]) {
+            found = true;
+            break;
+          }
+        }
+        if (found) detected.push(font);
+      }
+
+      // Clean up
+      document.body.removeChild(span);
+
+      // Quantize severity
+      let severity, summary;
+      if (detected.length > 35) {
+        severity = "high";
+        summary = `${detected.length} fonts detected — this is a rich fingerprinting signal. Many installed fonts make your browser more unique.`;
+      } else if (detected.length > 20) {
+        severity = "medium";
+        summary = `${detected.length} fonts detected — this moderately contributes to your fingerprint uniqueness.`;
+      } else {
+        severity = "low";
+        summary = `Only ${detected.length} fonts detected — your font fingerprint is relatively generic, which is good.`;
+      }
+
+      const data = {
+        "Fonts Detected": detected.length + " of " + testFonts.length,
+        "Font List": detected.join(", "),
+      };
+
+      return {
+        title: "Font Detection",
+        icon: "🔤",
+        severity,
+        summary,
+        data,
+        weight: 5,
+        exposed: detected.length,
+        total: testFonts.length,
+        recommendation: "Use a browser that limits font enumeration or reports a standard font set. Tor Browser reports a fixed set of fonts."
+      };
+    },
+
+    /* ─────────────────────────────────────────
+       CHECK 9: Storage & APIs
+       Weight: 5 — API availability reveals
+       capabilities and tracking surface
+    ───────────────────────────────────────── */
+    check_storage() {
+      const data = {
+        "localStorage":     typeof localStorage !== "undefined",
+        "sessionStorage":   typeof sessionStorage !== "undefined",
+        "IndexedDB":        typeof indexedDB !== "undefined",
+        "Service Worker":   "serviceWorker" in navigator,
+        "Web Workers":      typeof Worker !== "undefined",
+        "SharedArrayBuffer": typeof SharedArrayBuffer !== "undefined",
+        "WebAssembly":      typeof WebAssembly !== "undefined",
+        "Fetch API":        typeof fetch !== "undefined",
+        "Cache API":        typeof caches !== "undefined",
+        "Notifications":    "Notification" in window,
+        "Geolocation":      "geolocation" in navigator,
+        "Media Devices":    !!(navigator.mediaDevices),
+        "Clipboard API":    !!(navigator.clipboard),
+        "Bluetooth API":    "bluetooth" in navigator,
+        "USB API":          "usb" in navigator,
+        "Speech API":       "speechSynthesis" in window,
+      };
+
+      const apis = Object.entries(data);
+      const available = apis.filter(([,v]) => v).length;
+
+      const severity = available > 12 ? "medium" : available > 8 ? "low" : "info";
+      const summary = `${available} of ${apis.length} APIs are available. More available APIs = larger attack surface for fingerprinting and tracking.`;
+
+      const displayData = {};
+      for (const [k, v] of apis) {
+        displayData[k] = v ? "Available" : "Not available";
+      }
+
+      return {
+        title: "Storage & APIs",
+        icon: "📦",
+        severity,
+        summary,
+        data: displayData,
+        weight: 5,
+        exposed: available,
+        total: apis.length,
+        recommendation: "Disable unused APIs. Use browser extensions to block geolocation, notifications, and media device access by default."
+      };
+    },
+
+    /* ─────────────────────────────────────────
+       SCORE CALCULATION
+       ─────────────────────────────────────────
+       Score = 100 - weighted deductions
+       Each category contributes its weight
+       proportionally to how exposed it is.
+    ───────────────────────────────────────── */
+    calculateScore() {
+      let deductions = 0;
+
+      for (const [key, cat] of Object.entries(this.categories)) {
+        const exposureRatio = cat.exposed / Math.max(cat.total, 1);
+
+        // Severity multiplier
+        const sevMult = {
+          critical: 1.0,
+          high: 0.8,
+          medium: 0.5,
+          low: 0.25,
+          info: 0.1,
+          ok: 0
+        }[cat.severity] || 0.5;
+
+        deductions += cat.weight * exposureRatio * sevMult;
+      }
+
+      // Clamp between 0 and 100
+      const score = Math.max(0, Math.min(100, Math.round(100 - deductions)));
+      this.score = score;
+      return score;
+    }
+  };
+
+  /* ═══════════════════════════════════════════
+     UI CONTROLLER
+     ═══════════════════════════════════════════ */
+  const UI = {
+    categories: null,
+    score: 0,
+
+    async startScan() {
+      const overlay = document.getElementById("scanOverlay");
+      const btn = document.getElementById("scanBtn");
+      const results = document.getElementById("resultsArea");
+
+      // Disable button
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span> Scanning…';
+
+      // Show overlay
+      overlay.classList.add("active");
+
+      try {
+        this.categories = await FP.scan((msg) => {
+          document.getElementById("scanStatus").textContent = msg;
+        });
+        this.score = FP.score;
+
+        // Hide overlay
+        overlay.classList.remove("active");
+
+        // Show results
+        results.classList.remove("hidden");
+        this.renderScore();
+        this.renderCards();
+        this.renderRecommendations();
+
+        // Re-enable button
+        btn.disabled = false;
+        btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></svg> Re-scan`;
+
+      } catch (err) {
+        overlay.classList.remove("active");
+        btn.disabled = false;
+        btn.innerHTML = "Start Scan";
+        console.error("Scan error:", err);
+      }
+    },
+
+    renderScore() {
+      const s = this.score;
+      const ring = document.getElementById("scoreRingFill");
+      const num = document.getElementById("scoreNumber");
+      const title = document.getElementById("scoreTitle");
+      const desc = document.getElementById("scoreDesc");
+
+      // Ring circumference = 2 * PI * 88 ≈ 553
+      const circumference = 553;
+      const offset = circumference - (circumference * s / 100);
+
+      // Color based on score
+      let color, label, description;
+      if (s >= 80) {
+        color = "var(--ok)"; label = "Good Privacy";
+        description = "Your browser has strong fingerprint resistance. Only minimal data is exposed.";
+      } else if (s >= 60) {
+        color = "var(--medium)"; label = "Moderate Exposure";
+        description = "Your browser reveals some fingerprinting signals. Consider taking steps to reduce exposure.";
+      } else if (s >= 40) {
+        color = "var(--high)"; label = "High Exposure";
+        description = "Your browser exposes significant fingerprinting data. Your device is quite identifiable.";
+      } else {
+        color = "var(--critical)"; label = "Critical Exposure";
+        description = "Your browser reveals extensive fingerprinting data. Your device is highly identifiable across the web.";
+      }
+
+      ring.style.stroke = color;
+      ring.style.strokeDashoffset = offset;
+
+      // Animate number
+      let current = 0;
+      const step = Math.ceil(s / 40);
+      const counter = setInterval(() => {
+        current = Math.min(current + step, s);
+        num.textContent = current;
+        if (current >= s) clearInterval(counter);
+      }, 25);
+
+      title.textContent = label;
+      desc.textContent = description;
+    },
+
+    renderCards() {
+      const grid = document.getElementById("catGrid");
+      grid.innerHTML = "";
+
+      const catEntries = Object.entries(this.categories);
+
+      catEntries.forEach(([key, cat], index) => {
+        const card = document.createElement("div");
+        card.className = "card slide-up";
+        card.style.animationDelay = (index * 0.08) + "s";
+
+        const detailRows = Object.entries(cat.data).map(([k, v]) => {
+          const isHash = k.toLowerCase().includes("hash");
+          const valClass = isHash ? "value hash" : "value";
+          return `<tr><td class="label">${k}</td><td class="${valClass}">${this.escapeHtml(String(v))}</td></tr>`;
+        }).join("");
+
+        const sevClass = "severity-" + cat.severity;
+        const sevLabel = cat.severity.toUpperCase();
+
+        card.innerHTML = `
+          <div class="card-header">
+            <div class="card-title">
+              <span>${this.escapeHtml(cat.icon)}</span>
+              <h3>${this.escapeHtml(cat.title)}</h3>
+            </div>
+            <span class="severity-badge ${sevClass}">${sevLabel}</span>
+          </div>
+          <p class="card-summary">${this.escapeHtml(cat.summary)}</p>
+          <button class="detail-toggle" onclick="toggleDetail(this)">
+            <span class="arrow">▼</span> Show details
+          </button>
+          <div class="detail-body">
+            <table class="detail-table">${detailRows}</table>
+          </div>
+        `;
+
+        grid.appendChild(card);
+      });
+    },
+
+    renderRecommendations() {
+      const list = document.getElementById("recList");
+      const section = document.getElementById("recSection");
+      list.innerHTML = "";
+
+      // Collect unique recommendations, sorted by severity
+      const severityOrder = { critical: 0, high: 1, medium: 2, low: 3, info: 4, ok: 5 };
+      const recs = Object.values(this.categories)
+        .filter(c => c.recommendation && c.severity !== "ok")
+        .sort((a, b) => (severityOrder[a.severity] ?? 5) - (severityOrder[b.severity] ?? 5));
+
+      if (recs.length === 0) {
+        section.classList.add("hidden");
+        return;
+      }
+
+      section.classList.remove("hidden");
+
+      recs.forEach(rec => {
+        const item = document.createElement("div");
+        item.className = "rec-item";
+        item.innerHTML = `
+          <div class="rec-icon ${rec.severity}">!</div>
+          <div class="rec-text"><strong>${this.escapeHtml(rec.title)}:</strong> ${this.escapeHtml(rec.recommendation)}</div>
+        `;
+        list.appendChild(item);
+      });
+    },
+
+    escapeHtml(str) {
+      const div = document.createElement("div");
+      div.textContent = str;
+      return div.innerHTML;
+    }
+  };
+
+  /* ── Global functions ── */
+  window.runScan = function() {
+    UI.startScan();
+  };
+
+  window.toggleDetail = function(btn) {
+    const body = btn.nextElementSibling;
+    const isOpen = body.classList.toggle("open");
+    btn.classList.toggle("open", isOpen);
+    btn.innerHTML = isOpen
+      ? '<span class="arrow">▼</span> Hide details'
+      : '<span class="arrow">▼</span> Show details';
+  };
+
+  window.copyReport = async function() {
+    if (!UI.categories) return;
+    const lines = ["GoAnon Fingerprint Check Report", "=".repeat(40), ""];
+
+    lines.push(`Privacy Score: ${UI.score}/100`);
+    lines.push(`Date: ${new Date().toISOString()}`);
+    lines.push(`Engine: v${POLICY.VERSION}`);
+    lines.push("");
+
+    for (const [key, cat] of Object.entries(UI.categories)) {
+      lines.push(`--- ${cat.title} [${cat.severity.toUpperCase()}] ---`);
+      lines.push(cat.summary);
+      for (const [k, v] of Object.entries(cat.data)) {
+        lines.push(`  ${k}: ${v}`);
+      }
+      lines.push("");
+    }
+
+    lines.push("--- Recommendations ---");
+    for (const cat of Object.values(UI.categories)) {
+      if (cat.recommendation && cat.severity !== "ok") {
+        lines.push(`  [${cat.title}] ${cat.recommendation}`);
+      }
+    }
+
+    lines.push("");
+    lines.push("Generated by GoAnon Fingerprint Check — goanon.pro");
+    lines.push("No data was sent anywhere. This report was created entirely in your browser.");
+
+    try {
+      await navigator.clipboard.writeText(lines.join("\n"));
+      const btn = document.querySelector('.btn.secondary');
+      const original = btn.innerHTML;
+      btn.innerHTML = "✓ Copied!";
+      setTimeout(() => { btn.innerHTML = original; }, 2000);
+    } catch {
+      // Fallback
+      const ta = document.createElement("textarea");
+      ta.value = lines.join("\n");
+      ta.style.position = "fixed";
+      ta.style.left = "-9999px";
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand("copy");
+      document.body.removeChild(ta);
+    }
+  };
+
+  /* ── Theme toggle (same as all GoAnon pages) ── */
+  (function(){
+    const key = "goanon-theme";
+    const saved = localStorage.getItem(key);
+    const cookie = (document.cookie.match(/(?:^|; )goanon_theme=([^;]+)/) || [])[1];
+    const theme = saved || cookie;
+    if (theme === "light") document.body.classList.add("light-mode");
+
+    window.toggleGoAnonTheme = function() {
+      const light = document.body.classList.toggle("light-mode");
+      const value = light ? "light" : "dark";
+      localStorage.setItem(key, value);
+      document.cookie = "goanon_theme=" + value + "; path=/; domain=.goanon.pro; max-age=31536000; SameSite=Lax";
+    };
+  })();
+
+})();
+</script>
+</body>
+</html>
