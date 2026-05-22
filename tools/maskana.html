@@ -1,1 +1,1421 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Maskana — GoAnon</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="../assets/css/product.css"><style>:root{--accent:215,150,255;--accent2:110,220,255;}</style></head><body><div class="site-shell"><header class="topbar"><a class="brand" href="../index.html"><img src="../assets/images/goanon-logo.png" alt="GoAnon logo"><span>GoAnon</span></a><nav class="nav"><a href="../index.html">Ecosystem</a><a href="../tools/index.html">Tools</a><button class="theme-toggle" onclick="toggleGoAnonTheme()">Theme</button></nav></header><main class="container"><section class="hero"><div class="eyebrow">Alias &amp; identity manager</div><h1>Maskana</h1><p>Create compartmentalized online identities for signups, newsletters, shopping, forums, and low-trust platforms.</p><div class="hero-actions"><a class="btn" href="./index.html">Back to tools</a><a class="btn secondary" href="#details">Details</a></div></section><section class="section" id="details"><div class="grid two"><article class="card"><span class="status">Planned</span><h3 style="margin-top:18px;">Current status</h3><p>This page is a ready placeholder so the product can have a home while development, downloads, pricing, screenshots, or live functionality are added.</p><span class="tag price">Free</span></article><article class="card"><h3>What it should communicate</h3><p>A focused GoAnon tool page: privacy-first, useful, honest about status, and ready to become a real product page when the tool is built.</p></article></div></section><section class="section"><h2>Core direction</h2><p class="section-sub">Keep the promise clear, practical, and believable. No surveillance economy. No fake magic. Strong privacy by design.</p><article class="card"><ul class="list"><li>Username and alias generation</li><li>Compartment notes by purpose</li><li>Security question answer generator</li><li>Privacy framing, not deception</li></ul></article></section><section class="section"><div class="notice"><strong>Next content to add:</strong> screenshots, real availability, download/waitlist CTA, pricing, technical privacy notes, FAQ, and a short changelog.</div></section></main><footer class="footer"><div class="container"><a href="../index.html">GoAnon</a> · Private tools for a public internet.</div></footer></div><script src="../assets/js/theme.js"></script></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Maskana — Identity Compartment Builder — GoAnon</title>
+<meta name="description" content="Create compartmentalized online identities for signups, newsletters, AI tools, forums, and low-trust platforms. Generate aliases, handles, boundaries, and recovery notes locally.">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self' data: blob:; connect-src 'none'; font-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; object-src 'none'; frame-src 'none'; form-action 'none'; base-uri 'self'; manifest-src 'none';">
+<link rel="icon" href="../assets/images/goanon-logo.png" type="image/png">
+<!-- No external font requests — system font stack only. Zero network calls. -->
+<style>
+/* ────────────────────────────────────────────
+   GoAnon Design System — Maskana
+   Accent: violet-indigo (identity/mask theme)
+   ──────────────────────────────────────────── */
+:root{
+  --accent:140,100,255;
+  --accent2:180,140,255;
+  --panel:rgba(255,255,255,.055);
+  --panel-2:rgba(255,255,255,.03);
+  --text:rgba(255,255,255,.92);
+  --muted:rgba(255,255,255,.62);
+  --faint:rgba(255,255,255,.38);
+  --line:rgba(255,255,255,.12);
+  --ok:#2ed573;
+  --warn:#ffd166;
+  --danger:#ff4757;
+  --radius:26px;
+  --radius-sm:14px;
+  --radius-xs:8px;
+  --mono:'SFMono-Regular',Consolas,'Liberation Mono',Menlo,monospace;
+}
+body.light-mode{
+  --panel:rgba(255,255,255,.82);
+  --panel-2:rgba(255,255,255,.58);
+  --text:rgba(18,18,18,.9);
+  --muted:rgba(18,18,18,.64);
+  --faint:rgba(18,18,18,.42);
+  --line:rgba(0,0,0,.10);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{
+  min-height:100vh;
+  font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,sans-serif;
+  background:radial-gradient(circle at 22% 14%,rgba(var(--accent),.13),transparent 36%),
+             radial-gradient(circle at 76% 20%,rgba(var(--accent2),.10),transparent 34%),
+             linear-gradient(135deg,#0a0618,#020206 70%);
+  color:var(--text);
+  -webkit-font-smoothing:antialiased;
+  transition:background .6s ease,color .4s ease;
+}
+body.light-mode{
+  background:radial-gradient(circle at 22% 14%,rgba(var(--accent),.10),transparent 36%),
+             radial-gradient(circle at 76% 20%,rgba(var(--accent2),.07),transparent 34%),
+             linear-gradient(135deg,#fff,#f4f5f7 70%);
+}
+a{color:inherit;text-decoration:none}
+
+/* ── Shell ── */
+.site-shell{min-height:100vh;position:relative;overflow-x:hidden}
+.site-shell::before{
+  content:"";position:fixed;inset:0;
+  background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),
+                    linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);
+  background-size:44px 44px;
+  mask-image:linear-gradient(to bottom,#000,transparent 85%);
+  pointer-events:none;z-index:0;
+}
+
+/* ── Topbar ── */
+.topbar{
+  position:sticky;top:0;z-index:30;
+  display:flex;align-items:center;justify-content:space-between;gap:18px;
+  padding:18px clamp(18px,4vw,52px);
+  backdrop-filter:blur(18px);
+  background:rgba(2,3,6,.52);
+  border-bottom:1px solid var(--line);
+}
+.light-mode .topbar{background:rgba(255,255,255,.62)}
+.brand{display:flex;align-items:center;gap:12px}
+.brand img{width:42px;height:42px;object-fit:contain}
+.brand span{font-weight:700;letter-spacing:-.03em;font-size:1.1rem}
+.nav{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.nav a,.theme-toggle{
+  font:600 .72rem/1 var(--mono);
+  letter-spacing:.08em;text-transform:uppercase;
+  color:var(--muted);border:1px solid var(--line);border-radius:999px;
+  padding:9px 13px;background:rgba(255,255,255,.035);
+  cursor:pointer;transition:all .25s ease;
+}
+.nav a:hover,.theme-toggle:hover{
+  border-color:rgba(var(--accent),.4);color:var(--text);
+  background:rgba(var(--accent),.08);
+}
+
+/* ── Container ── */
+.container{width:min(740px,calc(100% - 36px));margin:0 auto;position:relative;z-index:1}
+
+/* ── Hero ── */
+.hero{padding:56px 0 28px;text-align:center}
+.eyebrow{
+  display:inline-flex;
+  font:600 .76rem/1 var(--mono);
+  letter-spacing:.12em;text-transform:uppercase;
+  color:rgba(var(--accent),.95);
+  border:1px solid rgba(var(--accent),.24);
+  background:rgba(var(--accent),.07);
+  border-radius:999px;padding:9px 14px;margin-bottom:18px;
+}
+.hero h1{
+  font-size:clamp(2.2rem,5vw,4rem);line-height:.96;
+  letter-spacing:-.06em;margin:0 0 14px;
+}
+.hero p{
+  font-size:clamp(.95rem,1.8vw,1.12rem);line-height:1.75;
+  color:var(--muted);max-width:580px;margin:0 auto;
+}
+
+/* ── Buttons ── */
+.btn{
+  display:inline-flex;align-items:center;gap:8px;
+  border-radius:999px;padding:12px 20px;
+  font:700 .76rem/1 var(--mono);
+  letter-spacing:.08em;text-transform:uppercase;
+  border:1px solid rgba(var(--accent),.30);
+  background:rgba(var(--accent),.11);color:var(--text);
+  cursor:pointer;transition:all .3s ease;
+}
+.btn:hover{background:rgba(var(--accent),.2);border-color:rgba(var(--accent),.5);transform:translateY(-1px)}
+.btn:active{transform:translateY(0)}
+.btn.secondary{background:rgba(255,255,255,.035);border-color:var(--line);color:var(--muted)}
+.btn.secondary:hover{border-color:rgba(var(--accent),.3);color:var(--text);background:rgba(var(--accent),.06)}
+.btn.danger{border-color:rgba(255,71,87,.3);background:rgba(255,71,87,.08);color:var(--danger)}
+.btn.danger:hover{background:rgba(255,71,87,.15);border-color:rgba(255,71,87,.5)}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}
+
+/* ── Card ── */
+.card{
+  border:1px solid var(--line);border-radius:var(--radius);
+  background:linear-gradient(145deg,var(--panel),var(--panel-2));
+  backdrop-filter:blur(18px);
+  padding:28px 24px;
+  margin-bottom:16px;
+}
+.card h2{font-size:1.05rem;letter-spacing:-.02em;margin-bottom:16px}
+
+/* ── Warning card ── */
+.warn-card{
+  border-color:rgba(var(--accent),.25);
+  background:linear-gradient(145deg,rgba(var(--accent),.06),rgba(var(--accent),.02));
+}
+.warn-card p{font-size:.88rem;color:var(--muted);line-height:1.7}
+.warn-card strong{color:rgba(var(--accent),1);font-weight:600}
+
+/* ── Ethics card ── */
+.ethics-card{
+  border-color:rgba(255,71,87,.18);
+  background:linear-gradient(145deg,rgba(255,71,87,.04),rgba(255,71,87,.01));
+}
+.ethics-card p{font-size:.88rem;color:var(--muted);line-height:1.7}
+.ethics-card strong{color:var(--danger);font-weight:600}
+
+/* ── Form ── */
+.form-group{margin-bottom:18px}
+.form-group:last-child{margin-bottom:0}
+.form-label{
+  display:block;
+  font:600 .72rem/1 var(--mono);
+  letter-spacing:.08em;text-transform:uppercase;
+  color:var(--muted);margin-bottom:8px;
+}
+.form-input,.form-select{
+  width:100%;
+  background:rgba(255,255,255,.04);
+  border:1px solid var(--line);
+  border-radius:var(--radius-sm);
+  padding:13px 16px;
+  font-size:.92rem;
+  color:var(--text);
+  outline:none;
+  transition:border-color .2s;
+  font-family:inherit;
+}
+.form-input:focus,.form-select:focus{border-color:rgba(var(--accent),.5)}
+.form-input::placeholder{color:var(--faint)}
+.form-input.mono{font-family:var(--mono);letter-spacing:.03em}
+.form-select{
+  appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='rgba(255,255,255,0.38)' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;
+  background-position:right 14px center;
+  padding-right:40px;
+  cursor:pointer;
+}
+.light-mode .form-select{
+  background-image:url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='rgba(0,0,0,0.35)' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+.form-select option{background:#1a1a2e;color:#eee}
+.light-mode .form-select option{background:#fff;color:#222}
+
+/* ── Option pills ── */
+.pill-group{display:flex;flex-wrap:wrap;gap:8px}
+.pill{
+  font:600 .72rem/1 var(--mono);
+  letter-spacing:.06em;text-transform:uppercase;
+  padding:10px 14px;border-radius:999px;
+  border:1px solid var(--line);
+  background:rgba(255,255,255,.035);
+  color:var(--faint);cursor:pointer;
+  transition:all .2s;user-select:none;
+}
+.pill:hover{border-color:rgba(var(--accent),.2);color:var(--muted);background:rgba(var(--accent),.03)}
+.pill.active{
+  border-color:rgba(var(--accent),.35);
+  background:rgba(var(--accent),.08);
+  color:var(--text);
+}
+
+/* ── Generate button ── */
+.generate-btn{
+  width:100%;justify-content:center;
+  padding:16px 24px;font-size:.82rem;
+  margin-top:4px;
+}
+
+/* ── Result panel ── */
+.result-panel{animation:fadeInUp .4s ease forwards}
+@keyframes fadeInUp{
+  from{opacity:0;transform:translateY(12px)}
+  to{opacity:1;transform:translateY(0)}
+}
+.result-header{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:18px;flex-wrap:wrap;gap:8px;
+}
+.result-meta{
+  display:flex;align-items:center;gap:10px;
+  font:500 .68rem/1 var(--mono);
+  color:var(--faint);letter-spacing:.04em;
+}
+.result-badge{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:5px 10px;border-radius:999px;
+  font:600 .62rem/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;
+  border:1px solid rgba(var(--accent),.2);
+  background:rgba(var(--accent),.06);
+  color:rgba(var(--accent),.9);
+}
+.result-badge.risk-low{border-color:rgba(46,213,115,.25);background:rgba(46,213,115,.06);color:var(--ok)}
+.result-badge.risk-med{border-color:rgba(255,209,102,.25);background:rgba(255,209,102,.06);color:var(--warn)}
+.result-badge.risk-high{border-color:rgba(255,71,87,.25);background:rgba(255,71,87,.06);color:var(--danger)}
+
+/* Compartment fields */
+.comp-field{margin-bottom:14px}
+.comp-field:last-child{margin-bottom:0}
+.comp-field-label{
+  font:600 .66rem/1 var(--mono);
+  letter-spacing:.08em;text-transform:uppercase;
+  color:var(--faint);margin-bottom:5px;
+}
+.comp-field-value{
+  font-size:.9rem;line-height:1.6;color:var(--text);
+  word-break:break-word;
+}
+.comp-field-value.mono{font-family:var(--mono);letter-spacing:.03em}
+.comp-field-value .email-note{
+  display:block;margin-top:4px;
+  font-size:.78rem;color:var(--faint);font-style:italic;
+}
+
+/* Risk boundary visual */
+.risk-box{
+  display:grid;grid-template-columns:1fr 1fr;gap:10px;
+  margin-top:4px;
+}
+@media(max-width:480px){.risk-box{grid-template-columns:1fr}}
+.risk-box-item{
+  padding:10px 14px;border-radius:var(--radius-sm);
+  border:1px solid var(--line);
+  font-size:.82rem;color:var(--muted);line-height:1.55;
+}
+.risk-box-item.reveal{border-color:rgba(46,213,115,.15);background:rgba(46,213,115,.03)}
+.risk-box-item.conceal{border-color:rgba(255,71,87,.12);background:rgba(255,71,87,.02)}
+.risk-box-item strong{display:block;font-size:.66rem;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px}
+.risk-box-item.reveal strong{color:var(--ok)}
+.risk-box-item.conceal strong{color:var(--danger)}
+
+/* Tags */
+.tag-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.tag{
+  font:500 .66rem/1 var(--mono);letter-spacing:.04em;
+  padding:5px 10px;border-radius:999px;
+  border:1px solid rgba(var(--accent),.15);
+  background:rgba(var(--accent),.04);
+  color:rgba(var(--accent),.8);
+}
+
+/* Result actions */
+.result-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px}
+
+/* ── Collapse / How It Works ── */
+.collapse-toggle{
+  display:flex;align-items:center;justify-content:space-between;
+  cursor:pointer;user-select:none;width:100%;
+  background:none;border:none;color:var(--text);
+  font-size:1.05rem;font-weight:600;letter-spacing:-.02em;
+  padding:0;margin-bottom:0;
+}
+.collapse-toggle svg{
+  width:18px;height:18px;color:var(--faint);
+  transition:transform .3s;
+}
+.collapse-toggle.open svg{transform:rotate(180deg)}
+.collapse-body{
+  max-height:0;overflow:hidden;
+  transition:max-height .4s ease;
+}
+.collapse-body.open{max-height:900px}
+.collapse-body-inner{padding-top:16px}
+.step-list{list-style:none;padding:0}
+.step-list li{
+  display:flex;gap:14px;margin-bottom:14px;
+  font-size:.88rem;color:var(--muted);line-height:1.65;
+}
+.step-num{
+  flex-shrink:0;width:28px;height:28px;
+  border-radius:50%;border:1px solid rgba(var(--accent),.25);
+  background:rgba(var(--accent),.06);
+  color:rgba(var(--accent),1);
+  font:700 .72rem/28px var(--mono);
+  text-align:center;letter-spacing:0;
+}
+
+/* ── Rules list ── */
+.rules-list{list-style:none;padding:0}
+.rules-list li{
+  display:flex;gap:12px;margin-bottom:10px;
+  font-size:.86rem;color:var(--muted);line-height:1.6;
+}
+.rules-list li::before{
+  content:"";flex-shrink:0;width:8px;height:8px;
+  border-radius:50%;margin-top:7px;
+  border:1.5px solid rgba(var(--accent),.5);
+  background:rgba(var(--accent),.1);
+}
+
+/* ── Integration note ── */
+.integration-card{
+  border-color:rgba(var(--accent),.18);
+  background:linear-gradient(145deg,rgba(var(--accent),.04),rgba(var(--accent),.01));
+}
+.integration-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px}
+@media(max-width:480px){.integration-grid{grid-template-columns:1fr}}
+.integration-item{
+  padding:12px 14px;border-radius:var(--radius-sm);
+  border:1px solid var(--line);
+}
+.integration-item strong{
+  display:block;font-size:.78rem;color:rgba(var(--accent),.9);
+  font-weight:600;letter-spacing:.04em;margin-bottom:4px;
+}
+.integration-item span{font-size:.82rem;color:var(--muted);line-height:1.55}
+
+/* ── Toast ── */
+.toast{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);
+  padding:14px 22px;border-radius:999px;
+  font:600 .76rem/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;
+  z-index:100;opacity:0;
+  transition:all .35s cubic-bezier(.4,0,.2,1);
+  pointer-events:none;
+  backdrop-filter:blur(18px);
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.success{background:rgba(46,213,115,.15);color:var(--ok);border:1px solid rgba(46,213,115,.3)}
+.toast.error{background:rgba(255,71,87,.15);color:var(--danger);border:1px solid rgba(255,71,87,.3)}
+.toast.info{background:rgba(var(--accent),.12);color:rgba(var(--accent),1);border:1px solid rgba(var(--accent),.3)}
+
+/* ── Footer ── */
+.footer{
+  text-align:center;padding:48px 24px 36px;
+  font-size:.82rem;color:var(--faint);
+  border-top:1px solid var(--line);margin-top:48px;
+}
+.footer span{color:rgba(var(--accent),.7)}
+
+/* ── Utility ── */
+.hidden{display:none!important}
+.fade-in{animation:fadeIn .4s ease forwards;opacity:0}
+@keyframes fadeIn{to{opacity:1}}
+
+/* ── Responsive ── */
+@media(max-width:768px){
+  .hero h1{font-size:clamp(1.8rem,7vw,2.8rem)}
+  .card{padding:22px 18px}
+}
+@media(max-width:480px){
+  .topbar{padding:14px 16px}
+  .brand span{display:none}
+  .nav a,.theme-toggle{font-size:.65rem;padding:7px 10px}
+  .pill{font-size:.66rem;padding:8px 11px}
+  .risk-box{grid-template-columns:1fr}
+  .result-actions{flex-direction:column}
+  .result-actions .btn{justify-content:center}
+  .integration-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="site-shell">
+
+  <!-- ═══ Topbar ═══ -->
+  <header class="topbar">
+    <a href="../index.html" class="brand">
+      <img src="../assets/images/goanon-logo.png" alt="GoAnon" width="42" height="42">
+      <span>GoAnon</span>
+    </a>
+    <nav class="nav">
+      <a href="../tools/index.html">Tools</a>
+      <a href="../products/browser.html">Products</a>
+      <button class="theme-toggle" onclick="toggleGoAnonTheme()" aria-label="Toggle theme">Theme</button>
+    </nav>
+  </header>
+
+  <!-- ═══ Toast ═══ -->
+  <div class="toast" id="toast"></div>
+
+  <!-- ═══ Main Content ═══ -->
+  <main class="container">
+
+    <!-- Hero -->
+    <section class="hero">
+      <div class="eyebrow">Identity compartments</div>
+      <h1>Maskana</h1>
+      <p>Create compartmentalized online identities for signups, newsletters, AI tools, forums, and low-trust platforms. Generate aliases, handles, email patterns, notes, and risk boundaries locally in your browser.</p>
+    </section>
+
+    <!-- Ethics note -->
+    <div class="card ethics-card" style="text-align:center">
+      <p><strong>Maskana creates privacy compartments, not legal identities.</strong> Do not use aliases to impersonate real people, evade lawful obligations, or commit fraud.</p>
+    </div>
+
+    <!-- ═══ Generator Panel ═══ -->
+    <div class="card">
+
+      <!-- Compartment purpose -->
+      <div class="form-group">
+        <label class="form-label" for="purposeSelect">Compartment Purpose</label>
+        <select class="form-select" id="purposeSelect">
+          <option value="newsletter">Newsletter</option>
+          <option value="ai-tool">AI Tool</option>
+          <option value="forum">Forum</option>
+          <option value="marketplace">Marketplace</option>
+          <option value="research">Research</option>
+          <option value="low-trust">Low-trust Signup</option>
+          <option value="professional">Professional Alias</option>
+          <option value="custom">Custom</option>
+        </select>
+      </div>
+
+      <!-- Risk level -->
+      <div class="form-group">
+        <label class="form-label">Risk Level</label>
+        <div class="pill-group" id="riskGroup">
+          <span class="pill" data-risk="low">Low</span>
+          <span class="pill active" data-risk="medium">Medium</span>
+          <span class="pill" data-risk="high">High</span>
+        </div>
+      </div>
+
+      <!-- Style -->
+      <div class="form-group">
+        <label class="form-label">Style</label>
+        <div class="pill-group" id="styleGroup">
+          <span class="pill active" data-style="neutral">Neutral</span>
+          <span class="pill" data-style="professional">Professional</span>
+          <span class="pill" data-style="casual">Casual</span>
+          <span class="pill" data-style="tech">Tech</span>
+          <span class="pill" data-style="minimal">Minimal</span>
+        </div>
+      </div>
+
+      <!-- Region -->
+      <div class="form-group">
+        <label class="form-label">Region / Language Tone</label>
+        <div class="pill-group" id="regionGroup">
+          <span class="pill active" data-region="global">Global English</span>
+          <span class="pill" data-region="french">French-friendly</span>
+          <span class="pill" data-region="eu">Neutral EU</span>
+          <span class="pill" data-region="custom">Custom</span>
+        </div>
+      </div>
+
+      <!-- Optional keyword -->
+      <div class="form-group">
+        <label class="form-label" for="keywordInput">Base Keyword <span style="color:var(--faint);font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></label>
+        <input type="text" class="form-input" id="keywordInput"
+               placeholder="e.g. privacy, design, travel, code, finance"
+               autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+      </div>
+
+      <!-- Optional platform -->
+      <div class="form-group">
+        <label class="form-label" for="platformInput">Domain / Platform <span style="color:var(--faint);font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></label>
+        <input type="text" class="form-input" id="platformInput"
+               placeholder="e.g. reddit.com, chatgpt.com, substack.com"
+               autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+      </div>
+
+      <!-- Generate -->
+      <button class="btn generate-btn" id="generateBtn" onclick="handleGenerate()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="M12 8v8"/><path d="M8 12h8"/></svg>
+        Generate Compartment
+      </button>
+    </div>
+
+    <!-- ═══ Result Panel ═══ -->
+    <div class="card hidden" id="resultPanel">
+      <div class="result-header">
+        <h2>Compartment Profile</h2>
+        <div class="result-meta">
+          <span class="result-badge" id="resultPurpose"></span>
+          <span class="result-badge" id="resultRisk"></span>
+          <span class="result-badge" id="resultStyle"></span>
+        </div>
+      </div>
+
+      <!-- Compartment name -->
+      <div class="comp-field">
+        <div class="comp-field-label">Compartment Name</div>
+        <div class="comp-field-value" id="compName"></div>
+      </div>
+
+      <!-- Alias -->
+      <div class="comp-field">
+        <div class="comp-field-label">Alias Display Name</div>
+        <div class="comp-field-value" id="compAlias"></div>
+      </div>
+
+      <!-- Handle -->
+      <div class="comp-field">
+        <div class="comp-field-label">Username / Handle</div>
+        <div class="comp-field-value mono" id="compHandle"></div>
+      </div>
+
+      <!-- Email pattern -->
+      <div class="comp-field">
+        <div class="comp-field-label">Email Alias Suggestion</div>
+        <div class="comp-field-value mono" id="compEmail"></div>
+      </div>
+
+      <!-- Bio -->
+      <div class="comp-field">
+        <div class="comp-field-label">Profile Bio</div>
+        <div class="comp-field-value" id="compBio"></div>
+      </div>
+
+      <!-- Password strategy -->
+      <div class="comp-field">
+        <div class="comp-field-label">Password Strategy</div>
+        <div class="comp-field-value" id="compPassword"></div>
+      </div>
+
+      <!-- Recovery note -->
+      <div class="comp-field">
+        <div class="comp-field-label">Recovery Email Note</div>
+        <div class="comp-field-value" id="compRecovery"></div>
+      </div>
+
+      <!-- Reveal / Conceal -->
+      <div class="comp-field">
+        <div class="comp-field-label">Risk Boundaries</div>
+        <div class="risk-box" id="compRiskBox"></div>
+      </div>
+
+      <!-- Tags -->
+      <div class="comp-field">
+        <div class="comp-field-label">Suggested Tags</div>
+        <div class="tag-list" id="compTags"></div>
+      </div>
+
+      <!-- Notes -->
+      <div class="comp-field">
+        <div class="comp-field-label">Notes</div>
+        <div class="comp-field-value" id="compNotes" style="color:var(--muted)"></div>
+      </div>
+
+      <!-- Actions -->
+      <div class="result-actions">
+        <button class="btn secondary" onclick="handleCopyProfile()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Copy Full Profile
+        </button>
+        <button class="btn secondary" onclick="handleCopyHandle()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Copy Handle
+        </button>
+        <button class="btn secondary" onclick="handleCopyBio()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Copy Bio
+        </button>
+        <button class="btn secondary" onclick="handleExportTxt()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Export .txt
+        </button>
+        <button class="btn danger" onclick="handleClear()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+          Clear
+        </button>
+      </div>
+    </div>
+
+    <!-- ═══ Good Compartment Rules ═══ -->
+    <div class="card">
+      <h2>Good Compartment Rules</h2>
+      <ul class="rules-list">
+        <li>Use one compartment per platform type — never reuse identities across categories.</li>
+        <li>Do not reuse your primary email in any compartment — use alias services or plus-addressing instead.</li>
+        <li>Do not reuse usernames across compartments — each one should be unique and unlinkable.</li>
+        <li>Do not mix personal and anonymous accounts — keep contexts strictly separated.</li>
+        <li>Save the compartment in Vaultana if you want to keep it for future reference.</li>
+        <li>Use Keyana to derive a unique password for this compartment — never reuse passwords.</li>
+        <li>Reveal less by default — only share what the platform strictly requires.</li>
+      </ul>
+    </div>
+
+    <!-- ═══ How It Works ═══ -->
+    <div class="card">
+      <button class="collapse-toggle" id="howToggle" onclick="toggleHow()">
+        How it works
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="collapse-body" id="howBody">
+        <div class="collapse-body-inner">
+          <ol class="step-list">
+            <li>
+              <span class="step-num">1</span>
+              <span>You choose a compartment purpose, risk level, style, and optionally provide a keyword or platform name. Maskana uses these to shape the identity profile.</span>
+            </li>
+            <li>
+              <span class="step-num">2</span>
+              <span>A cryptographically secure random number generator (<strong>crypto.getRandomValues</strong>) selects from local word lists — first-name-like aliases, adjectives, nouns, tech terms, and abstract words. No Math.random() is used anywhere.</span>
+            </li>
+            <li>
+              <span class="step-num">3</span>
+              <span>Maskana assembles a complete compartment card: alias name, handle, email pattern suggestion, short bio, password strategy, risk boundaries, suggested tags, and recovery notes.</span>
+            </li>
+            <li>
+              <span class="step-num">4</span>
+              <span>Email suggestions are patterns only — plus-addressing, alias-domain placeholders, or provider placeholders. Maskana does not create real inboxes or email accounts.</span>
+            </li>
+            <li>
+              <span class="step-num">5</span>
+              <span>Nothing leaves your browser. No server, no sync, no storage by default, no analytics. Your compartments exist only in the current session unless you export or copy them.</span>
+            </li>
+          </ol>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ Integration Note ═══ -->
+    <div class="card integration-card">
+      <h2>Use with GoAnon Tools</h2>
+      <div class="integration-grid">
+        <div class="integration-item">
+          <strong>Keyana</strong>
+          <span>Derive a unique, strong password for this compartment using your private phrase.</span>
+        </div>
+        <div class="integration-item">
+          <strong>Vaultana</strong>
+          <span>Store the compartment profile and recovery notes securely for future reference.</span>
+        </div>
+        <div class="integration-item">
+          <strong>Shieldana</strong>
+          <span>Clean tracking parameters from links before sharing them under any compartment.</span>
+        </div>
+        <div class="integration-item">
+          <strong>Redactana</strong>
+          <span>Remove personal data from bios, messages, or text before posting under an alias.</span>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ═══ Footer ═══ -->
+  <footer class="footer">
+    <span>GoAnon</span> &middot; Private tools for a public internet
+  </footer>
+
+</div><!-- /site-shell -->
+
+<!-- ═══════════════════════════════════════════
+     MASKANA — IDENTITY COMPARTMENT ENGINE
+     ──────────────────────────────────────────
+     Design principles:
+     1. ZERO network calls — no analytics, no sync, no phoning home
+     2. crypto.getRandomValues only — no Math.random()
+     3. Privacy compartments, not legal identities
+     4. Email patterns only — no real inbox creation
+     5. No storage by default — session only
+     6. All word lists embedded locally
+     ═══════════════════════════════════════════ -->
+<script>
+(function(){
+  "use strict";
+
+  /* ── Policy assertion ── */
+  var POLICY = Object.freeze({
+    NETWORK_CALLS: false,
+    ANALYTICS: false,
+    DATA_COLLECTION: false,
+    VERSION: "1.0.0"
+  });
+
+  /* ═══════════════════════════════════════════
+     CRYPTO-SECURE RANDOM UTILITIES
+     ═══════════════════════════════════════════ */
+  function secureRandom(max) {
+    /* Returns integer in [0, max) using rejection sampling */
+    if (max <= 0) return 0;
+    var bytesNeeded = Math.ceil(Math.log(max) / Math.log(256));
+    if (bytesNeeded < 1) bytesNeeded = 1;
+    var limit = Math.pow(256, bytesNeeded);
+    var threshold = limit - (limit % max);
+    var arr = new Uint8Array(bytesNeeded);
+    while (true) {
+      crypto.getRandomValues(arr);
+      var val = 0;
+      for (var i = 0; i < bytesNeeded; i++) {
+        val = val * 256 + arr[i];
+      }
+      if (val < threshold) return val % max;
+    }
+  }
+
+  function pick(arr) {
+    return arr[secureRandom(arr.length)];
+  }
+
+  function pickN(arr, n) {
+    /* Pick n unique items from arr */
+    var copy = arr.slice();
+    var result = [];
+    for (var i = 0; i < n && copy.length > 0; i++) {
+      var idx = secureRandom(copy.length);
+      result.push(copy[idx]);
+      copy.splice(idx, 1);
+    }
+    return result;
+  }
+
+  function secureNumber(digits) {
+    /* Generate a random number string with given digit count */
+    var s = "";
+    for (var i = 0; i < digits; i++) {
+      s += String(secureRandom(10));
+    }
+    return s;
+  }
+
+  /* ═══════════════════════════════════════════
+     LOCAL WORD LISTS
+     ═══════════════════════════════════════════ */
+
+  /* Neutral first-name-like aliases — NOT real full identities */
+  var ALIAS_FIRST = [
+    "Ash","Blair","Cameron","Dakota","Ellis","Finley","Gray",
+    "Harper","Indigo","Jordan","Kai","Lane","Morgan","Nova",
+    "Oakley","Parker","Quinn","Reese","Sage","Taylor","Urban",
+    "Vale","Wren","Avery","Blake","Cedar","Drew","Ember",
+    "Frankie","Greer","Haven","Iris","Jules","Kit","Lee",
+    "Marlowe","Nico","Onyx","Prairie","Remy","Shiloh",
+    "Tatum","Vesper","West","Xen","Yara","Zephyr",
+    "Arden","Bell","Clover","Dune","Echo","Fern"
+  ];
+
+  var ALIAS_LAST = [
+    "Hart","Moss","Steele","Brooks","Fields","Knox","Marsh",
+    "Vaughn","Wells","Reed","Cross","Stone","Lane","Hale",
+    "Frost","Page","Sage","Drake","Fox","Lark","Voss",
+    "Pike","Beck","Pine","Grove","Ridge","Bark","Crest",
+    "Fern","Dale","Peak","Ward","Shaw","Barrow","Cliff",
+    "Heath","Copse","Fjord","Glen","Tor","Beach","Cove"
+  ];
+
+  var ADJECTIVES = [
+    "Quiet","Steady","Keen","Sharp","Bright","Calm","Swift",
+    "Bold","Clear","Deep","Fair","Firm","Grand","Light",
+    "Noble","Pure","Solid","True","Vivid","Warm","Cool",
+    "Dry","Fine","Neat","Prime","Rare","Sleek","Solid",
+    "Wild","Zen","Core","Dense","Fresh","Plain","Rich",
+    "Slim","Smooth","Stark","Tidy","Vast","Wired"
+  ];
+
+  var NOUNS = [
+    "Signal","Vector","Node","Layer","Frame","Arc","Grid",
+    "Shift","Pulse","Trace","Loop","Flux","Core","Edge",
+    "Path","Beam","Wave","Vault","Gate","Bridge","Hub",
+    "Ring","Link","Stream","Delta","Point","Scope","Base",
+    "Forge","Drive","Craft","Draft","Scale","Drift","Mesh",
+    "Axis","Seed","Spark","Thread","Cipher","Mask"
+  ];
+
+  var TECH_WORDS = [
+    "Pixel","Stack","Bytes","Logic","Code","Data","Bit",
+    "Hash","Sync","Cache","Shell","Port","Mesh","Agent",
+    "Bot","Cloud","Daemon","Kernel","Macro","Proxy",
+    "Query","Root","Token","Void","Warp","Nexus","Orbit"
+  ];
+
+  var ABSTRACT_WORDS = [
+    "Prism","Echo","Haze","Aura","Glyph","Rune","Vibe",
+    "Mist","Shade","Glow","Halo","Zenith","Nadir","Apex",
+    "Crux","Muse","Tract","Realm","Drift","Sway","Tempo",
+    "Rhythm","Phase","Pulse","Theta","Sigma","Omega"
+  ];
+
+  var SEPARATORS = ["_","-","","."];
+
+  var BIO_TEMPLATES_NEUTRAL = [
+    "Exploring ideas, workflows, and digital spaces.",
+    "Interested in technology, design, and how things work.",
+    "Reading, learning, and sharing perspectives.",
+    "Curious about tools, systems, and creative processes.",
+    "Finding better ways to work and communicate.",
+    "Building habits, exploring new platforms.",
+    "Quiet observer, occasional contributor.",
+    "Learner, tinkerer, always exploring."
+  ];
+
+  var BIO_TEMPLATES_PROFESSIONAL = [
+    "Focused on efficiency, quality, and clear outcomes.",
+    "Working with data, systems, and structured processes.",
+    "Professional interests in research and methodology.",
+    "Building tools and workflows that make a difference.",
+    "Committed to best practices and continuous improvement.",
+    "Strategic thinker with a practical approach."
+  ];
+
+  var BIO_TEMPLATES_CASUAL = [
+    "Just browsing, learning, and hanging out.",
+    "Here for the content, maybe some conversation too.",
+    "Casual explorer of interesting stuff on the internet.",
+    "Lurker by nature, poster by occasion.",
+    "Taking it easy, one tab at a time.",
+    "Here for the vibes and the knowledge."
+  ];
+
+  var BIO_TEMPLATES_TECH = [
+    "Exploring tools, workflows, and digital productivity.",
+    "Building side projects and automating everything.",
+    "Developer, tinkerer, open-source enthusiast.",
+    "Writing code, breaking things, learning constantly.",
+    "Systems thinker, terminal dweller, tab hoarder.",
+    "Focused on architecture, performance, and clean code."
+  ];
+
+  var BIO_TEMPLATES_MINIMAL = [
+    "Exploring.",
+    "Learning and building.",
+    "Here to observe.",
+    "Simple presence, minimal footprint.",
+    "Reading more than writing."
+  ];
+
+  var PURPOSE_LABELS = {
+    "newsletter": "Newsletter",
+    "ai-tool": "AI Tool",
+    "forum": "Forum",
+    "marketplace": "Marketplace",
+    "research": "Research",
+    "low-trust": "Low-trust Signup",
+    "professional": "Professional Alias",
+    "custom": "Custom"
+  };
+
+  var COMPARTMENT_PREFIXES = {
+    "newsletter": ["Newsletter","Digest","Feed","Briefing","Dispatch"],
+    "ai-tool": ["AI Research","Neural","ML Workspace","Prompt","Model"],
+    "forum": ["Forum","Discussion","Thread","Community","Exchange"],
+    "marketplace": ["Market","Trade","Listing","Shop","Exchange"],
+    "research": ["Research","Study","Analysis","Inquiry","Lab"],
+    "low-trust": ["Burner","Temporary","Disposable","Shield","Ghost"],
+    "professional": ["Professional","Work","Career","Industry","Consult"],
+    "custom": ["Custom","Personal","Alternate","Side","Secondary"]
+  };
+
+  var REVEAL_LOW = [
+    "General interests and reading habits.",
+    "Non-sensitive topic preferences.",
+    "Broad professional category only."
+  ];
+  var REVEAL_MED = [
+    "General interests, non-sensitive use case.",
+    "Topic area and engagement style.",
+    "Approximate region, no specific location."
+  ];
+  var REVEAL_HIGH = [
+    "Only the minimum required for signup.",
+    "Fabricated persona details as needed.",
+    "No real identifying information at all."
+  ];
+  var CONCEAL_LOW = [
+    "Real address, phone number, primary email.",
+    "Personal social media accounts.",
+    "Employer details or workplace."
+  ];
+  var CONCEAL_MED = [
+    "Real address, phone number, primary email, employer.",
+    "Personal accounts and real social media profiles.",
+    "Financial information or payment methods."
+  ];
+  var CONCEAL_HIGH = [
+    "Everything real — real name, address, phone, email, employer, accounts.",
+    "Any personally identifiable information.",
+    "Device fingerprints or login patterns from your main identity."
+  ];
+
+  var BOUNDARY_LOW = [
+    "Use this identity only for {purpose} and related content.",
+    "Avoid linking to personal accounts or primary profiles.",
+    "Consider using a separate browser profile."
+  ];
+  var BOUNDARY_MED = [
+    "Use this identity only for {purpose} — never cross into personal browsing.",
+    "Use a separate browser or container tab.",
+    "Do not access this compartment from devices linked to your real identity."
+  ];
+  var BOUNDARY_HIGH = [
+    "Strict separation: use a dedicated browser, VPN, and device if possible.",
+    "Never access this compartment alongside your real identity.",
+    "Consider using Tor or a hardened browser for this context.",
+    "Assume all activity in this compartment could become public."
+  ];
+
+  var EMAIL_PATTERNS = [
+    "yourname+{tag}@example.com",
+    "{tag}-{platform}@your-alias-domain.com",
+    "{handle}@alias-provider.example",
+    "user+{tag}-{rand}@yourdomain.com",
+    "{keyword}.{tag}@alias-service.example"
+  ];
+
+  var TAGS_BY_PURPOSE = {
+    "newsletter": ["newsletter","reading","subscribe","curated","digest"],
+    "ai-tool": ["ai","machine-learning","prompt","llm","tools"],
+    "forum": ["forum","discussion","community","thread","opinion"],
+    "marketplace": ["marketplace","buy","sell","listing","trade"],
+    "research": ["research","analysis","data","study","methodology"],
+    "low-trust": ["burner","temporary","disposable","shield","anon"],
+    "professional": ["professional","career","network","industry","work"],
+    "custom": ["custom","personal","alternate","side","secondary"]
+  };
+
+  var PASSWORD_STRATEGY = {
+    "low": "Use Keyana to derive a unique password for this compartment. A 16+ character password with mixed character types is sufficient.",
+    "medium": "Use Keyana to derive a unique 20+ character password. Enable all character sets. Never reuse a password from another compartment.",
+    "high": "Use Keyana to derive a 24+ character password with maximum entropy. Consider rotating the version number periodically. Do not store this password in any cloud service."
+  };
+
+  var RECOVERY_STRATEGY = {
+    "low": "Use a secondary email alias you control. Avoid your primary personal email as recovery contact.",
+    "medium": "Use a dedicated alias email for recovery only. Do not use your primary email or phone number. Consider storing recovery codes in Vaultana.",
+    "high": "Avoid any real recovery email if possible. If required, use a dedicated alias through a separate provider. Store recovery codes offline only — never in cloud accounts."
+  };
+
+  var NOTES_BY_RISK = {
+    "low": "This is a low-risk compartment. Basic separation from your primary identity is sufficient, but remain mindful of cross-linking.",
+    "medium": "This is a medium-risk compartment. Maintain clear boundaries between this identity and your real one. Avoid reusing usernames or email patterns.",
+    "high": "This is a high-risk compartment. Strict operational separation is essential. Use dedicated tools, avoid patterns that could link back to you."
+  };
+
+  /* ═══════════════════════════════════════════
+     COMPARTMENT GENERATOR
+     ═══════════════════════════════════════════ */
+  var currentCompartment = null;
+
+  function generateCompartment() {
+    var purpose = document.getElementById("purposeSelect").value;
+    var risk = getActivePill("riskGroup", "data-risk") || "medium";
+    var style = getActivePill("styleGroup", "data-style") || "neutral";
+    var region = getActivePill("regionGroup", "data-region") || "global";
+    var keyword = document.getElementById("keywordInput").value.trim().toLowerCase();
+    var platform = document.getElementById("platformInput").value.trim().toLowerCase();
+
+    /* Normalize platform for display */
+    var platformLabel = platform || PURPOSE_LABELS[purpose];
+
+    /* ── Compartment Name ── */
+    var prefix = pick(COMPARTMENT_PREFIXES[purpose]);
+    var compName = prefix + " Mask";
+    if (keyword) {
+      compName = prefix + " " + keyword.charAt(0).toUpperCase() + keyword.slice(1);
+    }
+
+    /* ── Alias Display Name ── */
+    var aliasFirst = pick(ALIAS_FIRST);
+    var aliasLast = pick(ALIAS_LAST);
+    var alias = aliasFirst + " " + aliasLast;
+
+    /* ── Handle ── */
+    var handle = generateHandle(aliasFirst, aliasLast, keyword, style);
+
+    /* ── Email Pattern ── */
+    var email = generateEmailPattern(purpose, handle, keyword, platform);
+
+    /* ── Bio ── */
+    var bio = generateBio(style, keyword);
+
+    /* ── Risk boundaries ── */
+    var reveal, conceal, boundary;
+    if (risk === "low") {
+      reveal = pick(REVEAL_LOW);
+      conceal = pickN(CONCEAL_LOW, 2).join(" ");
+      boundary = pick(BOUNDARY_LOW).replace("{purpose}", PURPOSE_LABELS[purpose].toLowerCase());
+    } else if (risk === "high") {
+      reveal = pick(REVEAL_HIGH);
+      conceal = pickN(CONCEAL_HIGH, 2).join(" ");
+      boundary = pickN(BOUNDARY_HIGH, 2).map(function(b){ return b.replace("{purpose}", PURPOSE_LABELS[purpose].toLowerCase()); }).join(" ");
+    } else {
+      reveal = pick(REVEAL_MED);
+      conceal = pickN(CONCEAL_MED, 2).join(" ");
+      boundary = pick(BOUNDARY_MED).replace("{purpose}", PURPOSE_LABELS[purpose].toLowerCase());
+    }
+
+    /* ── Tags ── */
+    var tags = pickN(TAGS_BY_PURPOSE[purpose], 3);
+    if (keyword && tags.indexOf(keyword) === -1) {
+      tags.push(keyword);
+    }
+
+    /* ── Assemble ── */
+    currentCompartment = {
+      purpose: purpose,
+      risk: risk,
+      style: style,
+      region: region,
+      platform: platform,
+      compName: compName,
+      alias: alias,
+      handle: handle,
+      email: email,
+      bio: bio,
+      passwordStrategy: PASSWORD_STRATEGY[risk],
+      recovery: RECOVERY_STRATEGY[risk],
+      reveal: reveal,
+      conceal: conceal,
+      boundary: boundary,
+      tags: tags,
+      notes: NOTES_BY_RISK[risk]
+    };
+
+    return currentCompartment;
+  }
+
+  function generateHandle(first, last, keyword, style) {
+    var sep = pick(SEPARATORS);
+    var numSuffix = secureNumber(3);
+    var firstLow = first.toLowerCase();
+    var lastLow = last.toLowerCase();
+
+    /* Style influences handle structure */
+    var patterns;
+    if (style === "professional") {
+      patterns = [
+        firstLow + sep + lastLow,
+        firstLow.charAt(0) + sep + lastLow,
+        lastLow + sep + firstLow.charAt(0)
+      ];
+    } else if (style === "casual") {
+      patterns = [
+        firstLow + sep + numSuffix,
+        firstLow + sep + lastLow + sep + numSuffix,
+        lastLow + sep + numSuffix
+      ];
+    } else if (style === "tech") {
+      var techWord = pick(TECH_WORDS).toLowerCase();
+      patterns = [
+        firstLow + sep + techWord + sep + numSuffix,
+        techWord + sep + numSuffix,
+        firstLow + sep + techWord
+      ];
+    } else if (style === "minimal") {
+      patterns = [
+        firstLow + sep + numSuffix,
+        firstLow.charAt(0) + lastLow + numSuffix.substring(0,2),
+        lastLow + numSuffix.substring(0,2)
+      ];
+    } else {
+      /* neutral */
+      patterns = [
+        firstLow + sep + lastLow + sep + numSuffix,
+        firstLow + sep + pick(NOUNS).toLowerCase() + sep + numSuffix,
+        lastLow + sep + firstLow.charAt(0) + sep + numSuffix
+      ];
+    }
+
+    if (keyword) {
+      var kwLow = keyword.replace(/[^a-z0-9]/g, "");
+      if (kwLow) {
+        patterns.push(firstLow + sep + kwLow + sep + numSuffix);
+        patterns.push(kwLow + sep + pick(ABSTRACT_WORDS).toLowerCase() + sep + numSuffix.substring(0,2));
+      }
+    }
+
+    return pick(patterns);
+  }
+
+  function generateEmailPattern(purpose, handle, keyword, platform) {
+    var pattern = pick(EMAIL_PATTERNS);
+    var tag = PURPOSE_LABELS[purpose].toLowerCase().replace(/\s+/g, "-");
+    var platformTag = platform ? platform.replace(/[^a-z0-9.-]/g, "").replace(/^www\./, "").split(".")[0] : tag;
+    var rand = secureNumber(2);
+    var kw = keyword || tag;
+
+    pattern = pattern.replace("{tag}", tag);
+    pattern = pattern.replace("{platform}", platformTag);
+    pattern = pattern.replace("{handle}", handle);
+    pattern = pattern.replace("{rand}", rand);
+    pattern = pattern.replace("{keyword}", kw);
+
+    return pattern;
+  }
+
+  function generateBio(style, keyword) {
+    var templates;
+    if (style === "professional") templates = BIO_TEMPLATES_PROFESSIONAL;
+    else if (style === "casual") templates = BIO_TEMPLATES_CASUAL;
+    else if (style === "tech") templates = BIO_TEMPLATES_TECH;
+    else if (style === "minimal") templates = BIO_TEMPLATES_MINIMAL;
+    else templates = BIO_TEMPLATES_NEUTRAL;
+
+    var bio = pick(templates);
+
+    if (keyword && secureRandom(2) === 0) {
+      var kwCap = keyword.charAt(0).toUpperCase() + keyword.slice(1);
+      bio = kwCap + " enthusiast. " + bio;
+    }
+
+    return bio;
+  }
+
+  /* ═══════════════════════════════════════════
+     UI HELPERS
+     ═══════════════════════════════════════════ */
+
+  function getActivePill(groupId, attr) {
+    var pills = document.getElementById(groupId).querySelectorAll(".pill");
+    for (var i = 0; i < pills.length; i++) {
+      if (pills[i].classList.contains("active")) {
+        return pills[i].getAttribute(attr);
+      }
+    }
+    return null;
+  }
+
+  function escapeHtml(str) {
+    var div = document.createElement("div");
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  function showToast(msg, type) {
+    var t = document.getElementById("toast");
+    t.textContent = msg;
+    t.className = "toast " + (type || "info");
+    /* Force reflow before adding show class */
+    void t.offsetWidth;
+    t.classList.add("show");
+    clearTimeout(t._timer);
+    t._timer = setTimeout(function(){
+      t.classList.remove("show");
+    }, 2400);
+  }
+
+  /* ═══════════════════════════════════════════
+     RENDER COMPARTMENT
+     ═══════════════════════════════════════════ */
+
+  function renderCompartment(c) {
+    /* Show panel */
+    var panel = document.getElementById("resultPanel");
+    panel.classList.remove("hidden");
+    panel.className = panel.className.replace("result-panel","").trim();
+    void panel.offsetWidth;
+    panel.classList.add("result-panel");
+
+    /* Badges */
+    document.getElementById("resultPurpose").textContent = PURPOSE_LABELS[c.purpose];
+
+    var riskEl = document.getElementById("resultRisk");
+    riskEl.textContent = c.risk.charAt(0).toUpperCase() + c.risk.slice(1) + " Risk";
+    riskEl.className = "result-badge risk-" + (c.risk === "low" ? "low" : c.risk === "high" ? "high" : "med");
+
+    document.getElementById("resultStyle").textContent = c.style.charAt(0).toUpperCase() + c.style.slice(1);
+
+    /* Fields */
+    document.getElementById("compName").textContent = c.compName;
+    document.getElementById("compAlias").textContent = c.alias;
+    document.getElementById("compHandle").textContent = c.handle;
+    document.getElementById("compEmail").textContent = c.email;
+
+    /* Email note */
+    var emailEl = document.getElementById("compEmail");
+    var noteSpan = document.createElement("span");
+    noteSpan.className = "email-note";
+    noteSpan.textContent = "Maskana does not create inboxes. Use your own email alias provider, custom domain, or plus-addressing setup.";
+    /* Remove previous note if any */
+    var prevNote = emailEl.querySelector(".email-note");
+    if (prevNote) emailEl.removeChild(prevNote);
+    emailEl.appendChild(noteSpan);
+
+    document.getElementById("compBio").textContent = c.bio;
+    document.getElementById("compPassword").textContent = c.passwordStrategy;
+    document.getElementById("compRecovery").textContent = c.recovery;
+
+    /* Risk boundaries */
+    var riskBox = document.getElementById("compRiskBox");
+    riskBox.innerHTML = "";
+    var revealDiv = document.createElement("div");
+    revealDiv.className = "risk-box-item reveal";
+    revealDiv.innerHTML = "<strong>What to reveal</strong>" + escapeHtml(c.reveal);
+    var concealDiv = document.createElement("div");
+    concealDiv.className = "risk-box-item conceal";
+    concealDiv.innerHTML = "<strong>What not to reveal</strong>" + escapeHtml(c.conceal);
+    riskBox.appendChild(revealDiv);
+    riskBox.appendChild(concealDiv);
+
+    /* Boundary note */
+    var boundaryDiv = document.createElement("div");
+    boundaryDiv.className = "risk-box-item";
+    boundaryDiv.style.gridColumn = "1 / -1";
+    boundaryDiv.innerHTML = "<strong style='color:rgba(var(--accent),0.8)'>Boundary</strong>" + escapeHtml(c.boundary);
+    riskBox.appendChild(boundaryDiv);
+
+    /* Tags */
+    var tagList = document.getElementById("compTags");
+    tagList.innerHTML = "";
+    c.tags.forEach(function(tag) {
+      var span = document.createElement("span");
+      span.className = "tag";
+      span.textContent = tag;
+      tagList.appendChild(span);
+    });
+
+    /* Notes */
+    document.getElementById("compNotes").textContent = c.notes;
+
+    /* Scroll into view */
+    panel.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  /* ═══════════════════════════════════════════
+     EXPORT / COPY FUNCTIONS
+     ═══════════════════════════════════════════ */
+
+  function buildProfileText(c) {
+    var lines = [];
+    lines.push("COMPARTMENT PROFILE — Maskana");
+    lines.push("================================");
+    lines.push("");
+    lines.push("Compartment Name:  " + c.compName);
+    lines.push("Alias:             " + c.alias);
+    lines.push("Handle:            " + c.handle);
+    lines.push("Email Pattern:     " + c.email);
+    lines.push("");
+    lines.push("Bio:               " + c.bio);
+    lines.push("");
+    lines.push("Purpose:           " + PURPOSE_LABELS[c.purpose]);
+    lines.push("Risk Level:        " + c.risk);
+    lines.push("Style:             " + c.style);
+    lines.push("Region:            " + c.region);
+    if (c.platform) lines.push("Platform:          " + c.platform);
+    lines.push("");
+    lines.push("Password Strategy: " + c.passwordStrategy);
+    lines.push("Recovery Note:     " + c.recovery);
+    lines.push("");
+    lines.push("What to Reveal:    " + c.reveal);
+    lines.push("What Not to Reveal:" + c.conceal);
+    lines.push("Boundary:          " + c.boundary);
+    lines.push("");
+    lines.push("Tags:              " + c.tags.join(", "));
+    lines.push("");
+    lines.push("Notes:             " + c.notes);
+    lines.push("");
+    lines.push("—");
+    lines.push("Generated by Maskana — GoAnon Identity Compartment Builder");
+    lines.push("Maskana does not create inboxes. Use your own email alias provider, custom domain, or plus-addressing setup.");
+    return lines.join("\n");
+  }
+
+  /* ═══════════════════════════════════════════
+     GLOBAL HANDLERS
+     ═══════════════════════════════════════════ */
+
+  window.handleGenerate = function() {
+    var c = generateCompartment();
+    renderCompartment(c);
+    showToast("Compartment generated", "success");
+  };
+
+  window.handleCopyProfile = function() {
+    if (!currentCompartment) return;
+    var text = buildProfileText(currentCompartment);
+    navigator.clipboard.writeText(text).then(function(){
+      showToast("Full profile copied", "success");
+    }).catch(function(){
+      showToast("Copy failed", "error");
+    });
+  };
+
+  window.handleCopyHandle = function() {
+    if (!currentCompartment) return;
+    navigator.clipboard.writeText(currentCompartment.handle).then(function(){
+      showToast("Handle copied", "success");
+    }).catch(function(){
+      showToast("Copy failed", "error");
+    });
+  };
+
+  window.handleCopyBio = function() {
+    if (!currentCompartment) return;
+    navigator.clipboard.writeText(currentCompartment.bio).then(function(){
+      showToast("Bio copied", "success");
+    }).catch(function(){
+      showToast("Copy failed", "error");
+    });
+  };
+
+  window.handleExportTxt = function() {
+    if (!currentCompartment) return;
+    var text = buildProfileText(currentCompartment);
+    var blob = new Blob([text], { type: "text/plain" });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url;
+    a.download = currentCompartment.handle + "-compartment.txt";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast("Exported as .txt", "success");
+  };
+
+  window.handleClear = function() {
+    currentCompartment = null;
+    var panel = document.getElementById("resultPanel");
+    panel.classList.add("hidden");
+    document.getElementById("keywordInput").value = "";
+    document.getElementById("platformInput").value = "";
+    /* Clear dynamic fields */
+    document.getElementById("compName").textContent = "";
+    document.getElementById("compAlias").textContent = "";
+    document.getElementById("compHandle").textContent = "";
+    document.getElementById("compEmail").textContent = "";
+    document.getElementById("compBio").textContent = "";
+    document.getElementById("compPassword").textContent = "";
+    document.getElementById("compRecovery").textContent = "";
+    document.getElementById("compRiskBox").innerHTML = "";
+    document.getElementById("compTags").innerHTML = "";
+    document.getElementById("compNotes").textContent = "";
+    showToast("Cleared", "info");
+  };
+
+  /* ═══════════════════════════════════════════
+     PILL TOGGLE LOGIC
+     ═══════════════════════════════════════════ */
+  function setupPills(groupId) {
+    var group = document.getElementById(groupId);
+    var pills = group.querySelectorAll(".pill");
+    pills.forEach(function(pill) {
+      pill.addEventListener("click", function() {
+        pills.forEach(function(p) { p.classList.remove("active"); });
+        pill.classList.add("active");
+      });
+    });
+  }
+
+  setupPills("riskGroup");
+  setupPills("styleGroup");
+  setupPills("regionGroup");
+
+  /* ═══════════════════════════════════════════
+     HOW IT WORKS TOGGLE
+     ═══════════════════════════════════════════ */
+  window.toggleHow = function() {
+    var toggle = document.getElementById("howToggle");
+    var body = document.getElementById("howBody");
+    toggle.classList.toggle("open");
+    body.classList.toggle("open");
+  };
+
+  /* ═══════════════════════════════════════════
+     THEME TOGGLE
+     ═══════════════════════════════════════════ */
+  var themeKey = "goanon-theme";
+
+  /* Restore theme */
+  (function(){
+    var stored = localStorage.getItem(themeKey);
+    var cookie = (document.cookie.match(/(?:^|; )goanon_theme=([^;]+)/) || [])[1];
+    var theme = stored || cookie || "dark";
+    if (theme === "light") {
+      document.body.classList.add("light-mode");
+    }
+  })();
+
+  window.toggleGoAnonTheme = function() {
+    var light = document.body.classList.toggle("light-mode");
+    var value = light ? "light" : "dark";
+    localStorage.setItem(themeKey, value);
+    document.cookie = "goanon_theme=" + value + "; path=/; domain=.goanon.pro; max-age=31536000; SameSite=Lax; Secure";
+  };
+
+})();
+</script>
+</body>
+</html>
