@@ -1,0 +1,1311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Keyana — Strong Password Deriver — GoAnon</title>
+<meta name="description" content="Generate strong, unique passwords for each website from one memorable private phrase. Everything is derived locally in your browser.">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self'; connect-src 'none'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; object-src 'none'; frame-src 'none'; form-action 'none'; base-uri 'self'; manifest-src 'none';">
+<link rel="icon" href="../assets/images/goanon-logo.png" type="image/png">
+<!-- No external font requests — system font stack only. Zero network calls. -->
+<style>
+/* ────────────────────────────────────────────
+   GoAnon Design System — Keyana
+   Accent: amber-orange (key/derivation theme)
+   ──────────────────────────────────────────── */
+:root{
+  --accent:255,150,40;
+  --accent2:255,200,80;
+  --panel:rgba(255,255,255,.055);
+  --panel-2:rgba(255,255,255,.03);
+  --text:rgba(255,255,255,.92);
+  --muted:rgba(255,255,255,.62);
+  --faint:rgba(255,255,255,.38);
+  --line:rgba(255,255,255,.12);
+  --ok:#2ed573;
+  --warn:#ffd166;
+  --danger:#ff4757;
+  --radius:26px;
+  --radius-sm:14px;
+  --radius-xs:8px;
+  --mono:'SFMono-Regular',Consolas,'Liberation Mono',Menlo,monospace;
+}
+body.light-mode{
+  --panel:rgba(255,255,255,.82);
+  --panel-2:rgba(255,255,255,.58);
+  --text:rgba(18,18,18,.9);
+  --muted:rgba(18,18,18,.64);
+  --faint:rgba(18,18,18,.42);
+  --line:rgba(0,0,0,.10);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{
+  min-height:100vh;
+  font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,sans-serif;
+  background:radial-gradient(circle at 18% 12%,rgba(var(--accent),.13),transparent 34%),
+             radial-gradient(circle at 78% 18%,rgba(var(--accent2),.11),transparent 35%),
+             linear-gradient(135deg,#071019,#020306 70%);
+  color:var(--text);
+  -webkit-font-smoothing:antialiased;
+  transition:background .6s ease,color .4s ease;
+}
+body.light-mode{
+  background:radial-gradient(circle at 18% 12%,rgba(var(--accent),.12),transparent 34%),
+             radial-gradient(circle at 78% 18%,rgba(var(--accent2),.09),transparent 35%),
+             linear-gradient(135deg,#fff,#f4f5f7 70%);
+}
+a{color:inherit;text-decoration:none}
+
+/* ── Shell ── */
+.site-shell{min-height:100vh;position:relative;overflow-x:hidden}
+.site-shell::before{
+  content:"";position:fixed;inset:0;
+  background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),
+                    linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);
+  background-size:44px 44px;
+  mask-image:linear-gradient(to bottom,#000,transparent 85%);
+  pointer-events:none;z-index:0;
+}
+
+/* ── Topbar ── */
+.topbar{
+  position:sticky;top:0;z-index:30;
+  display:flex;align-items:center;justify-content:space-between;gap:18px;
+  padding:18px clamp(18px,4vw,52px);
+  backdrop-filter:blur(18px);
+  background:rgba(2,3,6,.52);
+  border-bottom:1px solid var(--line);
+}
+.light-mode .topbar{background:rgba(255,255,255,.62)}
+.brand{display:flex;align-items:center;gap:12px}
+.brand img{width:42px;height:42px;object-fit:contain}
+.brand span{font-weight:700;letter-spacing:-.03em;font-size:1.1rem}
+.nav{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.nav a,.theme-toggle{
+  font:600 .72rem/1 var(--mono);
+  letter-spacing:.08em;text-transform:uppercase;
+  color:var(--muted);border:1px solid var(--line);border-radius:999px;
+  padding:9px 13px;background:rgba(255,255,255,.035);
+  cursor:pointer;transition:all .25s ease;
+}
+.nav a:hover,.theme-toggle:hover{
+  border-color:rgba(var(--accent),.4);color:var(--text);
+  background:rgba(var(--accent),.08);
+}
+
+/* ── Container ── */
+.container{width:min(720px,calc(100% - 36px));margin:0 auto;position:relative;z-index:1}
+
+/* ── Hero ── */
+.hero{padding:56px 0 28px;text-align:center}
+.eyebrow{
+  display:inline-flex;
+  font:600 .76rem/1 var(--mono);
+  letter-spacing:.12em;text-transform:uppercase;
+  color:rgba(var(--accent),.95);
+  border:1px solid rgba(var(--accent),.24);
+  background:rgba(var(--accent),.07);
+  border-radius:999px;padding:9px 14px;margin-bottom:18px;
+}
+.hero h1{
+  font-size:clamp(2.2rem,5vw,4rem);line-height:.96;
+  letter-spacing:-.06em;margin:0 0 14px;
+}
+.hero p{
+  font-size:clamp(.95rem,1.8vw,1.12rem);line-height:1.75;
+  color:var(--muted);max-width:560px;margin:0 auto;
+}
+
+/* ── Buttons ── */
+.btn{
+  display:inline-flex;align-items:center;gap:8px;
+  border-radius:999px;padding:12px 20px;
+  font:700 .76rem/1 var(--mono);
+  letter-spacing:.08em;text-transform:uppercase;
+  border:1px solid rgba(var(--accent),.30);
+  background:rgba(var(--accent),.11);color:var(--text);
+  cursor:pointer;transition:all .3s ease;
+}
+.btn:hover{background:rgba(var(--accent),.2);border-color:rgba(var(--accent),.5);transform:translateY(-1px)}
+.btn:active{transform:translateY(0)}
+.btn.secondary{background:rgba(255,255,255,.035);border-color:var(--line);color:var(--muted)}
+.btn.secondary:hover{border-color:rgba(var(--accent),.3);color:var(--text);background:rgba(var(--accent),.06)}
+.btn.danger{border-color:rgba(255,71,87,.3);background:rgba(255,71,87,.08);color:var(--danger)}
+.btn.danger:hover{background:rgba(255,71,87,.15);border-color:rgba(255,71,87,.5)}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}
+
+/* ── Card ── */
+.card{
+  border:1px solid var(--line);border-radius:var(--radius);
+  background:linear-gradient(145deg,var(--panel),var(--panel-2));
+  backdrop-filter:blur(18px);
+  padding:28px 24px;
+  margin-bottom:16px;
+}
+.card h2{font-size:1.05rem;letter-spacing:-.02em;margin-bottom:16px}
+
+/* ── Warning card ── */
+.warn-card{
+  border-color:rgba(var(--accent),.25);
+  background:linear-gradient(145deg,rgba(var(--accent),.06),rgba(var(--accent),.02));
+}
+.warn-card p{font-size:.88rem;color:var(--muted);line-height:1.7}
+.warn-card strong{color:rgba(var(--accent),1);font-weight:600}
+
+/* ── Form ── */
+.form-group{margin-bottom:18px}
+.form-group:last-child{margin-bottom:0}
+.form-label{
+  display:block;
+  font:600 .72rem/1 var(--mono);
+  letter-spacing:.08em;text-transform:uppercase;
+  color:var(--muted);margin-bottom:8px;
+}
+.form-input{
+  width:100%;
+  background:rgba(255,255,255,.04);
+  border:1px solid var(--line);
+  border-radius:var(--radius-sm);
+  padding:13px 16px;
+  font-size:.92rem;
+  color:var(--text);
+  outline:none;
+  transition:border-color .2s;
+  font-family:inherit;
+}
+.form-input:focus{border-color:rgba(var(--accent),.5)}
+.form-input::placeholder{color:var(--faint)}
+.form-input.mono{font-family:var(--mono);letter-spacing:.03em}
+
+/* Input with toggle */
+.input-wrap{position:relative}
+.input-wrap .form-input{padding-right:48px}
+.input-toggle{
+  position:absolute;right:4px;top:50%;transform:translateY(-50%);
+  width:36px;height:36px;border-radius:50%;
+  background:rgba(255,255,255,.05);border:none;
+  color:var(--faint);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .2s;
+}
+.input-toggle:hover{color:var(--text);background:rgba(var(--accent),.1)}
+.input-toggle svg{width:16px;height:16px}
+
+/* Domain preview */
+.domain-preview{
+  font:500 .72rem/1 var(--mono);
+  color:rgba(var(--accent),.8);
+  margin-top:6px;letter-spacing:.04em;
+  min-height:1em;
+}
+
+/* ── Version input ── */
+.version-row{display:flex;align-items:center;gap:10px}
+.version-input{
+  width:80px;text-align:center;
+  background:rgba(255,255,255,.04);
+  border:1px solid var(--line);
+  border-radius:var(--radius-sm);
+  padding:13px 12px;
+  font-size:.92rem;color:var(--text);
+  outline:none;font-family:var(--mono);
+  letter-spacing:.04em;
+  transition:border-color .2s;
+  -moz-appearance:textfield;
+  appearance:textfield;
+}
+.version-input::-webkit-outer-spin-button,
+.version-input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.version-input:focus{border-color:rgba(var(--accent),.5)}
+.version-btn{
+  width:40px;height:40px;border-radius:50%;
+  background:rgba(255,255,255,.04);border:1px solid var(--line);
+  color:var(--muted);cursor:pointer;font-size:1.1rem;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .2s;
+}
+.version-btn:hover{border-color:rgba(var(--accent),.3);color:var(--text);background:rgba(var(--accent),.06)}
+
+/* ── Length slider ── */
+.length-row{display:flex;align-items:center;gap:14px}
+.length-slider{
+  flex:1;-webkit-appearance:none;appearance:none;
+  height:6px;border-radius:3px;
+  background:rgba(255,255,255,.08);
+  outline:none;
+}
+.length-slider::-webkit-slider-thumb{
+  -webkit-appearance:none;appearance:none;
+  width:20px;height:20px;border-radius:50%;
+  background:rgba(var(--accent),1);
+  cursor:pointer;border:2px solid rgba(var(--accent),.3);
+  transition:transform .15s;
+}
+.length-slider::-webkit-slider-thumb:hover{transform:scale(1.15)}
+.length-slider::-moz-range-thumb{
+  width:20px;height:20px;border-radius:50%;
+  background:rgba(var(--accent),1);cursor:pointer;
+  border:2px solid rgba(var(--accent),.3);
+}
+.length-value{
+  font:700 .88rem/1 var(--mono);
+  color:var(--text);min-width:28px;text-align:right;
+}
+
+/* ── Option toggles ── */
+.options-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:480px){.options-grid{grid-template-columns:1fr}}
+.opt-toggle{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 14px;border-radius:var(--radius-sm);
+  border:1px solid var(--line);
+  cursor:pointer;user-select:none;
+  transition:all .2s;
+}
+.opt-toggle:hover{border-color:rgba(var(--accent),.2);background:rgba(var(--accent),.03)}
+.opt-toggle.active{border-color:rgba(var(--accent),.3);background:rgba(var(--accent),.06)}
+.opt-toggle .toggle-track{
+  width:28px;height:16px;border-radius:999px;
+  background:var(--line);position:relative;
+  transition:background .2s;flex-shrink:0;
+}
+.opt-toggle.active .toggle-track{background:rgba(var(--accent),.4)}
+.opt-toggle .toggle-thumb{
+  position:absolute;top:2px;left:2px;
+  width:12px;height:12px;border-radius:50%;
+  background:var(--faint);
+  transition:transform .2s,background .2s;
+}
+.opt-toggle.active .toggle-thumb{transform:translateX(12px);background:rgba(var(--accent),1)}
+.opt-toggle .toggle-label{
+  font:500 .72rem/1 var(--mono);
+  letter-spacing:.06em;text-transform:uppercase;
+  color:var(--faint);transition:color .2s;
+}
+.opt-toggle.active .toggle-label{color:var(--text)}
+
+/* ── Generate button ── */
+.generate-btn{
+  width:100%;justify-content:center;
+  padding:16px 24px;font-size:.82rem;
+  margin-top:4px;
+}
+
+/* ── Inline warning ── */
+.inline-warn{
+  font:500 .72rem/1.4 var(--mono);
+  color:var(--danger);letter-spacing:.04em;
+  margin-top:6px;
+}
+.inline-warn.subtle{color:var(--warn)}
+
+/* ── Result panel ── */
+.result-panel{animation:fadeInUp .4s ease forwards}
+@keyframes fadeInUp{
+  from{opacity:0;transform:translateY(12px)}
+  to{opacity:1;transform:translateY(0)}
+}
+.result-header{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:14px;flex-wrap:wrap;gap:8px;
+}
+.result-meta{
+  display:flex;align-items:center;gap:12px;
+  font:500 .68rem/1 var(--mono);
+  color:var(--faint);letter-spacing:.04em;
+}
+.result-badge{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:5px 10px;border-radius:999px;
+  font:600 .62rem/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;
+  border:1px solid rgba(var(--accent),.2);
+  background:rgba(var(--accent),.06);
+  color:rgba(var(--accent),.9);
+}
+
+/* Password display */
+.pw-display{
+  display:flex;align-items:center;gap:10px;
+  background:rgba(0,0,0,.25);
+  border:1px solid var(--line);
+  border-radius:var(--radius-sm);
+  padding:14px 16px;
+  margin-bottom:12px;
+}
+.light-mode .pw-display{background:rgba(255,255,255,.45)}
+.pw-text{
+  flex:1;font-family:var(--mono);font-size:.92rem;
+  letter-spacing:.06em;word-break:break-all;
+  color:var(--text);line-height:1.5;
+  min-height:1.5em;
+  -webkit-user-select:all;user-select:all;
+}
+.pw-text.hidden-pw{
+  -webkit-text-security:disc;
+  -moz-text-security:disc;
+}
+.pw-actions{display:flex;gap:6px;flex-shrink:0}
+.pw-action-btn{
+  width:36px;height:36px;border-radius:50%;
+  background:rgba(255,255,255,.05);border:1px solid var(--line);
+  color:var(--muted);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .2s;
+}
+.pw-action-btn:hover{border-color:rgba(var(--accent),.3);color:var(--text);background:rgba(var(--accent),.06)}
+.pw-action-btn svg{width:15px;height:15px}
+
+/* Strength bar */
+.strength-bar-wrap{margin-bottom:16px}
+.strength-bar-bg{
+  width:100%;height:6px;border-radius:3px;
+  background:rgba(255,255,255,.06);
+  overflow:hidden;margin-bottom:6px;
+}
+.strength-bar-fill{
+  height:100%;border-radius:3px;
+  transition:width .5s cubic-bezier(.4,0,.2,1),background .3s;
+  width:0;
+}
+.strength-info{
+  display:flex;justify-content:space-between;align-items:center;
+  font:500 .68rem/1 var(--mono);color:var(--faint);letter-spacing:.04em;
+}
+.strength-label{font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+
+/* Result actions */
+.result-actions{display:flex;gap:10px;flex-wrap:wrap}
+
+/* ── How it works ── */
+.collapse-toggle{
+  display:flex;align-items:center;justify-content:space-between;
+  cursor:pointer;user-select:none;width:100%;
+  background:none;border:none;color:var(--text);
+  font-size:1.05rem;font-weight:600;letter-spacing:-.02em;
+  padding:0;margin-bottom:0;
+}
+.collapse-toggle svg{
+  width:18px;height:18px;color:var(--faint);
+  transition:transform .3s;
+}
+.collapse-toggle.open svg{transform:rotate(180deg)}
+.collapse-body{
+  max-height:0;overflow:hidden;
+  transition:max-height .4s ease;
+}
+.collapse-body.open{max-height:800px}
+.collapse-body-inner{padding-top:16px}
+.step-list{list-style:none;padding:0}
+.step-list li{
+  display:flex;gap:14px;margin-bottom:14px;
+  font-size:.88rem;color:var(--muted);line-height:1.65;
+}
+.step-num{
+  flex-shrink:0;width:28px;height:28px;
+  border-radius:50%;border:1px solid rgba(var(--accent),.25);
+  background:rgba(var(--accent),.06);
+  color:rgba(var(--accent),1);
+  font:700 .72rem/28px var(--mono);
+  text-align:center;letter-spacing:0;
+}
+
+/* ── Vaultana note ── */
+.vaultana-note{
+  border-color:rgba(150,110,255,.2);
+  background:linear-gradient(145deg,rgba(150,110,255,.04),rgba(150,110,255,.01));
+}
+.vaultana-note p{font-size:.86rem;color:var(--muted);line-height:1.65}
+.vaultana-note strong{color:rgba(150,110,255,.95);font-weight:600}
+
+/* ── Toast ── */
+.toast{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);
+  padding:14px 22px;border-radius:999px;
+  font:600 .76rem/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;
+  z-index:100;opacity:0;
+  transition:all .35s cubic-bezier(.4,0,.2,1);
+  pointer-events:none;
+  backdrop-filter:blur(18px);
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.success{background:rgba(46,213,115,.15);color:var(--ok);border:1px solid rgba(46,213,115,.3)}
+.toast.error{background:rgba(255,71,87,.15);color:var(--danger);border:1px solid rgba(255,71,87,.3)}
+.toast.info{background:rgba(var(--accent),.12);color:rgba(var(--accent),1);border:1px solid rgba(var(--accent),.3)}
+
+/* ── Footer ── */
+.footer{
+  text-align:center;padding:48px 24px 36px;
+  font-size:.82rem;color:var(--faint);
+  border-top:1px solid var(--line);margin-top:48px;
+}
+.footer span{color:rgba(var(--accent),.7)}
+
+/* ── Utility ── */
+.hidden{display:none!important}
+.fade-in{animation:fadeIn .4s ease forwards;opacity:0}
+@keyframes fadeIn{to{opacity:1}}
+
+/* ── Responsive ── */
+@media(max-width:768px){
+  .hero h1{font-size:clamp(1.8rem,7vw,2.8rem)}
+  .card{padding:22px 18px}
+}
+@media(max-width:480px){
+  .topbar{padding:14px 16px}
+  .brand span{display:none}
+  .nav a,.theme-toggle{font-size:.65rem;padding:7px 10px}
+  .options-grid{grid-template-columns:1fr}
+  .pw-display{flex-direction:column;align-items:stretch}
+  .pw-actions{justify-content:flex-end}
+  .result-actions{flex-direction:column}
+  .result-actions .btn{justify-content:center}
+}
+</style>
+</head>
+<body>
+<div class="site-shell">
+
+  <!-- ═══ Topbar ═══ -->
+  <header class="topbar">
+    <a href="../index.html" class="brand">
+      <img src="../assets/images/goanon-logo.png" alt="GoAnon" width="42" height="42">
+      <span>GoAnon</span>
+    </a>
+    <nav class="nav">
+      <a href="../tools/index.html">Tools</a>
+      <a href="../products/browser.html">Products</a>
+      <button class="theme-toggle" onclick="toggleGoAnonTheme()" aria-label="Toggle theme">Theme</button>
+    </nav>
+  </header>
+
+  <!-- ═══ Toast ═══ -->
+  <div class="toast" id="toast"></div>
+
+  <!-- ═══ Main Content ═══ -->
+  <main class="container">
+
+    <!-- Hero -->
+    <section class="hero">
+      <div class="eyebrow">Password deriver</div>
+      <h1>Keyana</h1>
+      <p>Generate strong, unique passwords for each website from one memorable private phrase. Everything is derived locally in your browser — no account, no sync, no server.</p>
+    </section>
+
+    <!-- Warning note -->
+    <div class="card warn-card" style="text-align:center">
+      <p><strong>Keyana does not store your private phrase.</strong> If you forget the phrase, domain, username, or version, the same password cannot be reproduced. A strong private phrase matters — avoid common passwords, names, birthdays, and short phrases.</p>
+    </div>
+
+    <!-- ═══ Input Panel ═══ -->
+    <div class="card">
+
+      <!-- Domain -->
+      <div class="form-group">
+        <label class="form-label" for="domainInput">Website / Domain</label>
+        <input type="text" class="form-input" id="domainInput"
+               placeholder="e.g. https://www.example.com or just example.com"
+               autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+        <div class="domain-preview" id="domainPreview"></div>
+      </div>
+
+      <!-- Username -->
+      <div class="form-group">
+        <label class="form-label" for="usernameInput">Username / Email <span style="color:var(--faint);font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></label>
+        <input type="text" class="form-input" id="usernameInput"
+               placeholder="e.g. user@example.com"
+               autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+      </div>
+
+      <!-- Private Phrase -->
+      <div class="form-group">
+        <label class="form-label" for="phraseInput">Memorable Private Phrase</label>
+        <div class="input-wrap">
+          <input type="password" class="form-input mono" id="phraseInput"
+                 placeholder="Your private phrase — the stronger, the better"
+                 autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+          <button class="input-toggle" id="phraseToggle" aria-label="Show or hide private phrase">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+        <div class="inline-warn subtle" id="phraseWarn"></div>
+      </div>
+
+      <!-- Version -->
+      <div class="form-group">
+        <label class="form-label">Password Version</label>
+        <div class="version-row">
+          <button class="version-btn" id="versionDec" aria-label="Decrease version">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14"/></svg>
+          </button>
+          <input type="number" class="version-input" id="versionInput" value="1" min="1" max="9999">
+          <button class="version-btn" id="versionInc" aria-label="Increase version">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+          </button>
+          <span style="font:500 .68rem/1 var(--mono);color:var(--faint);letter-spacing:.04em;margin-left:4px">Change version to rotate password for the same site</span>
+        </div>
+      </div>
+
+      <!-- Length -->
+      <div class="form-group">
+        <label class="form-label">Password Length</label>
+        <div class="length-row">
+          <input type="range" class="length-slider" id="lengthSlider" min="12" max="64" value="20">
+          <span class="length-value" id="lengthValue">20</span>
+        </div>
+      </div>
+
+      <!-- Character Options -->
+      <div class="form-group">
+        <label class="form-label">Character Sets</label>
+        <div class="options-grid">
+          <div class="opt-toggle active" id="optUpper" data-opt="upper">
+            <span class="toggle-track"><span class="toggle-thumb"></span></span>
+            <span class="toggle-label">A-Z</span>
+          </div>
+          <div class="opt-toggle active" id="optLower" data-opt="lower">
+            <span class="toggle-track"><span class="toggle-thumb"></span></span>
+            <span class="toggle-label">a-z</span>
+          </div>
+          <div class="opt-toggle active" id="optDigits" data-opt="digits">
+            <span class="toggle-track"><span class="toggle-thumb"></span></span>
+            <span class="toggle-label">0-9</span>
+          </div>
+          <div class="opt-toggle active" id="optSymbols" data-opt="symbols">
+            <span class="toggle-track"><span class="toggle-thumb"></span></span>
+            <span class="toggle-label">!@#$</span>
+          </div>
+          <div class="opt-toggle" id="optAmbiguous" data-opt="ambiguous">
+            <span class="toggle-track"><span class="toggle-thumb"></span></span>
+            <span class="toggle-label">Avoid ambiguous</span>
+          </div>
+        </div>
+        <div class="inline-warn" id="charsetWarn"></div>
+      </div>
+
+      <!-- Generate -->
+      <button class="btn generate-btn" id="generateBtn" onclick="handleGenerate()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+        Derive Password
+      </button>
+    </div>
+
+    <!-- ═══ Result Panel ═══ -->
+    <div class="card hidden" id="resultPanel">
+      <div class="result-header">
+        <h2>Derived Password</h2>
+        <div class="result-meta">
+          <span class="result-badge" id="resultDomain"></span>
+          <span class="result-badge" id="resultVersion"></span>
+        </div>
+      </div>
+
+      <div class="pw-display">
+        <span class="pw-text hidden-pw" id="pwText"></span>
+        <div class="pw-actions">
+          <button class="pw-action-btn" id="pwToggleBtn" aria-label="Show or hide password">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+          <button class="pw-action-btn" id="pwCopyBtn" aria-label="Copy password">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Strength bar -->
+      <div class="strength-bar-wrap">
+        <div class="strength-bar-bg"><div class="strength-bar-fill" id="strengthBar"></div></div>
+        <div class="strength-info">
+          <span class="strength-label" id="strengthLabel"></span>
+          <span id="strengthBits"></span>
+        </div>
+      </div>
+
+      <div class="result-actions">
+        <button class="btn secondary" onclick="handleCopy()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Copy Password
+        </button>
+        <button class="btn danger" onclick="handleClear()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+          Clear Sensitive Inputs
+        </button>
+      </div>
+    </div>
+
+    <!-- ═══ How It Works ═══ -->
+    <div class="card">
+      <button class="collapse-toggle" id="howToggle" onclick="toggleHow()">
+        How it works
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="collapse-body" id="howBody">
+        <div class="collapse-body-inner">
+          <ol class="step-list">
+            <li>
+              <span class="step-num">1</span>
+              <span>You enter a website domain, optional username, your private phrase, and a version number. Keyana normalizes the domain (lowercase, strips <code>www.</code>) and combines all inputs into a deterministic derivation context.</span>
+            </li>
+            <li>
+              <span class="step-num">2</span>
+              <span>Your private phrase is fed through <strong>PBKDF2</strong> with SHA-256 and 600,000 iterations, salted with the normalized domain, username, and version. This produces a 256-bit master key unique to each site.</span>
+            </li>
+            <li>
+              <span class="step-num">3</span>
+              <span>The master key is expanded using <strong>HKDF</strong> (HMAC-based Key Derivation Function) to generate enough pseudorandom bytes for password construction.</span>
+            </li>
+            <li>
+              <span class="step-num">4</span>
+              <span>Bytes are mapped to your chosen character set using <strong>rejection sampling</strong> — eliminating modulo bias that would otherwise make some characters more likely than others.</span>
+            </li>
+            <li>
+              <span class="step-num">5</span>
+              <span>The result: same domain + username + phrase + version always produces the same strong password. Change any input and you get a completely different one.</span>
+            </li>
+          </ol>
+          <p style="font-size:.86rem;color:var(--muted);line-height:1.65;margin-top:8px"><strong style="color:var(--text)">Data leaves your device?</strong> Never. All derivation happens in your browser using the Web Crypto API. No server, no sync, no storage, no analytics. Keyana does not store your private phrase or generated passwords anywhere.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ Vaultana Note ═══ -->
+    <div class="card vaultana-note">
+      <p><strong>Use with Vaultana.</strong> Keyana is for derivation — it generates passwords from your phrase. For convenience, save generated passwords in <strong>Vaultana</strong> after creation. Keyana derives; Vaultana stores.</p>
+    </div>
+
+  </main>
+
+  <!-- ═══ Footer ═══ -->
+  <footer class="footer">
+    <span>GoAnon</span> &middot; Private tools for a public internet
+  </footer>
+
+</div><!-- /site-shell -->
+
+<!-- ═══════════════════════════════════════════
+     KEYANA — PASSWORD DERIVATION ENGINE
+     ──────────────────────────────────────────
+     Design principles:
+     1. ZERO network calls — no analytics, no sync, no phoning home
+     2. PBKDF2 (600k iter) + HKDF via Web Crypto API — no custom crypto
+     3. Deterministic: same inputs = same password, always
+     4. Rejection sampling — no modulo bias in character mapping
+     5. No Math.random() — crypto.getRandomValues / deriveBits only
+     6. Private phrase never stored, cleared on user action
+     ═══════════════════════════════════════════ -->
+<script>
+(function(){
+  "use strict";
+
+  /* ── Policy assertion ── */
+  const POLICY = Object.freeze({
+    NETWORK_CALLS: false,
+    ANALYTICS: false,
+    DATA_COLLECTION: false,
+    VERSION: "1.0.0"
+  });
+
+  /* ═══════════════════════════════════════════
+     CHARACTER SETS
+     ═══════════════════════════════════════════ */
+  const CHARSETS = {
+    upper:   "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+    lower:   "abcdefghijklmnopqrstuvwxyz",
+    digits:  "0123456789",
+    symbols: "!@#$%^&*()-_=+[]{}|;:',.<>?/~`"
+  };
+
+  /* Characters that look similar across fonts */
+  const AMBIGUOUS = new Set([
+    "I","O",       // uppercase
+    "l",           // lowercase
+    "0","1",       // digits
+    "|","`","'"    // symbols
+  ]);
+
+  /* ═══════════════════════════════════════════
+     KEYANA — DERIVATION ENGINE
+     ──────────────────────────────────────────
+     Two-stage derivation:
+       Stage 1: PBKDF2(passphrase, salt, 600k iter) -> 256-bit master key
+       Stage 2: HKDF(master key, info) -> expanded bytes
+       Stage 3: Rejection sampling -> password characters
+
+     Salt format: "keyana:v1:{domain}:{username}:{version}"
+     HKDF info:   "keyana-expand:v1:{counter}"
+     ═══════════════════════════════════════════ */
+  const Keyana = {
+    ITERATIONS: 600000,
+
+    /**
+     * Derive a deterministic password
+     * @returns {{password: string|null, error: string|null, charsetSize: number}}
+     */
+    async derive(passphrase, domain, username, version, length, options) {
+      /* Build charset from options */
+      const charset = this.buildCharset(options);
+      if (charset.length === 0) {
+        return { password: null, error: "no_charset", charsetSize: 0 };
+      }
+
+      /* Build deterministic salt from all inputs */
+      const saltStr = "keyana:v1:" + domain + ":" + (username || "") + ":" + version;
+      const salt = new TextEncoder().encode(saltStr);
+
+      /* Stage 1: PBKDF2 -> 256-bit master key */
+      const encoded = new TextEncoder().encode(passphrase);
+      const keyMaterial = await crypto.subtle.importKey(
+        "raw", encoded, "PBKDF2", false, ["deriveBits"]
+      );
+
+      /* Zero the passphrase bytes from encoded Uint8Array */
+      encoded.fill(0);
+
+      const masterBits = await crypto.subtle.deriveBits(
+        { name: "PBKDF2", salt: salt, iterations: this.ITERATIONS, hash: "SHA-256" },
+        keyMaterial,
+        256  /* 32 bytes */
+      );
+
+      /* Stage 2: HKDF expand -> enough bytes for rejection sampling */
+      const hkdfKey = await crypto.subtle.importKey(
+        "raw", masterBits, "HKDF", false, ["deriveBits"]
+      );
+
+      /* Zero the master key buffer — we only need the HKDF key from now on */
+      new Uint8Array(masterBits).fill(0);
+
+      /* Derive initial batch: length * 3 bytes (minimum 128) */
+      const initialBytes = Math.max(128, length * 3);
+      const info0 = new TextEncoder().encode("keyana-expand:v1:0");
+      const expandedBits = await crypto.subtle.deriveBits(
+        { name: "HKDF", hash: "SHA-256", salt: new Uint8Array(0), info: info0 },
+        hkdfKey,
+        initialBytes * 8
+      );
+
+      /* Stage 3: Rejection sampling */
+      let bytes = new Uint8Array(expandedBits);
+      const charsetLen = charset.length;
+      const threshold = 256 - (256 % charsetLen);  /* unbiased range */
+
+      let password = "";
+      let byteIndex = 0;
+      let blockNum = 1;  /* next HKDF counter if we need more bytes */
+
+      while (password.length < length) {
+        /* If we ran out of bytes, derive more via counter expansion */
+        if (byteIndex >= bytes.length) {
+          const expandInfo = new TextEncoder().encode("keyana-expand:v1:" + blockNum);
+          const moreBits = await crypto.subtle.deriveBits(
+            { name: "HKDF", hash: "SHA-256", salt: new Uint8Array(0), info: expandInfo },
+            hkdfKey,
+            256  /* 32 more bytes */
+          );
+          const moreBytes = new Uint8Array(moreBits);
+          const combined = new Uint8Array(bytes.length + moreBytes.length);
+          combined.set(bytes, 0);
+          combined.set(moreBytes, bytes.length);
+          /* Zero old bytes array before discarding */
+          bytes.fill(0);
+          bytes = combined;
+          blockNum++;
+        }
+
+        const byte = bytes[byteIndex++];
+        if (byte < threshold) {
+          password += charset[byte % charsetLen];
+        }
+        /* else: byte >= threshold -> reject (avoids modulo bias) */
+      }
+
+      /* Zero the final expanded bytes — no longer needed */
+      bytes.fill(0);
+
+      return { password: password, error: null, charsetSize: charsetLen };
+    },
+
+    /**
+     * Build the character set from enabled options
+     */
+    buildCharset(options) {
+      let charset = "";
+
+      if (options.upper) {
+        charset += options.ambiguous
+          ? [...CHARSETS.upper].filter(c => !AMBIGUOUS.has(c)).join("")
+          : CHARSETS.upper;
+      }
+      if (options.lower) {
+        charset += options.ambiguous
+          ? [...CHARSETS.lower].filter(c => !AMBIGUOUS.has(c)).join("")
+          : CHARSETS.lower;
+      }
+      if (options.digits) {
+        charset += options.ambiguous
+          ? [...CHARSETS.digits].filter(c => !AMBIGUOUS.has(c)).join("")
+          : CHARSETS.digits;
+      }
+      if (options.symbols) {
+        charset += options.ambiguous
+          ? [...CHARSETS.symbols].filter(c => !AMBIGUOUS.has(c)).join("")
+          : CHARSETS.symbols;
+      }
+
+      return charset;
+    },
+
+    /**
+     * Normalize a domain/URL input
+     * - Accept full URLs like https://www.example.com/page?x=1
+     * - Extract hostname
+     * - Lowercase
+     * - Remove leading www.
+     */
+    normalizeDomain(input) {
+      let raw = input.trim();
+      if (!raw) return "";
+
+      /* If it looks like a URL, extract hostname */
+      if (/^https?:\/\//i.test(raw) || raw.indexOf("/") !== -1) {
+        try {
+          const url = new URL(raw.startsWith("http") ? raw : "https://" + raw);
+          raw = url.hostname;
+        } catch {
+          /* Not a valid URL — try using as-is */
+        }
+      }
+
+      /* Lowercase */
+      raw = raw.toLowerCase();
+
+      /* Strip leading www. (handles www.www. edge case) */
+      while (raw.startsWith("www.")) {
+        raw = raw.slice(4);
+      }
+
+      return raw;
+    }
+  };
+
+  /* ═══════════════════════════════════════════
+     UI CONTROLLER
+     ═══════════════════════════════════════════ */
+  const UI = {
+    /* Current generated password (for copy) */
+    currentPassword: null,
+    passwordVisible: false,
+    phraseVisible: false,
+
+    init() {
+      /* Domain input -> live preview */
+      const domainInput = document.getElementById("domainInput");
+      domainInput.addEventListener("input", () => this.updateDomainPreview());
+
+      /* Phrase input -> warning */
+      const phraseInput = document.getElementById("phraseInput");
+      phraseInput.addEventListener("input", () => this.updatePhraseWarn());
+
+      /* Length slider */
+      const slider = document.getElementById("lengthSlider");
+      slider.addEventListener("input", () => {
+        document.getElementById("lengthValue").textContent = slider.value;
+        this.updateStrengthPreview();
+      });
+
+      /* Version buttons */
+      document.getElementById("versionDec").addEventListener("click", () => {
+        const inp = document.getElementById("versionInput");
+        const v = parseInt(inp.value, 10) || 1;
+        inp.value = Math.max(1, v - 1);
+      });
+      document.getElementById("versionInc").addEventListener("click", () => {
+        const inp = document.getElementById("versionInput");
+        const v = parseInt(inp.value, 10) || 1;
+        inp.value = Math.min(9999, v + 1);
+      });
+
+      /* Character option toggles */
+      document.querySelectorAll(".opt-toggle").forEach(el => {
+        el.addEventListener("click", () => {
+          el.classList.toggle("active");
+          this.updateCharsetWarn();
+          this.updateStrengthPreview();
+        });
+      });
+
+      /* Phrase show/hide */
+      document.getElementById("phraseToggle").addEventListener("click", () => {
+        this.phraseVisible = !this.phraseVisible;
+        const inp = document.getElementById("phraseInput");
+        inp.type = this.phraseVisible ? "text" : "password";
+        const icon = this.phraseVisible
+          ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>'
+          : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+        /* Replace icon via DOM manipulation (no innerHTML) */
+        const btn = document.getElementById("phraseToggle");
+        btn.replaceChildren();
+        const container = document.createElement("span");
+        container.innerHTML = icon;
+        btn.appendChild(container.firstChild);
+      });
+
+      /* Password show/hide */
+      document.getElementById("pwToggleBtn").addEventListener("click", () => {
+        this.passwordVisible = !this.passwordVisible;
+        const pwEl = document.getElementById("pwText");
+        if (this.passwordVisible) {
+          pwEl.classList.remove("hidden-pw");
+        } else {
+          pwEl.classList.add("hidden-pw");
+        }
+      });
+
+      /* Copy button in password display */
+      document.getElementById("pwCopyBtn").addEventListener("click", () => {
+        this.copyPassword();
+      });
+    },
+
+    /**
+     * Get current options state
+     */
+    getOptions() {
+      return {
+        upper:     document.getElementById("optUpper").classList.contains("active"),
+        lower:     document.getElementById("optLower").classList.contains("active"),
+        digits:    document.getElementById("optDigits").classList.contains("active"),
+        symbols:   document.getElementById("optSymbols").classList.contains("active"),
+        ambiguous: document.getElementById("optAmbiguous").classList.contains("active"),
+      };
+    },
+
+    /**
+     * Update the normalized domain preview
+     */
+    updateDomainPreview() {
+      const raw = document.getElementById("domainInput").value;
+      const normalized = Keyana.normalizeDomain(raw);
+      const preview = document.getElementById("domainPreview");
+      if (normalized && normalized !== raw.trim()) {
+        preview.textContent = "Normalized: " + normalized;
+      } else if (normalized) {
+        preview.textContent = "Domain: " + normalized;
+      } else {
+        preview.textContent = "";
+      }
+    },
+
+    /**
+     * Show warning if phrase is short
+     */
+    updatePhraseWarn() {
+      const phrase = document.getElementById("phraseInput").value;
+      const warn = document.getElementById("phraseWarn");
+      if (phrase.length > 0 && phrase.length < 12) {
+        warn.textContent = "Private phrase is short — a stronger phrase produces stronger derived passwords";
+      } else {
+        warn.textContent = "";
+      }
+    },
+
+    /**
+     * Warn if no character set is enabled
+     */
+    updateCharsetWarn() {
+      const opts = this.getOptions();
+      const warn = document.getElementById("charsetWarn");
+      if (!opts.upper && !opts.lower && !opts.digits && !opts.symbols) {
+        warn.textContent = "Enable at least one character set to generate a password";
+      } else {
+        warn.textContent = "";
+      }
+    },
+
+    /**
+     * Update strength preview based on current settings (without generating)
+     */
+    updateStrengthPreview() {
+      /* Only update if result panel is visible */
+      if (document.getElementById("resultPanel").classList.contains("hidden")) return;
+      if (!this.currentPassword) return;
+
+      const opts = this.getOptions();
+      const charset = Keyana.buildCharset(opts);
+      const length = parseInt(document.getElementById("lengthSlider").value, 10);
+      if (charset.length === 0) return;
+
+      const entropy = length * Math.log2(charset.length);
+      this.renderStrength(entropy, charset.length);
+    },
+
+    /**
+     * Render strength indicator
+     */
+    renderStrength(entropy, charsetSize) {
+      const bar = document.getElementById("strengthBar");
+      const label = document.getElementById("strengthLabel");
+      const bits = document.getElementById("strengthBits");
+
+      /* Clamp visual width to 0-100% */
+      const pct = Math.min(100, Math.max(0, (entropy / 150) * 100));
+      bar.style.width = pct + "%";
+
+      let labelText, color;
+      if (entropy < 40) {
+        labelText = "Weak"; color = "#ff4757";
+      } else if (entropy < 60) {
+        labelText = "Fair"; color = "#ffa502";
+      } else if (entropy < 80) {
+        labelText = "Strong"; color = "#ffd166";
+      } else {
+        labelText = "Very Strong"; color = "#2ed573";
+      }
+
+      bar.style.background = color;
+      label.textContent = labelText;
+      label.style.color = color;
+      bits.textContent = Math.round(entropy) + " bits (" + charsetSize + " chars)";
+    },
+
+    /**
+     * Show the result panel with derived password
+     */
+    showResult(normalizedDomain, version, password, charsetSize) {
+      const panel = document.getElementById("resultPanel");
+      panel.classList.remove("hidden");
+      /* Force re-animation */
+      panel.classList.remove("result-panel");
+      void panel.offsetWidth;
+      panel.classList.add("result-panel");
+
+      document.getElementById("resultDomain").textContent = normalizedDomain;
+      document.getElementById("resultVersion").textContent = "v" + version;
+
+      const pwEl = document.getElementById("pwText");
+      pwEl.textContent = password;
+      /* Default: hidden */
+      this.passwordVisible = false;
+      pwEl.classList.add("hidden-pw");
+
+      this.currentPassword = password;
+
+      const length = password.length;
+      const entropy = length * Math.log2(charsetSize);
+      this.renderStrength(entropy, charsetSize);
+    },
+
+    hideResult() {
+      document.getElementById("resultPanel").classList.add("hidden");
+      const pwEl = document.getElementById("pwText");
+      /* Overwrite before clearing */
+      if (pwEl.textContent.length > 0) {
+        pwEl.textContent = "0".repeat(pwEl.textContent.length);
+      }
+      pwEl.textContent = "";
+      if (this.currentPassword && this.currentPassword.length > 0) {
+        this.currentPassword = "0".repeat(this.currentPassword.length);
+      }
+      this.currentPassword = null;
+      this.passwordVisible = false;
+    },
+
+    /**
+     * Copy password to clipboard
+     */
+    async copyPassword() {
+      if (!this.currentPassword) return;
+      try {
+        await navigator.clipboard.writeText(this.currentPassword);
+        showToast("Password copied", "success");
+      } catch {
+        /* Fallback for older browsers */
+        const ta = document.createElement("textarea");
+        ta.value = this.currentPassword;
+        ta.style.position = "fixed";
+        ta.style.left = "-9999px";
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand("copy"); showToast("Password copied", "success"); }
+        catch { showToast("Copy failed", "error"); }
+        document.body.removeChild(ta);
+      }
+    },
+
+    /**
+     * Escape a string for safe use in HTML attribute values.
+     * Handles <, >, &, ", and ' (single quote).
+     */
+    escapeAttr(str) {
+      return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+               .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+    }
+  };
+
+  /* ═══════════════════════════════════════════
+     TOAST NOTIFICATIONS
+     ═══════════════════════════════════════════ */
+  let toastTimer = null;
+  function showToast(message, type) {
+    const toast = document.getElementById("toast");
+    toast.textContent = message;
+    toast.className = "toast " + type;
+    clearTimeout(toastTimer);
+    requestAnimationFrame(function() {
+      toast.classList.add("show");
+      toastTimer = setTimeout(function() { toast.classList.remove("show"); }, 2500);
+    });
+  }
+
+  /* ═══════════════════════════════════════════
+     EVENT HANDLERS
+     ═══════════════════════════════════════════ */
+
+  /* ── Generate password ── */
+  window.handleGenerate = async function() {
+    const rawDomain = document.getElementById("domainInput").value.trim();
+    const username  = document.getElementById("usernameInput").value.trim();
+    const phrase    = document.getElementById("phraseInput").value;
+    const version   = parseInt(document.getElementById("versionInput").value, 10) || 1;
+    const length    = parseInt(document.getElementById("lengthSlider").value, 10) || 20;
+    const opts      = UI.getOptions();
+
+    /* Validate: domain required */
+    if (!rawDomain) {
+      showToast("Enter a website or domain", "error");
+      document.getElementById("domainInput").focus();
+      return;
+    }
+
+    const normalizedDomain = Keyana.normalizeDomain(rawDomain);
+    if (!normalizedDomain) {
+      showToast("Could not parse domain", "error");
+      document.getElementById("domainInput").focus();
+      return;
+    }
+
+    /* Validate: phrase required */
+    if (!phrase) {
+      showToast("Enter your private phrase", "error");
+      document.getElementById("phraseInput").focus();
+      return;
+    }
+
+    /* Validate: at least one charset */
+    if (!opts.upper && !opts.lower && !opts.digits && !opts.symbols) {
+      showToast("Enable at least one character set", "error");
+      return;
+    }
+
+    /* Show loading state */
+    const btn = document.getElementById("generateBtn");
+    btn.disabled = true;
+    btn.textContent = "Deriving\u2026";
+
+    try {
+      const result = await Keyana.derive(phrase, normalizedDomain, username, version, length, opts);
+
+      if (result.error === "no_charset") {
+        showToast("Enable at least one character set", "error");
+        return;
+      }
+
+      UI.showResult(normalizedDomain, version, result.password, result.charsetSize);
+      showToast("Password derived", "success");
+    } catch (e) {
+      showToast("Derivation failed", "error");
+    } finally {
+      btn.disabled = false;
+      /* Rebuild button via DOM (no innerHTML with dynamic content) */
+      btn.replaceChildren();
+      const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      svg.setAttribute("width", "16");
+      svg.setAttribute("height", "16");
+      svg.setAttribute("viewBox", "0 0 24 24");
+      svg.setAttribute("fill", "none");
+      svg.setAttribute("stroke", "currentColor");
+      svg.setAttribute("stroke-width", "2.5");
+      svg.setAttribute("stroke-linecap", "round");
+      svg.setAttribute("stroke-linejoin", "round");
+      const p1 = document.createElementNS("http://www.w3.org/2000/svg", "path"); p1.setAttribute("d", "M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4");
+      svg.appendChild(p1);
+      btn.appendChild(svg);
+      btn.appendChild(document.createTextNode(" Derive Password"));
+    }
+  };
+
+  /* ── Copy password ── */
+  window.handleCopy = async function() {
+    await UI.copyPassword();
+  };
+
+  /* ── Clear sensitive inputs ── */
+  window.handleClear = function() {
+    /* Overwrite phrase input with dummy matching its length, then clear */
+    const phraseInput = document.getElementById("phraseInput");
+    if (phraseInput.value.length > 0) {
+      phraseInput.value = "\0".repeat(phraseInput.value.length);
+    }
+    phraseInput.value = "";
+
+    /* Overwrite generated password before clearing */
+    if (UI.currentPassword && UI.currentPassword.length > 0) {
+      const pwLen = UI.currentPassword.length;
+      UI.currentPassword = "0".repeat(pwLen);
+    }
+    UI.currentPassword = null;
+
+    /* Overwrite password display text */
+    const pwEl = document.getElementById("pwText");
+    if (pwEl.textContent.length > 0) {
+      pwEl.textContent = "0".repeat(pwEl.textContent.length);
+    }
+    pwEl.textContent = "";
+    UI.passwordVisible = false;
+
+    /* Hide result panel */
+    UI.hideResult();
+
+    /* Clear phrase warning */
+    document.getElementById("phraseWarn").textContent = "";
+
+    showToast("Sensitive inputs cleared", "info");
+    phraseInput.focus();
+  };
+
+  /* ── How it works toggle ── */
+  window.toggleHow = function() {
+    const toggle = document.getElementById("howToggle");
+    const body = document.getElementById("howBody");
+    toggle.classList.toggle("open");
+    body.classList.toggle("open");
+  };
+
+  /* ═══════════════════════════════════════════
+     THEME TOGGLE
+     ═══════════════════════════════════════════ */
+  (function(){
+    var key = "goanon-theme";
+    var saved = localStorage.getItem(key);
+    var cookie = (document.cookie.match(/(?:^|; )goanon_theme=([^;]+)/) || [])[1];
+    var theme = saved || cookie;
+    if (theme === "light") document.body.classList.add("light-mode");
+
+    window.toggleGoAnonTheme = function() {
+      var light = document.body.classList.toggle("light-mode");
+      var value = light ? "light" : "dark";
+      localStorage.setItem(key, value);
+      document.cookie = "goanon_theme=" + value + "; path=/; domain=.goanon.pro; max-age=31536000; SameSite=Lax; Secure";
+    };
+  })();
+
+  /* ═══════════════════════════════════════════
+     INIT
+     ═══════════════════════════════════════════ */
+  UI.init();
+
+})();
+</script>
+</body>
+</html>
