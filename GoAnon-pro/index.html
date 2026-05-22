@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GoAnon — Private Tools for a Public Internet</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body, html { height: 100%; overflow: hidden; font-family: 'Inter', 'Arial', sans-serif; transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1); perspective: 1200px; background-color: #000; }
+        #matrix-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; opacity: 0; transition: opacity 0.5s ease; }
+        .flip-container { position: fixed; width: 100%; height: 100%; transform-style: preserve-3d; transition: transform 2.5s cubic-bezier(0.4, 0, 0.2, 1); z-index: 2; }
+        .flip-container.flipping { transform: rotateY(180deg); }
+        .glass-container { position: relative; width: 100vw; height: 100vh; background: radial-gradient(circle at 30% 20%, rgba(40, 40, 40, 0.8) 0%, transparent 50%), radial-gradient(circle at 70% 80%, rgba(60, 60, 60, 0.6) 0%, transparent 50%), linear-gradient(135deg, rgba(20, 20, 20, 0.95) 0%, rgba(5, 5, 5, 0.98) 100%); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); overflow: hidden; transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1); backface-visibility: hidden; }
+        .glass-container::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.03) 0%, transparent 30%), radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.02) 0%, transparent 40%), radial-gradient(circle at 40% 80%, rgba(255, 255, 255, 0.025) 0%, transparent 35%); pointer-events: none; transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
+        .glass-container::after { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: inherit; filter: url(#chromatic-aberration); pointer-events: none; mix-blend-mode: screen; opacity: 0.4; z-index: 10; }
+        .light-mode .glass-container { background: radial-gradient(circle at 30% 20%, rgba(250, 250, 250, 0.9) 0%, transparent 50%), radial-gradient(circle at 70% 80%, rgba(240, 240, 240, 0.8) 0%, transparent 50%), linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 248, 248, 1) 100%); border: 1px solid rgba(0, 0, 0, 0.05); }
+        .light-mode .glass-container::before { background: radial-gradient(circle at 20% 50%, rgba(0, 0, 0, 0.03) 0%, transparent 30%), radial-gradient(circle at 80% 20%, rgba(0, 0, 0, 0.02) 0%, transparent 40%), radial-gradient(circle at 40% 80%, rgba(0, 0, 0, 0.025) 0%, transparent 35%); }
+        .caustic-light { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><filter id="turbulence"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="3" result="turbulence"/><feColorMatrix in="turbulence" type="saturate" values="0"/></filter><rect width="100" height="100" filter="url(%23turbulence)" opacity="0.4"/></svg>'); opacity: 0.15; mix-blend-mode: screen; pointer-events: none; animation: causticMovement 20s infinite linear; z-index: 5; }
+        @keyframes causticMovement { 0% { transform: translate(0, 0) scale(1.5); } 25% { transform: translate(-5%, -5%) scale(1.6); } 50% { transform: translate(5%, -3%) scale(1.4); } 75% { transform: translate(-3%, 5%) scale(1.7); } 100% { transform: translate(0, 0) scale(1.5); } }
+        .stripe-container { position: absolute; top: -100%; left: -100%; width: 300%; height: 300%; transform: rotate(-45deg); animation: sweepStripes 8s ease-in-out; }
+        .stripe-layer { position: absolute; width: 100%; height: 100%; }
+        .stripe-layer:nth-child(1) { transform: translateZ(0); } .stripe-layer:nth-child(2) { transform: translateZ(10px); opacity: 0.8; } .stripe-layer:nth-child(3) { transform: translateZ(20px); opacity: 0.6; }
+        .stripe { position: absolute; width: 100%; height: 60px; background: linear-gradient(90deg, transparent 0%, rgba(192, 192, 192, 0.1) 20%, rgba(220, 220, 220, 0.3) 35%, rgba(255, 255, 255, 0.6) 45%, rgba(240, 240, 240, 0.8) 50%, rgba(255, 255, 255, 0.6) 55%, rgba(220, 220, 220, 0.3) 65%, rgba(192, 192, 192, 0.1) 80%, transparent 100%); box-shadow: 0 0 20px rgba(255, 255, 255, 0.3), 0 0 40px rgba(255, 255, 255, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.4), inset 0 -1px 0 rgba(255, 255, 255, 0.4); filter: blur(0.5px); opacity: 0; animation: stripeAppear 8s ease-in-out; transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
+        .light-mode .stripe { background: linear-gradient(90deg, transparent 0%, rgba(180, 180, 180, 0.4) 20%, rgba(200, 200, 200, 0.6) 35%, rgba(220, 220, 220, 0.8) 45%, rgba(192, 192, 192, 1) 50%, rgba(220, 220, 220, 0.8) 55%, rgba(200, 200, 200, 0.6) 65%, rgba(180, 180, 180, 0.4) 80%, transparent 100%); box-shadow: 0 0 25px rgba(192, 192, 192, 0.6), 0 0 50px rgba(192, 192, 192, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.8), inset 0 -1px 0 rgba(160, 160, 160, 0.6); }
+        .stripe:nth-child(1) { top: 10%; animation-delay: 0s; animation-duration: 8.2s; } .stripe:nth-child(2) { top: 25%; height: 80px; animation-delay: 0.35s; animation-duration: 7.8s; } .stripe:nth-child(3) { top: 45%; height: 45px; animation-delay: 0.65s; animation-duration: 8.5s; } .stripe:nth-child(4) { top: 60%; height: 70px; animation-delay: 0.95s; animation-duration: 7.6s; } .stripe:nth-child(5) { top: 80%; height: 55px; animation-delay: 1.25s; animation-duration: 8.3s; }
+        .highlight-stripe { position: absolute; width: 100%; height: 100px; top: 35%; background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.05) 15%, rgba(255, 255, 255, 0.15) 30%, rgba(255, 255, 255, 0.4) 40%, rgba(255, 255, 255, 0.7) 45%, rgba(255, 255, 255, 0.9) 50%, rgba(255, 255, 255, 0.7) 55%, rgba(255, 255, 255, 0.4) 60%, rgba(255, 255, 255, 0.15) 70%, rgba(255, 255, 255, 0.05) 85%, transparent 100%); box-shadow: 0 0 30px rgba(255, 255, 255, 0.5), 0 0 60px rgba(255, 255, 255, 0.3), inset 0 2px 0 rgba(255, 255, 255, 0.6), inset 0 -2px 0 rgba(255, 255, 255, 0.6); filter: blur(1px); opacity: 0; animation: highlightSweep 8s ease-in-out; animation-delay: 2s; transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1); clip-path: polygon(0 50%, 100% 0, 100% 100%, 0 50%); }
+        .light-mode .highlight-stripe { background: linear-gradient(90deg, transparent 0%, rgba(160, 160, 160, 0.2) 15%, rgba(180, 180, 180, 0.4) 30%, rgba(200, 200, 200, 0.7) 40%, rgba(192, 192, 192, 0.9) 45%, rgba(160, 160, 160, 1) 50%, rgba(192, 192, 192, 0.9) 55%, rgba(200, 200, 200, 0.7) 60%, rgba(180, 180, 180, 0.4) 70%, rgba(160, 160, 160, 0.2) 85%, transparent 100%); box-shadow: 0 0 35px rgba(160, 160, 160, 0.8), 0 0 70px rgba(160, 160, 160, 0.5), inset 0 2px 0 rgba(220, 220, 220, 0.9), inset 0 -2px 0 rgba(140, 140, 140, 0.8); }
+        .glass-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, transparent 30%, transparent 70%, rgba(255, 255, 255, 0.03) 100%); backdrop-filter: blur(20px); pointer-events: none; transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
+        .light-mode .glass-overlay { background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, transparent 30%, transparent 70%, rgba(255, 255, 255, 0.05) 100%); }
+        .sparkle { position: absolute; border-radius: 50%; filter: blur(0.5px); pointer-events: none; transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
+        .sparkle::before { content: ''; position: absolute; top: 50%; left: 50%; width: 100%; height: 100%; background: inherit; border-radius: 50%; transform: translate(-50%, -50%); animation: pulse 2s infinite ease-in-out; }
+        .sparkle::after { content: ''; position: absolute; top: 50%; left: 50%; width: 150%; height: 2px; background: inherit; transform: translate(-50%, -50%) rotate(45deg); opacity: 0.7; }
+        @keyframes pulse { 0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.8; } 50% { transform: translate(-50%, -50%) scale(1.5); opacity: 0.4; } }
+        .light-mode .sparkle { background: radial-gradient(circle, rgba(160, 160, 160, 1) 0%, transparent 70%); }
+        .sparkle:nth-child(1) { top: 20%; left: 30%; width: 6px; height: 6px; background: radial-gradient(circle, rgba(255, 255, 255, 0.9) 0%, transparent 70%); animation: sparkleAnimation1 4s ease-in-out infinite; animation-delay: 1s; } .sparkle:nth-child(2) { top: 60%; left: 70%; width: 4px; height: 4px; background: radial-gradient(circle, rgba(200, 220, 255, 0.9) 0%, transparent 70%); animation: sparkleAnimation2 3.5s ease-in-out infinite; animation-delay: 2.5s; } .sparkle:nth-child(3) { top: 40%; left: 15%; width: 5px; height: 5px; background: radial-gradient(circle, rgba(255, 220, 200, 0.9) 0%, transparent 70%); animation: sparkleAnimation3 4.5s ease-in-out infinite; animation-delay: 4s; } .sparkle:nth-child(4) { top: 75%; left: 85%; width: 3px; height: 3px; background: radial-gradient(circle, rgba(220, 255, 220, 0.9) 0%, transparent 70%); animation: sparkleAnimation4 3s ease-in-out infinite; animation-delay: 5.5s; }
+        @keyframes sparkleAnimation1 { 0%, 100% { opacity: 0; transform: scale(0) rotate(0deg); } 50% { opacity: 1; transform: scale(1) rotate(180deg); } } @keyframes sparkleAnimation2 { 0%, 100% { opacity: 0; transform: scale(0) translateY(0); } 50% { opacity: 1; transform: scale(1.2) translateY(-10px); } } @keyframes sparkleAnimation3 { 0%, 100% { opacity: 0; transform: scale(0) translateX(0); } 50% { opacity: 1; transform: scale(0.8) translateX(10px); } } @keyframes sparkleAnimation4 { 0%, 100% { opacity: 0; transform: scale(0) rotate(0deg) translateX(0) translateY(0); } 50% { opacity: 1; transform: scale(1.5) rotate(360deg) translateX(5px) translateY(-5px); } }
+        .mode-toggle, .why-how-toggle { position: fixed; width: 120px; height: 40px; background: rgba(255, 255, 255, 0.1); border: 2px solid rgba(255, 255, 255, 0.2); border-radius: 25px; cursor: pointer; z-index: 1000; backdrop-filter: blur(10px); transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2); display: flex; align-items: center; padding: 0; }
+        .mode-toggle { top: 30px; left: 30px; } .why-how-toggle { top: 30px; right: 30px; }
+        .light-mode .mode-toggle, .light-mode .why-how-toggle { background: rgba(0, 0, 0, 0.1); border: 2px solid rgba(0, 0, 0, 0.2); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(0, 0, 0, 0.2); }
+        .mode-toggle:hover, .why-how-toggle:hover { transform: scale(1.05); box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3); animation: togglePulse 1.5s infinite; }
+        @keyframes togglePulse { 0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(255, 255, 255, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); } }
+        .light-mode .mode-toggle:hover, .light-mode .why-how-toggle:hover { box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(0, 0, 0, 0.3); animation: togglePulseDark 1.5s infinite; }
+        @keyframes togglePulseDark { 0% { box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(0, 0, 0, 0); } 100% { box-shadow: 0 0 0 0 rgba(0, 0, 0, 0); } }
+        .toggle-ball, .why-how-ball { width: 32px; height: 32px; background: linear-gradient(145deg, #ffffff, #e6e6e6); border-radius: 50%; position: absolute; top: 2px; left: 2px; transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.8), inset 0 -1px 0 rgba(0, 0, 0, 0.1); }
+        .light-mode .toggle-ball { left: 82px; background: linear-gradient(145deg, #333333, #1a1a1a); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1), inset 0 -1px 0 rgba(0, 0, 0, 0.3); }
+        .light-mode .why-how-ball { background: linear-gradient(145deg, #333333, #1a1a1a); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1), inset 0 -1px 0 rgba(0, 0, 0, 0.3); }
+        .why-how-active .why-how-ball { left: 82px; }
+        .toggle-text, .why-how-text { position: absolute; font-size: 12px; font-weight: 600; letter-spacing: 0.5px; transition: all 0.3s ease; pointer-events: none; }
+        .toggle-text.left, .why-how-text.left { left: 12px; } .toggle-text.right, .why-how-text.right { right: 12px; }
+        .toggle-text.left { color: rgba(255, 255, 255, 0.8); } .toggle-text.right { color: rgba(255, 255, 255, 0.4); }
+        .light-mode .toggle-text.left { color: rgba(0, 0, 0, 0.4); } .light-mode .toggle-text.right { color: rgba(0, 0, 0, 0.8); }
+        .why-how-text.left { color: rgba(255, 255, 255, 0.8); } .why-how-text.right { color: rgba(255, 255, 255, 0.4); }
+        .light-mode .why-how-text.left { color: rgba(0, 0, 0, 0.8); } .light-mode .why-how-text.right { color: rgba(0, 0, 0, 0.4); }
+        .why-how-active .why-how-text.left { color: rgba(255, 255, 255, 0.4); } .why-how-active .why-how-text.right { color: rgba(255, 255, 255, 0.8); }
+        .light-mode.why-how-active .why-how-text.left { color: rgba(0, 0, 0, 0.4); } .light-mode.why-how-active .why-how-text.right { color: rgba(0, 0, 0, 0.8); }
+        @keyframes sweepStripes { 0% { transform: rotate(-45deg) translateX(-100%); } 30% { transform: rotate(-45deg) translateX(0%); } 70% { transform: rotate(-45deg) translateX(0%); } 100% { transform: rotate(-45deg) translateX(100%); } }
+        @keyframes stripeAppear { 0% { opacity: 0; transform: scaleY(0); } 20% { opacity: 1; transform: scaleY(1); } 80% { opacity: 1; transform: scaleY(1); } 100% { opacity: 0; transform: scaleY(0.8); } }
+        @keyframes highlightSweep { 0% { opacity: 0; transform: scaleY(0) scaleX(0.5) rotate(0deg); } 25% { opacity: 0.8; transform: scaleY(1) scaleX(1) rotate(5deg); } 50% { opacity: 0.9; transform: scaleY(1.1) scaleX(1.05) rotate(-5deg); } 75% { opacity: 0.8; transform: scaleY(1) scaleX(1) rotate(3deg); } 100% { opacity: 0; transform: scaleY(0.6) scaleX(0.3) rotate(0deg); } }
+        .ambient-light { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 3; opacity: 0.5; mix-blend-mode: soft-light; }
+        .morning-light { background: radial-gradient(ellipse at top, rgba(255, 220, 180, 0.4) 0%, transparent 70%); } .afternoon-light { background: radial-gradient(ellipse at top, rgba(255, 255, 220, 0.3) 0%, transparent 70%); } .evening-light { background: radial-gradient(ellipse at top, rgba(220, 180, 255, 0.4) 0%, transparent 70%); } .night-light { background: radial-gradient(ellipse at top, rgba(100, 100, 255, 0.2) 0%, transparent 70%); }
+        @media (prefers-reduced-motion: reduce) { .stripe-container, .stripe, .highlight-stripe, .sparkle, .caustic-light, .mode-toggle:hover, .why-how-toggle:hover, .content-wrapper { animation: none !important; transition: none !important; } .flip-container { transition: none !important; } }
+        @media (max-width: 768px) { .mode-toggle, .why-how-toggle { top: 20px; width: 100px; height: 35px; } .mode-toggle { left: 20px; } .why-how-toggle { right: 20px; } .toggle-ball, .why-how-ball { width: 27px; height: 27px; } .light-mode .toggle-ball { left: 67px; } .why-how-active .why-how-ball { left: 67px; } .toggle-text, .why-how-text { font-size: 10px; } }
+
+
+
+        /* GoAnon Tools Ecosystem */
+        .tools-hero { text-align: center; margin-bottom: 44px; }
+        .tools-eyebrow { display: inline-flex; align-items: center; gap: 8px; font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(180, 220, 255, 0.88); border: 1px solid rgba(180, 220, 255, 0.24); background: rgba(80, 180, 255, 0.07); border-radius: 999px; padding: 8px 12px; margin-bottom: 18px; box-shadow: 0 0 24px rgba(80, 180, 255, 0.10); }
+        .light-mode .tools-eyebrow { color: rgba(20, 80, 110, 0.9); border-color: rgba(20, 80, 110, 0.18); background: rgba(20, 80, 110, 0.05); }
+        .tools-subtitle { max-width: 690px; margin: 0 auto; text-align: center; font-size: 1.1rem; color: rgba(255, 255, 255, 0.70); line-height: 1.8; }
+        .light-mode .tools-subtitle { color: rgba(20, 20, 20, 0.68); }
+        .tools-note { max-width: 700px; margin: 18px auto 0; text-align: center; font-size: 0.95rem; color: rgba(255, 255, 255, 0.50); line-height: 1.7; }
+        .light-mode .tools-note { color: rgba(20, 20, 20, 0.52); }
+        .tool-category { margin: 48px 0 22px; display: flex; align-items: center; gap: 14px; }
+        .tool-category h2 { font-size: 1.02rem; letter-spacing: 0.10em; text-transform: uppercase; font-family: 'JetBrains Mono', monospace; color: rgba(255, 255, 255, 0.86); white-space: nowrap; }
+        .light-mode .tool-category h2 { color: rgba(20, 20, 20, 0.82); }
+        .tool-category-line { height: 1px; flex: 1; background: linear-gradient(90deg, rgba(180, 220, 255, 0.28), transparent); }
+        .light-mode .tool-category-line { background: linear-gradient(90deg, rgba(20, 20, 20, 0.16), transparent); }
+        .tools-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+        .featured-grid { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+        .tool-card { --accent: 180, 220, 255; --accent-2: 255, 255, 255; position: relative; min-height: 254px; padding: 22px; border-radius: 24px; overflow: hidden; background: linear-gradient(145deg, rgba(255,255,255,0.070), rgba(255,255,255,0.024)); border: 1px solid rgba(var(--accent),0.13); box-shadow: 0 18px 50px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.08); backdrop-filter: blur(18px); transition: transform 0.28s ease, border-color 0.28s ease, box-shadow 0.28s ease; }
+        .tool-card::before { content: ''; position: absolute; inset: -1px; background: radial-gradient(circle at 16% 12%, rgba(var(--accent), 0.18), transparent 36%), radial-gradient(circle at 88% 94%, rgba(var(--accent-2), 0.10), transparent 40%); pointer-events: none; }
+        .tool-card::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: linear-gradient(90deg, transparent, rgba(var(--accent),0.65), transparent); opacity: 0.55; }
+        .tool-card:hover { transform: translateY(-5px); border-color: rgba(var(--accent), 0.34); box-shadow: 0 24px 70px rgba(0,0,0,0.34), 0 0 42px rgba(var(--accent), 0.12), inset 0 1px 0 rgba(255,255,255,0.14); }
+        .light-mode .tool-card { background: linear-gradient(145deg, rgba(255,255,255,0.90), rgba(245,245,245,0.64)); border-color: rgba(var(--accent),0.22); box-shadow: 0 18px 45px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.55); }
+        .light-mode .tool-card::before { background: radial-gradient(circle at 16% 12%, rgba(var(--accent), 0.10), transparent 36%), radial-gradient(circle at 88% 94%, rgba(0, 0, 0, 0.025), transparent 40%); }
+        .accent-ai { --accent: 150, 110, 255; --accent-2: 80, 190, 255; }
+        .accent-code { --accent: 85, 220, 255; --accent-2: 160, 120, 255; }
+        .accent-net { --accent: 80, 255, 190; --accent-2: 80, 180, 255; }
+        .accent-comms { --accent: 255, 110, 190; --accent-2: 170, 120, 255; }
+        .accent-browser { --accent: 180, 220, 255; --accent-2: 255, 255, 255; }
+        .accent-identity { --accent: 235, 235, 235; --accent-2: 160, 220, 255; }
+        .accent-security { --accent: 255, 205, 105; --accent-2: 255, 255, 255; }
+        .accent-labs { --accent: 215, 150, 255; --accent-2: 110, 220, 255; }
+        .tool-card.featured { grid-column: span 3; min-height: 278px; }
+        .tool-card.hero-product { grid-column: span 6; min-height: 286px; background: linear-gradient(135deg, rgba(180, 220, 255, 0.14), rgba(255,255,255,0.035) 42%, rgba(150, 110, 255, 0.10)); }
+        .tool-card.compact { min-height: 226px; }
+        .tool-card.labs-card { border-style: dashed; }
+        .tool-top { position: relative; z-index: 2; display: flex; justify-content: space-between; gap: 14px; align-items: flex-start; margin-bottom: 17px; }
+        .tool-icon { width: 44px; height: 44px; display: grid; place-items: center; border-radius: 16px; background: rgba(var(--accent), 0.10); border: 1px solid rgba(var(--accent), 0.20); font-size: 1.32rem; box-shadow: inset 0 1px 0 rgba(255,255,255,0.12), 0 0 20px rgba(var(--accent),0.08); }
+        .tool-brandline { position: relative; z-index: 2; font-family: 'JetBrains Mono', monospace; font-size: 0.70rem; letter-spacing: 0.11em; text-transform: uppercase; color: rgba(var(--accent),0.86); margin: -4px 0 8px; }
+        .light-mode .tool-brandline { color: rgba(20,20,20,0.48); }
+        .tool-status { position: relative; z-index: 2; font-family: 'JetBrains Mono', monospace; font-size: 0.66rem; letter-spacing: 0.08em; text-transform: uppercase; border-radius: 999px; padding: 7px 9px; white-space: nowrap; color: rgba(255,255,255,0.75); background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.10); }
+        .status-available { color: rgba(165, 255, 186, 0.92); border-color: rgba(72, 255, 120, 0.18); background: rgba(72, 255, 120, 0.07); }
+        .status-soon { color: rgba(255, 214, 142, 0.94); border-color: rgba(255, 190, 80, 0.20); background: rgba(255, 190, 80, 0.07); }
+        .status-dev { color: rgba(150, 220, 255, 0.94); border-color: rgba(80, 190, 255, 0.20); background: rgba(80, 190, 255, 0.07); }
+        .status-labs { color: rgba(230, 180, 255, 0.94); border-color: rgba(210, 120, 255, 0.20); background: rgba(210, 120, 255, 0.07); }
+        .light-mode .tool-status { color: rgba(20,20,20,0.64); background: rgba(0,0,0,0.035); border-color: rgba(0,0,0,0.08); }
+        .light-mode .status-available { color: rgba(20, 120, 52, 0.95); background: rgba(20, 150, 70, 0.07); border-color: rgba(20, 150, 70, 0.16); }
+        .light-mode .status-soon { color: rgba(140, 88, 10, 0.95); background: rgba(190, 130, 20, 0.08); border-color: rgba(190, 130, 20, 0.16); }
+        .light-mode .status-dev { color: rgba(20, 90, 140, 0.95); background: rgba(20, 120, 190, 0.07); border-color: rgba(20, 120, 190, 0.16); }
+        .light-mode .status-labs { color: rgba(112, 52, 150, 0.95); background: rgba(140, 70, 190, 0.07); border-color: rgba(140, 70, 190, 0.16); }
+        .tool-name { position: relative; z-index: 2; font-size: 1.34rem; line-height: 1.12; font-weight: 700; letter-spacing: -0.025em; color: rgba(255,255,255,0.97); margin-bottom: 12px; }
+        .tool-card.hero-product .tool-name { font-size: 1.88rem; }
+        .tool-card.featured .tool-name { font-size: 1.52rem; }
+        .light-mode .tool-name { color: rgba(18,18,18,0.94); }
+        .tool-desc { position: relative; z-index: 2; font-size: 0.98rem; line-height: 1.64; color: rgba(255,255,255,0.68); margin-bottom: 18px; }
+        .tool-card.hero-product .tool-desc { max-width: 650px; font-size: 1.05rem; }
+        .light-mode .tool-desc { color: rgba(20,20,20,0.67); }
+        .tool-features { position: relative; z-index: 2; display: flex; flex-wrap: wrap; gap: 8px; padding-bottom: 44px; }
+        .tool-feature { font-family: 'JetBrains Mono', monospace; font-size: 0.70rem; color: rgba(255,255,255,0.64); border: 1px solid rgba(var(--accent),0.15); background: rgba(0,0,0,0.16); border-radius: 999px; padding: 6px 9px; }
+        .light-mode .tool-feature { color: rgba(20,20,20,0.6); border-color: rgba(var(--accent),0.20); background: rgba(255,255,255,0.58); }
+        .tool-footer { position: absolute; z-index: 3; left: 22px; right: 22px; bottom: 18px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+        .tool-cta { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255,255,255,0.88); text-decoration: none; border-bottom: 1px solid rgba(var(--accent), 0.48); padding-bottom: 3px; }
+        .light-mode .tool-cta { color: rgba(20,20,20,0.8); border-bottom-color: rgba(20,80,110,0.28); }
+        .tool-price { font-family: 'JetBrains Mono', monospace; font-size: 0.69rem; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255,255,255,0.86); border-radius: 999px; padding: 7px 10px; border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.08); box-shadow: inset 0 1px 0 rgba(255,255,255,0.08); }
+        .price-free { color: rgba(170, 255, 190, 0.96); }
+        .price-freemium { color: rgba(180, 220, 255, 0.96); }
+        .price-paid, .price-one-time { color: rgba(255, 220, 150, 0.96); }
+        .light-mode .tool-price { color: rgba(20,20,20,0.75); border-color: rgba(0,0,0,0.08); background: rgba(255,255,255,0.72); }
+        .ecosystem-close { margin: 54px 0 10px; text-align: center; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.035); border-radius: 22px; padding: 28px; backdrop-filter: blur(14px); }
+        .ecosystem-close p { margin: 0; color: rgba(255,255,255,0.72); font-size: 1.02rem; line-height: 1.75; }
+        .light-mode .ecosystem-close { border-color: rgba(0,0,0,0.07); background: rgba(255,255,255,0.62); }
+        .light-mode .ecosystem-close p { color: rgba(20,20,20,0.68); }
+        @media (max-width: 768px) { .tools-grid, .featured-grid { grid-template-columns: 1fr; } .tool-card.featured, .tool-card.hero-product { grid-column: span 1; } .tool-card { min-height: auto; } .tool-card.hero-product .tool-name { font-size: 1.55rem; } .tool-card.featured .tool-name { font-size: 1.38rem; } .tool-category h2 { font-size: 0.92rem; } .tools-subtitle { font-size: 1rem; } .tool-features { padding-bottom: 54px; } }
+
+
+        /* Fixed GoAnon logo header */
+        .site-header {
+            position: fixed;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1200;
+            pointer-events: none;
+        }
+        .site-brand {
+            display: block;
+            padding: 0;
+            border-radius: 0;
+            text-decoration: none;
+            background: transparent;
+            border: 0;
+            box-shadow: none;
+            backdrop-filter: none;
+            pointer-events: auto;
+        }
+        .site-logo {
+            width: 96px;
+            height: 96px;
+            object-fit: contain;
+            display: block;
+            filter: drop-shadow(0 0 18px rgba(180,220,255,0.22));
+        }
+        .light-mode .site-logo {
+            filter: drop-shadow(0 2px 9px rgba(0,0,0,0.20));
+        }
+        @media (max-width: 768px) {
+            .site-header { top: 10px; }
+            .site-logo { width: 74px; height: 74px; }
+        }
+
+        /*
+           IMPORTANT:
+           The scrollable element must cover the full viewport.
+           That keeps the scrollbar on the real right edge of the browser,
+           not beside the centered 800px content column.
+        */
+        /* Content Wrapper and Scrollbar Styles */
+        .content-wrapper { position: fixed; inset: 0; z-index: 50; width: 100vw; max-width: none; margin: 0; height: 100vh; overflow-y: auto; padding: 138px 40px 86px; opacity: 0; animation: fadeInContent 2s ease-in-out 3.5s forwards; color: rgba(255, 255, 255, 0.9); line-height: 1.7; }
+        @keyframes fadeInContent { to { opacity: 1; } }
+
+        #why-content > * { max-width: 800px; margin-left: auto; margin-right: auto; }
+        #how-content > * { max-width: 1120px; margin-left: auto; margin-right: auto; }
+        #how-content .tools-grid, #how-content .featured-grid { max-width: 1120px; }
+        .content-wrapper::-webkit-scrollbar { width: 8px; }
+        .content-wrapper::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.05); }
+        .content-wrapper::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 4px; }
+        .content-wrapper::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.4); }
+        .light-mode .content-wrapper { color: rgba(20, 20, 20, 0.9); }
+        .light-mode .content-wrapper::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.05); }
+        .light-mode .content-wrapper::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.2); }
+        .light-mode .content-wrapper::-webkit-scrollbar-thumb:hover { background: rgba(0, 0, 0, 0.4); }
+
+        /* Letter Typography Styles */
+        .letter-header { text-align: center; margin-bottom: 60px; position: relative; }
+        .letter-title { font-size: clamp(2.5rem, 5vw, 3.5rem); font-weight: 700; letter-spacing: -0.02em; margin-bottom: 16px; background: linear-gradient(135deg, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.8) 50%, rgba(200, 200, 200, 0.9) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; text-shadow: 0 4px 20px rgba(255, 255, 255, 0.1); }
+        .light-mode .letter-title { background: linear-gradient(135deg, rgba(20, 20, 20, 1) 0%, rgba(60, 60, 60, 0.9) 50%, rgba(100, 100, 100, 0.8) 100%); -webkit-background-clip: text; text-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); }
+        
+        .letter-content { position: relative; z-index: 2; }
+        .section { margin-bottom: 48px; }
+        .section-title { font-size: 1.75rem; font-weight: 600; color: rgba(255, 255, 255, 0.95); margin-bottom: 24px; letter-spacing: -0.01em; position: relative; }
+        .light-mode .section-title { color: rgba(20, 20, 20, 0.95); }
+        .section-title::after { content: ''; position: absolute; bottom: -8px; left: 0; width: 60px; height: 2px; background: linear-gradient(90deg, rgba(255, 255, 255, 0.4) 0%, transparent 100%); }
+        .light-mode .section-title::after { background: linear-gradient(90deg, rgba(20, 20, 20, 0.4) 0%, transparent 100%); }
+        
+        .paragraph { font-size: 1.1rem; font-weight: 400; color: rgba(255, 255, 255, 0.8); margin-bottom: 24px; text-align: justify; }
+        .light-mode .paragraph { color: rgba(20, 20, 20, 0.8); }
+        .paragraph.lead { font-size: 1.3rem; font-weight: 300; color: rgba(255, 255, 255, 0.9); margin-bottom: 32px; line-height: 1.8; }
+        .light-mode .paragraph.lead { color: rgba(20, 20, 20, 0.9); }
+        
+        .emphasis-block { background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 16px; padding: 32px; margin: 40px 0; position: relative; backdrop-filter: blur(10px); }
+        .light-mode .emphasis-block { background: rgba(0, 0, 0, 0.02); border: 1px solid rgba(0, 0, 0, 0.08); }
+        .emphasis-block::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: linear-gradient(180deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.2) 100%); border-radius: 2px; }
+        .light-mode .emphasis-block::before { background: linear-gradient(180deg, rgba(20, 20, 20, 0.6) 0%, rgba(20, 20, 20, 0.2) 100%); }
+        .emphasis-text { font-size: 1.25rem; font-weight: 500; color: rgba(255, 255, 255, 0.95); font-style: italic; line-height: 1.6; }
+        .light-mode .emphasis-text { color: rgba(20, 20, 20, 0.95); }
+        
+        .signature-section { margin-top: 80px; text-align: right; border-top: 1px solid rgba(255, 255, 255, 0.1); padding-top: 40px; }
+        .light-mode .signature-section { border-top: 1px solid rgba(20, 20, 20, 0.1); }
+        .signature-name { font-size: 1.5rem; font-weight: 600; color: rgba(255, 255, 255, 0.95); margin-bottom: 8px; font-family: 'Inter', sans-serif; letter-spacing: 0.02em; }
+        .light-mode .signature-name { color: rgba(20, 20, 20, 0.95); }
+        .signature-title { font-size: 1rem; color: rgba(255, 255, 255, 0.6); font-weight: 400; margin-bottom: 24px; }
+        .light-mode .signature-title { color: rgba(20, 20, 20, 0.6); }
+
+        .final-statement { text-align: center; margin-top: 60px; font-size: 1.2rem; font-weight: 500; font-style: italic; color: rgba(255, 255, 255, 0.8); }
+        .light-mode .final-statement { color: rgba(20, 20, 20, 0.8); }
+        
+        @media (max-width: 768px) { .content-wrapper { padding: 104px 20px 60px; } .letter-title { font-size: 2.5rem; } .section-title { font-size: 1.5rem; } .paragraph { font-size: 1rem; text-align: left; } .paragraph.lead { font-size: 1.2rem; } .emphasis-block { padding: 24px; margin: 32px 0; } .signature-section { text-align: left; margin-top: 60px; } }
+    </style>
+</head>
+<body>
+    <canvas id="matrix-canvas"></canvas>
+
+    <header class="site-header" aria-label="GoAnon header">
+        <a class="site-brand" href="/" aria-label="GoAnon home">
+            <img class="site-logo" src="./assets/images/goanon-logo.png" alt="GoAnon logo">
+        </a>
+    </header>
+    <div class="flip-container" id="flip-container">
+        <div class="glass-container">
+            <div class="ambient-light" id="ambient-light"></div>
+            <div class="caustic-light"></div>
+            <div class="stripe-container">
+                <div class="stripe-layer"> <div class="stripe"></div><div class="stripe"></div><div class="stripe"></div><div class="stripe"></div><div class="stripe"></div> </div>
+                <div class="stripe-layer"> <div class="stripe"></div><div class="stripe"></div><div class="stripe"></div><div class="stripe"></div><div class="stripe"></div> </div>
+                <div class="stripe-layer"> <div class="stripe"></div><div class="stripe"></div><div class="stripe"></div><div class="stripe"></div><div class="stripe"></div> </div>
+                <div class="highlight-stripe"></div>
+            </div>
+            
+            <div class="content-wrapper" id="why-content">
+<!-- REPLACEMENT NOTE: The entire content below has been updated to your new, softer version. -->
+                <div class="letter-header"><h1 class="letter-title">To everyone who values privacy and digital dignity:</h1></div>
+                <div class="letter-content">
+                    <div class="section">
+                        <p class="paragraph lead">We were promised that the internet would connect and empower us. Instead, it has evolved into a complex web of data collection, where every click, message, and interaction is tracked, analyzed, and monetized.</p>
+                        <p class="paragraph">For years, we've watched as companies promoted global connection while gradually eroding our personal privacy. Code is crafted to extract value from our behaviors. Platforms are engineered to turn our lives into data points.</p>
+                    </div>
+                    <div class="section">
+                        <h2 class="section-title">A Turning Point</h2>
+                        <p class="paragraph">There comes a moment when you realize that true privacy is increasingly rare online. When asking for privacy is seen as suspicious, it’s clear the system needs a new approach.</p>
+                        <p class="paragraph">That’s why GoAnon was created — to offer a real alternative.</p>
+                        <p class="paragraph">GoAnon isn’t just another privacy tool. It’s a fundamental rethinking of how digital systems should work. Every protocol is designed to prioritize your privacy. Every feature exists to protect your digital presence, not to expose it. Every decision is made with your best interest in mind — putting privacy at the core, not as an afterthought.</p>
+                        <p class="paragraph">Of course, GoAnon is a business. Building and maintaining strong privacy infrastructure requires real resources. There’s a big difference, though, between charging for privacy and profiting from your personal data. Our model is simple: you pay us directly for the service, so we never have to sell your information.</p>
+                        <div class="emphasis-block"><p class="emphasis-text">Privacy isn’t something you can just add on later. It’s the starting point for everything we build.</p></div>
+                        <p class="paragraph">GoAnon is not about hiding unlawful activities — it’s about restoring your fundamental right to exist and communicate freely, without constant monitoring. It’s about creating space for you to think, interact, and express yourself without oversight or interference.</p>
+                        <p class="paragraph">We believe the focus should always be on the work and the benefit to the user — not on personalities or personal brands. In a world that often prioritizes image, we prefer to let our solutions stand on their own.</p>
+                    </div>
+                    <div class="section">
+                        <h2 class="section-title">Our Commitment</h2> <!-- REPLACEMENT NOTE: Changed h2 from "Why Anarchitect" to be more general. -->
+                        <p class="paragraph">Our goal is to design systems that empower individuals, not data brokers. We’re committed to building tools and networks that prioritize your needs over those of advertisers or intermediaries. Sustainable privacy requires a sustainable business model, which is why we’re transparent: you pay for the service, and we work for you — not the other way around.</p>
+                        <p class="paragraph">Every tool within the GoAnon ecosystem exists to give people a real choice beyond surveillance-driven business models. For those who believe there’s a better way to participate online, GoAnon is here.</p>
+                        <p class="paragraph">This is our contribution to those who have felt powerless in the face of pervasive data collection. Privacy tools require investment and effort to create, but we believe they are essential. Our commitment is clear: you pay for privacy, and you receive privacy. No hidden agendas, no data mining, and no compromises.</p>
+                        <div class="emphasis-block"><p class="emphasis-text">If a product is free, your data often pays the price. With anon.anon, your payment ensures you are not the product.</p></div>
+                        <p class="paragraph">GoAnon is built for the next generation — so that privacy becomes the default, not a privilege. Anonymity is a right, not a red flag. And being online doesn’t mean giving up control over your personal information.</p>
+                        <p class="paragraph">This is just the beginning. With every tool we build, every person who chooses a more private digital life, and every moment where privacy is respected, we move closer to a better digital future.</p>
+                    </div>
+                    <div class="signature-section">
+                        <!-- REPLACEMENT NOTE: Signature is now personalized. -->
+                        <div class="signature-name">— David</div>
+                        <div class="signature-title">Founder, GoAnon</div>
+                    </div>
+                    <!-- REPLACEMENT NOTE: The P.S. and final quote block have been replaced with a single final statement for a cleaner ending. -->
+                    <p class="final-statement">Welcome to GoAnon.<br>Your privacy journey starts here.</p>
+                </div>
+            </div>
+
+            <div class="content-wrapper" id="how-content" style="display: none;">
+<div class="tools-hero">
+                    <div class="tools-eyebrow">GoAnon ecosystem</div>
+                    <div class="letter-header" style="margin-bottom: 22px;"><h1 class="letter-title">The Tools</h1></div>
+                    <p class="tools-subtitle">A privacy-first stack for browsing, AI, coding, communication, encryption, and digital identity — built to protect users, not monetize them.</p>
+                    <p class="tools-note">Some products are available today. Others are in development, returning soon, or being shaped inside GoAnon Labs.</p>
+                </div>
+
+                <div class="tool-category"><h2>Core Products</h2><div class="tool-category-line"></div></div>
+                <div class="tools-grid featured-grid">
+                    <!-- 1. Etherana SX — Available -->
+                    <article class="tool-card featured accent-ai">
+                        <div class="tool-top"><div class="tool-icon">◐</div><span class="tool-status status-available">Available</span></div>
+                        <div class="tool-brandline">AI workspace</div>
+                        <h3 class="tool-name">Etherana SX</h3>
+                        <p class="tool-desc">A private AI workspace for search, reasoning, Spaces, tasks, labs, and BYO API access without platform lock-in.</p>
+                        <div class="tool-features"><span class="tool-feature">Web search</span><span class="tool-feature">Spaces</span><span class="tool-feature">BYO API</span></div>
+                        <div class="tool-footer"><a class="tool-cta" href="https://sx.goanon.pro">Explore</a><span class="tool-price price-one-time">One-time</span></div>
+                    </article>
+
+                    <!-- 2. Qryptana — In development -->
+                    <article class="tool-card featured accent-comms">
+                        <div class="tool-top"><div class="tool-icon">◈</div><span class="tool-status status-dev">In development</span></div>
+                        <div class="tool-brandline">Private messaging</div>
+                        <h3 class="tool-name">Qryptana</h3>
+                        <p class="tool-desc">Private messaging without phone numbers, email addresses, or unnecessary identity exposure.</p>
+                        <div class="tool-features"><span class="tool-feature">No phone number</span><span class="tool-feature">No email</span><span class="tool-feature">Private chat</span></div>
+                        <div class="tool-footer"><a class="tool-cta" href="https://qryptana.goanon.pro">Follow build</a><span class="tool-price price-freemium">Freemium</span></div>
+                    </article>
+
+                    <!-- 3. Privana — Returning soon -->
+                    <article class="tool-card featured accent-net">
+                        <div class="tool-top"><div class="tool-icon">◇</div><span class="tool-status status-soon">Returning soon</span></div>
+                        <div class="tool-brandline">Private network</div>
+                        <h3 class="tool-name">Privana</h3>
+                        <p class="tool-desc">No-log VPN infrastructure for encrypted internet access, private routing, and a cleaner network layer.</p>
+                        <div class="tool-features"><span class="tool-feature">No-log design</span><span class="tool-feature">Encrypted tunnel</span><span class="tool-feature">Privacy status</span></div>
+                        <div class="tool-footer"><a class="tool-cta" href="https://privana.goanon.pro">Preview</a><span class="tool-price price-paid">Paid</span></div>
+                    </article>
+
+                    <!-- 4. Etherana Coder — Available -->
+                    <article class="tool-card featured accent-code">
+                        <div class="tool-top"><div class="tool-icon">⌘</div><span class="tool-status status-available">Available</span></div>
+                        <div class="tool-brandline">Private coding</div>
+                        <h3 class="tool-name">Etherana Coder</h3>
+                        <p class="tool-desc">A private AI code editor with agents, project memory, checkpointing, universal model support, and no telemetry.</p>
+                        <div class="tool-features"><span class="tool-feature">AI agents</span><span class="tool-feature">Project memory</span><span class="tool-feature">Diff checkpoints</span></div>
+                        <div class="tool-footer"><a class="tool-cta" href="https://coder.goanon.pro">Explore</a><span class="tool-price price-freemium">Freemium</span></div>
+                    </article>
+
+                    <!-- 5. Etherana Browser — In development -->
+                    <article class="tool-card featured accent-browser">
+                        <div class="tool-top"><div class="tool-icon">◎</div><span class="tool-status status-dev">In development</span></div>
+                        <div class="tool-brandline">Private gateway</div>
+                        <h3 class="tool-name">Etherana Browser</h3>
+                        <p class="tool-desc">The future home of the GoAnon ecosystem: private browsing, tracker blocking, isolated sessions, AI leak protection, Privana status, and Etherana built into the sidebar.</p>
+                        <div class="tool-features"><span class="tool-feature">Private containers</span><span class="tool-feature">Burn sessions</span><span class="tool-feature">Etherana sidebar</span><span class="tool-feature">Tracker defense</span></div>
+                        <div class="tool-footer"><a class="tool-cta" href="https://browser.goanon.pro">Follow build</a><span class="tool-price price-freemium">Freemium</span></div>
+                    </article>
+
+                    <!-- 6. Etherana — Labs (flagship, last, full-width hero) -->
+                    <article class="tool-card hero-product accent-ai">
+                        <div class="tool-top"><div class="tool-icon">✦</div><span class="tool-status status-labs">Labs</span></div>
+                        <div class="tool-brandline">Private AI operator</div>
+                        <h3 class="tool-name">Etherana</h3>
+                        <p class="tool-desc">Your private AI companion across research, browsing, coding, files, tasks, memory, and personal workflows. A massive, long-term project at the heart of the GoAnon ecosystem.</p>
+                        <div class="tool-features"><span class="tool-feature">Voice-ready</span><span class="tool-feature">Task aware</span><span class="tool-feature">Local memory</span></div>
+                        <div class="tool-footer"><a class="tool-cta" href="https://etherana.goanon.pro">Enter labs</a><span class="tool-price price-freemium">Freemium</span></div>
+                    </article>
+                </div>
+
+                                <div class="tool-category"><h2>Privacy Utilities</h2><div class="tool-category-line"></div></div>
+                <div class="tools-grid">
+                    <article class="tool-card compact accent-security">
+                        <div class="tool-top"><div class="tool-icon">⬡</div><span class="tool-status status-dev">Planned</span></div>
+                        <div class="tool-brandline">Password vault</div>
+                        <h3 class="tool-name">Vaultana</h3>
+                        <p class="tool-desc">Local-first encrypted storage for passwords, recovery codes, private notes, and sensitive secrets.</p>
+                        <div class="tool-features"><span class="tool-feature">Encrypted vault</span><span class="tool-feature">Generator</span><span class="tool-feature">Local export</span></div>
+                        <div class="tool-footer"><a class="tool-cta" href="https://tools.goanon.pro">Open soon</a><span class="tool-price price-freemium">Freemium</span></div>
+                    </article>
+
+                    <article class="tool-card compact accent-identity">
+                        <div class="tool-top"><div class="tool-icon">✧</div><span class="tool-status status-dev">Planned</span></div>
+                        <div class="tool-brandline">Metadata cleaner</div>
+                        <h3 class="tool-name">Cleanana</h3>
+                        <p class="tool-desc">Remove hidden metadata from images, PDFs, and documents before sharing them online.</p>
+                        <div class="tool-features"><span class="tool-feature">EXIF removal</span><span class="tool-feature">PDF metadata</span><span class="tool-feature">Client-side first</span></div>
+                        <div class="tool-footer"><a class="tool-cta" href="https://tools.goanon.pro">Open soon</a><span class="tool-price price-free">Free</span></div>
+                    </article>
+
+                    <article class="tool-card compact accent-identity">
+                        <div class="tool-top"><div class="tool-icon">◌</div><span class="tool-status status-dev">Planned</span></div>
+                        <div class="tool-brandline">Alias manager</div>
+                        <h3 class="tool-name">Maskana</h3>
+                        <p class="tool-desc">Create compartmentalized online identities for signups, newsletters, AI tools, forums, and low-trust platforms.</p>
+                        <div class="tool-features"><span class="tool-feature">Usernames</span><span class="tool-feature">Compartments</span><span class="tool-feature">Privacy profiles</span></div>
+                        <div class="tool-footer"><a class="tool-cta" href="https://tools.goanon.pro">Open soon</a><span class="tool-price price-free">Free</span></div>
+                    </article>
+
+                    <article class="tool-card compact accent-security">
+                        <div class="tool-top"><div class="tool-icon">▣</div><span class="tool-status status-dev">Planned</span></div>
+                        <div class="tool-brandline">File encryption</div>
+                        <h3 class="tool-name">Lockana</h3>
+                        <p class="tool-desc">Encrypt files locally before sending, storing, or backing them up. Your file is locked before it leaves your device.</p>
+                        <div class="tool-features"><span class="tool-feature">Local encryption</span><span class="tool-feature">Password lock</span><span class="tool-feature">No upload</span></div>
+                        <div class="tool-footer"><a class="tool-cta" href="https://tools.goanon.pro">Open soon</a><span class="tool-price price-free">Free</span></div>
+                    </article>
+
+                    <article class="tool-card compact accent-identity">
+                        <div class="tool-top"><div class="tool-icon">✎</div><span class="tool-status status-dev">Planned</span></div>
+                        <div class="tool-brandline">Document redaction</div>
+                        <h3 class="tool-name">Redactana</h3>
+                        <p class="tool-desc">Remove names, emails, phone numbers, addresses, and sensitive details before sharing documents.</p>
+                        <div class="tool-features"><span class="tool-feature">PII detection</span><span class="tool-feature">Safe sharing</span><span class="tool-feature">Documents</span></div>
+                        <div class="tool-footer"><a class="tool-cta" href="https://tools.goanon.pro">Open soon</a><span class="tool-price price-freemium">Freemium</span></div>
+                    </article>
+
+                    <article class="tool-card compact accent-browser">
+                        <div class="tool-top"><div class="tool-icon">↯</div><span class="tool-status status-dev">Planned</span></div>
+                        <div class="tool-brandline">Link & prompt shield</div>
+                        <h3 class="tool-name">Shieldana</h3>
+                        <p class="tool-desc">Clean tracking links and scan AI prompts for API keys, personal data, secrets, and sensitive content.</p>
+                        <div class="tool-features"><span class="tool-feature">UTM cleaner</span><span class="tool-feature">Prompt scan</span><span class="tool-feature">Secret alerts</span></div>
+                        <div class="tool-footer"><a class="tool-cta" href="https://tools.goanon.pro">Open soon</a><span class="tool-price price-free">Free</span></div>
+                    </article>
+                </div>
+
+                <div class="tool-category"><h2>Labs</h2><div class="tool-category-line"></div></div>
+                <div class="tools-grid">
+                    <article class="tool-card labs-card compact accent-labs">
+                        <div class="tool-top"><div class="tool-icon">◉</div><span class="tool-status status-labs">Labs</span></div>
+                        <div class="tool-brandline">Browser exposure</div>
+                        <h3 class="tool-name">Fingerprint Check</h3>
+                        <p class="tool-desc">See what your browser reveals before you log in: fingerprinting signals, WebRTC leaks, and exposure points.</p>
+                        <div class="tool-features"><span class="tool-feature">WebRTC leak</span><span class="tool-feature">Canvas signals</span><span class="tool-feature">Privacy score</span></div>
+                        <div class="tool-footer"><a class="tool-cta" href="https://tools.goanon.pro">Prototype</a><span class="tool-price price-free">Free</span></div>
+                    </article>
+
+                    <article class="tool-card labs-card compact accent-ai">
+                        <div class="tool-top"><div class="tool-icon">☷</div><span class="tool-status status-labs">Labs</span></div>
+                        <div class="tool-brandline">Private memory</div>
+                        <h3 class="tool-name">Memory Vault</h3>
+                        <p class="tool-desc">A local encrypted memory layer for Etherana, projects, notes, preferences, and documents.</p>
+                        <div class="tool-features"><span class="tool-feature">Local memory</span><span class="tool-feature">Encrypted context</span><span class="tool-feature">Assistant-ready</span></div>
+                        <div class="tool-footer"><a class="tool-cta" href="https://tools.goanon.pro">Prototype</a><span class="tool-price price-freemium">Freemium</span></div>
+                    </article>
+
+                    <article class="tool-card labs-card compact accent-browser">
+                        <div class="tool-top"><div class="tool-icon">◍</div><span class="tool-status status-labs">Labs</span></div>
+                        <div class="tool-brandline">Website auditor</div>
+                        <h3 class="tool-name">Page Auditor</h3>
+                        <p class="tool-desc">Inspect trackers, analytics, pixels, external scripts, cookies, and fingerprinting attempts on a page.</p>
+                        <div class="tool-features"><span class="tool-feature">Trackers</span><span class="tool-feature">Scripts</span><span class="tool-feature">Cookies</span></div>
+                        <div class="tool-footer"><a class="tool-cta" href="https://tools.goanon.pro">Prototype</a><span class="tool-price price-free">Free</span></div>
+                    </article>
+
+                    <article class="tool-card labs-card compact accent-security">
+                        <div class="tool-top"><div class="tool-icon">?</div><span class="tool-status status-labs">Labs</span></div>
+                        <div class="tool-brandline">Account recovery</div>
+                        <h3 class="tool-name">Breach Guide</h3>
+                        <p class="tool-desc">A step-by-step recovery assistant for exposed emails, leaked passwords, and compromised accounts without storing your information.</p>
+                        <div class="tool-features"><span class="tool-feature">Recovery checklist</span><span class="tool-feature">2FA guidance</span><span class="tool-feature">No account</span></div>
+                        <div class="tool-footer"><a class="tool-cta" href="https://tools.goanon.pro">Prototype</a><span class="tool-price price-free">Free</span></div>
+                    </article>
+                </div>
+
+                <div class="ecosystem-close"><p><strong>GoAnon is not one app.</strong><br>It is a private operating layer for the internet — built one tool at a time.<br><a href="https://tools.goanon.pro" style="color:inherit;opacity:0.6;font-size:0.88rem;font-family:'JetBrains Mono',monospace;letter-spacing:0.06em;text-decoration:none;border-bottom:1px solid rgba(255,255,255,0.18);">tools.goanon.pro →</a></p></div>
+            </div>
+            <div class="glass-overlay"></div>
+            <div class="sparkle"></div><div class="sparkle"></div><div class="sparkle"></div><div class="sparkle"></div>
+        </div>
+        <button class="mode-toggle" onclick="toggleMode()" aria-label="Toggle light and dark mode"><div class="toggle-ball"></div><span class="toggle-text left">DARK</span><span class="toggle-text right">LIGHT</span></button>
+        <button class="why-how-toggle" onclick="toggleWhyHow()" aria-label="Toggle between the Why and How sections"><div class="why-how-ball"></div><span class="why-how-text left">WHY</span><span class="why-how-text right">HOW</span></button>
+    </div>
+    <svg style="position: absolute; width: 0; height: 0;"><filter id="chromatic-aberration"><feOffset in="SourceGraphic" dx="2" dy="0" result="red" /><feOffset in="SourceGraphic" dx="-2" dy="0" result="cyan" /><feOffset in="SourceGraphic" dx="0" dy="0" result="green" /><feMerge><feMergeNode in="red" /><feMergeNode in="green" /><feMergeNode in="cyan" /></feMerge></filter></svg>
+    <script>
+        // ─── Matrix Rain ────────────────────────────────────────────────────────────
+        const canvas = document.getElementById('matrix-canvas');
+        const ctx    = canvas.getContext('2d');
+        const matrixChars = '░▒▓█◊◈◉○◎●◐◑◒◓◔◕◖◗◘◙◚◛◜◝◞◟◠◡◢◣◤◥◦◧◨◩◪◫◬◭◮◯◰◱◲◳◴◵◶◷◸◹◺◻◼◽◾◿';
+        const fontSize = 14;
+        let drops = [];
+
+        function setCanvasSize() {
+            canvas.width  = window.innerWidth;
+            canvas.height = window.innerHeight;
+            // Rebuild drops array whenever canvas is resized so columns stay correct
+            const cols = Math.floor(canvas.width / fontSize);
+            drops = Array.from({ length: cols }, () => Math.random() * -100);
+        }
+        setCanvasSize();
+        window.addEventListener('resize', setCanvasSize);
+
+        function drawMatrix() {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = 'rgba(180, 220, 255, 0.7)';
+            ctx.font = `${fontSize}px monospace`;
+            for (let i = 0; i < drops.length; i++) {
+                const text = matrixChars.charAt(Math.floor(Math.random() * matrixChars.length));
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+                drops[i]++;
+            }
+        }
+
+        let matrixInterval = null;
+        function startMatrix() {
+            if (matrixInterval) return; // guard against double-start
+            canvas.style.opacity = '1';
+            matrixInterval = setInterval(drawMatrix, 35);
+        }
+        function stopMatrix() {
+            canvas.style.opacity = '0';
+            clearInterval(matrixInterval);
+            matrixInterval = null;
+        }
+
+        // ─── Stripe animation reset ──────────────────────────────────────────────────
+        function resetStripeAnimations() {
+            const stripeContainer  = document.querySelector('.stripe-container');
+            const stripes          = document.querySelectorAll('.stripe');
+            const highlightStripe  = document.querySelector('.highlight-stripe');
+
+            // Pause every animation cleanly
+            stripeContainer.style.animation  = 'none';
+            highlightStripe.style.animation  = 'none';
+            stripes.forEach(s => { s.style.animation = 'none'; });
+
+            // Force reflow to flush paused state (one read is sufficient)
+            void stripeContainer.offsetWidth;
+
+            // Re-arm after one frame so the browser registers the change
+            requestAnimationFrame(() => {
+                stripeContainer.style.animation = 'sweepStripes 8s ease-in-out';
+                stripes.forEach(s => {
+                    const dur = (7.5 + Math.random() * 1.5).toFixed(2);
+                    s.style.animation = `stripeAppear ${dur}s ease-in-out`;
+                });
+                highlightStripe.style.animation      = 'highlightSweep 8s ease-in-out';
+                highlightStripe.style.animationDelay = '2s';
+            });
+        }
+
+        // ─── Flip Transition ────────────────────────────────────────────────────────
+        // The CSS flip takes 2500 ms.  We fade content out before the halfway point
+        // (~1200 ms), swap state, then fade back in — so no content bleeds through.
+        const FLIP_DURATION    = 2500;   // must match CSS transition duration
+        const CONTENT_SWAP_AT  = 1200;   // swap happens just before mid-flip
+        const CONTENT_FADE_MS  = 200;    // how long content fades before/after swap
+
+        let isFlipping = false;
+
+        function flipAnimation(callback) {
+            if (isFlipping) return;
+            isFlipping = true;
+
+            const flipContainer  = document.getElementById('flip-container');
+            const contentWrappers = document.querySelectorAll('.content-wrapper');
+
+            // Fade out visible content
+            contentWrappers.forEach(w => {
+                if (w.style.display !== 'none') {
+                    w.style.transition = `opacity ${CONTENT_FADE_MS}ms ease`;
+                    w.style.opacity    = '0';
+                }
+            });
+
+            // Start matrix rain
+            startMatrix();
+
+            // Begin 3-D flip slightly after matrix kicks in
+            const flipTimer = setTimeout(() => {
+                flipContainer.classList.add('flipping');
+            }, 100);
+
+            // Swap content at the deepest point of rotation
+            const swapTimer = setTimeout(() => {
+                try {
+                    if (typeof callback === 'function') callback();
+                } catch (err) {
+                    console.error('[flipAnimation] callback threw:', err);
+                }
+                // Fade content back in
+                contentWrappers.forEach(w => {
+                    if (w.style.display !== 'none') {
+                        w.style.opacity    = '0';
+                        w.style.transition = `opacity ${CONTENT_FADE_MS}ms ease`;
+                        requestAnimationFrame(() => { w.style.opacity = '1'; });
+                    }
+                });
+            }, CONTENT_SWAP_AT);
+
+            // Unflip and clean up
+            const unflipTimer = setTimeout(() => {
+                flipContainer.classList.remove('flipping');
+            }, FLIP_DURATION - 100);
+
+            const cleanupTimer = setTimeout(() => {
+                stopMatrix();
+                // Restore content opacity in case it was still mid-fade
+                contentWrappers.forEach(w => {
+                    w.style.transition = '';
+                    if (w.style.display !== 'none') w.style.opacity = '1';
+                });
+                isFlipping = false;
+            }, FLIP_DURATION + 500);
+
+            // Safety valve: if something went wrong, always unlock after 2× duration
+            const safetyTimer = setTimeout(() => {
+                if (isFlipping) {
+                    console.warn('[flipAnimation] safety valve fired — forcing unlock');
+                    clearTimeout(flipTimer);
+                    clearTimeout(swapTimer);
+                    clearTimeout(unflipTimer);
+                    clearTimeout(cleanupTimer);
+                    flipContainer.classList.remove('flipping');
+                    stopMatrix();
+                    contentWrappers.forEach(w => {
+                        w.style.transition = '';
+                        if (w.style.display !== 'none') w.style.opacity = '1';
+                    });
+                    isFlipping = false;
+                }
+            }, FLIP_DURATION * 2);
+            // We don't store safetyTimer in outer scope on purpose — it cleans itself
+            void safetyTimer;
+        }
+
+        // ─── Toggle helpers ──────────────────────────────────────────────────────────
+        function punchToggle(selector) {
+            const el = document.querySelector(selector);
+            if (!el) return;
+            el.style.transform = 'scale(0.95)';
+            setTimeout(() => { el.style.transform = 'scale(1.05)'; }, 100);
+            setTimeout(() => { el.style.transform = 'scale(1)';    }, 200);
+        }
+
+        // ─── Public toggle functions ─────────────────────────────────────────────────
+        function toggleMode() {
+            flipAnimation(() => {
+                document.body.classList.toggle('light-mode');
+                resetStripeAnimations();
+                punchToggle('.mode-toggle');
+                localStorage.setItem('lightMode', document.body.classList.contains('light-mode'));
+            });
+        }
+
+        function toggleWhyHow() {
+            flipAnimation(() => {
+                const body       = document.body;
+                const whyContent = document.getElementById('why-content');
+                const howContent = document.getElementById('how-content');
+                body.classList.toggle('why-how-active');
+                const showHow = body.classList.contains('why-how-active');
+                whyContent.style.display = showHow ? 'none'  : 'block';
+                howContent.style.display = showHow ? 'block' : 'none';
+                punchToggle('.why-how-toggle');
+                localStorage.setItem('whyHowMode', showHow);
+            });
+        }
+
+        // ─── Parallax / mouse-move ───────────────────────────────────────────────────
+        document.addEventListener('mousemove', (e) => {
+            const x = e.clientX / window.innerWidth;
+            const y = e.clientY / window.innerHeight;
+            document.querySelectorAll('.stripe-layer').forEach((layer, index) => {
+                const depth = (index + 1) * 5;
+                layer.style.transform = `translate(${(x - 0.5) * depth}px, ${(y - 0.5) * depth}px)`;
+            });
+            const glassOverlay = document.querySelector('.glass-overlay');
+            glassOverlay.style.background = `radial-gradient(circle at ${x*100}% ${y*100}%, rgba(255,255,255,0.1) 0%, transparent 50%)`;
+        });
+
+        // ─── Scroll hue-shift ────────────────────────────────────────────────────────
+        window.addEventListener('scroll', () => {
+            const maxScroll    = document.body.scrollHeight - window.innerHeight;
+            const pct          = maxScroll > 0 ? window.scrollY / maxScroll : 0;
+            const glassContainer = document.querySelector('.glass-container');
+            glassContainer.style.filter = `hue-rotate(${pct * 30}deg) brightness(${1 - pct * 0.2})`;
+        });
+
+        // ─── Ambient lighting ────────────────────────────────────────────────────────
+        function setAmbientLighting() {
+            const hour        = new Date().getHours();
+            const ambientLight = document.getElementById('ambient-light');
+            ambientLight.classList.remove('morning-light', 'afternoon-light', 'evening-light', 'night-light');
+            if      (hour >= 5  && hour < 12) ambientLight.classList.add('morning-light');
+            else if (hour >= 12 && hour < 17) ambientLight.classList.add('afternoon-light');
+            else if (hour >= 17 && hour < 21) ambientLight.classList.add('evening-light');
+            else                              ambientLight.classList.add('night-light');
+        }
+        setAmbientLighting();
+        setInterval(setAmbientLighting, 3_600_000);
+
+        // ─── Restore persisted state on load ─────────────────────────────────────────
+        (function restoreState() {
+            if (localStorage.getItem('lightMode') === 'true') {
+                document.body.classList.add('light-mode');
+            }
+            if (localStorage.getItem('whyHowMode') === 'true') {
+                document.body.classList.add('why-how-active');
+                const why = document.getElementById('why-content');
+                const how = document.getElementById('how-content');
+                if (why) why.style.display = 'none';
+                if (how) how.style.display = 'block';
+            }
+        })();
+    </script>
+</body>
+</html>
