@@ -1,1 +1,1060 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Redactana — GoAnon</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="../assets/css/product.css"><style>:root{--accent:255,155,90;--accent2:255,255,255;}</style></head><body><div class="site-shell"><header class="topbar"><a class="brand" href="../index.html"><img src="../assets/images/goanon-logo.png" alt="GoAnon logo"><span>GoAnon</span></a><nav class="nav"><a href="../index.html">Ecosystem</a><a href="../tools/index.html">Tools</a><button class="theme-toggle" onclick="toggleGoAnonTheme()">Theme</button></nav></header><main class="container"><section class="hero"><div class="eyebrow">Document redaction</div><h1>Redactana</h1><p>Remove names, emails, phone numbers, addresses, identifiers, and sensitive details from documents before sending them.</p><div class="hero-actions"><a class="btn" href="./index.html">Back to tools</a><a class="btn secondary" href="#details">Details</a></div></section><section class="section" id="details"><div class="grid two"><article class="card"><span class="status">Planned</span><h3 style="margin-top:18px;">Current status</h3><p>This page is a ready placeholder so the product can have a home while development, downloads, pricing, screenshots, or live functionality are added.</p><span class="tag price">Freemium</span></article><article class="card"><h3>What it should communicate</h3><p>A focused GoAnon tool page: privacy-first, useful, honest about status, and ready to become a real product page when the tool is built.</p></article></div></section><section class="section"><h2>Core direction</h2><p class="section-sub">Keep the promise clear, practical, and believable. No surveillance economy. No fake magic. Strong privacy by design.</p><article class="card"><ul class="list"><li>Text and document redaction workflow</li><li>Highlight suspected personal data</li><li>Manual review before export</li><li>Image/PDF redaction later</li></ul></article></section><section class="section"><div class="notice"><strong>Next content to add:</strong> screenshots, real availability, download/waitlist CTA, pricing, technical privacy notes, FAQ, and a short changelog.</div></section></main><footer class="footer"><div class="container"><a href="../index.html">GoAnon</a> · Private tools for a public internet.</div></footer></div><script src="../assets/js/theme.js"></script></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Redactana — Text Redaction — GoAnon</title>
+<meta name="description" content="Automatically detect and redact PII from text before sharing. Emails, phones, IPs, credit cards, API keys, and more. No uploads, no servers, no tracking.">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self' data: blob:; connect-src 'none'; font-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; object-src 'none'; frame-src 'none'; form-action 'none'; base-uri 'self'; manifest-src 'none'">
+<link rel="icon" href="../assets/images/goanon-logo.png" type="image/png">
+<!-- No external font requests — system font stack only. Zero network calls. -->
+<style>
+/* ────────────────────────────────────────────
+   GoAnon Design System — Redactana
+   Accent: red/crimson (redaction theme)
+   ──────────────────────────────────────────── */
+:root{
+  --accent:255,71,87;
+  --accent2:255,165,100;
+  --panel:rgba(255,255,255,.055);
+  --panel-2:rgba(255,255,255,.03);
+  --text:rgba(255,255,255,.92);
+  --muted:rgba(255,255,255,.62);
+  --faint:rgba(255,255,255,.38);
+  --line:rgba(255,255,255,.12);
+  --ok:#2ed573;
+  --warn:#ffd166;
+  --danger:#ff4757;
+  --radius:26px;
+  --radius-sm:14px;
+  --radius-xs:8px;
+  --mono:'SFMono-Regular',Consolas,'Liberation Mono',Menlo,monospace;
+  /* PII category colors */
+  --pii-email:0,180,255;
+  --pii-phone:255,165,0;
+  --pii-ip:180,100,255;
+  --pii-cc:255,71,87;
+  --pii-ssn:255,50,150;
+  --pii-url:0,220,130;
+  --pii-date:100,180,255;
+  --pii-key:255,220,50;
+  --pii-crypto:255,130,60;
+  --pii-custom:150,150,255;
+}
+body.light-mode{
+  --panel:rgba(255,255,255,.82);
+  --panel-2:rgba(255,255,255,.58);
+  --text:rgba(18,18,18,.9);
+  --muted:rgba(18,18,18,.64);
+  --faint:rgba(18,18,18,.42);
+  --line:rgba(0,0,0,.10);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{
+  min-height:100vh;
+  font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,sans-serif;
+  background:radial-gradient(circle at 18% 12%,rgba(var(--accent),.10),transparent 34%),
+             radial-gradient(circle at 78% 18%,rgba(var(--accent2),.06),transparent 35%),
+             linear-gradient(135deg,#071019,#020306 70%);
+  color:var(--text);
+  -webkit-font-smoothing:antialiased;
+  transition:background .6s ease,color .4s ease;
+}
+body.light-mode{
+  background:radial-gradient(circle at 18% 12%,rgba(var(--accent),.08),transparent 34%),
+             radial-gradient(circle at 78% 18%,rgba(var(--accent2),.05),transparent 35%),
+             linear-gradient(135deg,#fff,#f4f5f7 70%);
+}
+a{color:inherit;text-decoration:none}
+
+/* ── Shell ── */
+.site-shell{min-height:100vh;position:relative;overflow-x:hidden}
+.site-shell::before{
+  content:"";position:fixed;inset:0;
+  background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),
+                    linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);
+  background-size:44px 44px;
+  mask-image:linear-gradient(to bottom,#000,transparent 85%);
+  pointer-events:none;z-index:0;
+}
+
+/* ── Topbar ── */
+.topbar{
+  position:sticky;top:0;z-index:30;
+  display:flex;align-items:center;justify-content:space-between;gap:18px;
+  padding:18px clamp(18px,4vw,52px);
+  backdrop-filter:blur(18px);
+  background:rgba(2,3,6,.52);
+  border-bottom:1px solid var(--line);
+}
+.light-mode .topbar{background:rgba(255,255,255,.62)}
+.brand{display:flex;align-items:center;gap:12px}
+.brand img{width:42px;height:42px;object-fit:contain}
+.brand span{font-weight:700;letter-spacing:-.03em;font-size:1.1rem}
+.nav{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.nav a,.theme-toggle{
+  font:600 .72rem/1 var(--mono);
+  letter-spacing:.08em;text-transform:uppercase;
+  color:var(--muted);border:1px solid var(--line);border-radius:999px;
+  padding:9px 13px;background:rgba(255,255,255,.035);
+  cursor:pointer;transition:all .25s ease;
+}
+.nav a:hover,.theme-toggle:hover{
+  border-color:rgba(var(--accent),.4);color:var(--text);
+  background:rgba(var(--accent),.08);
+}
+
+/* ── Container ── */
+.container{width:min(1120px,calc(100% - 36px));margin:0 auto;position:relative;z-index:1}
+
+/* ── Hero ── */
+.hero{padding:56px 0 28px}
+.eyebrow{
+  display:inline-flex;
+  font:600 .76rem/1 var(--mono);
+  letter-spacing:.12em;text-transform:uppercase;
+  color:rgba(var(--accent),.95);
+  border:1px solid rgba(var(--accent),.24);
+  background:rgba(var(--accent),.07);
+  border-radius:999px;padding:9px 14px;margin-bottom:18px;
+}
+.hero h1{
+  font-size:clamp(2.2rem,5vw,4rem);line-height:.96;
+  letter-spacing:-.06em;margin:0 0 14px;
+}
+.hero p{
+  font-size:clamp(.95rem,1.8vw,1.12rem);line-height:1.75;
+  color:var(--muted);max-width:640px;margin:0;
+}
+
+/* ── Buttons ── */
+.btn{
+  display:inline-flex;align-items:center;gap:8px;
+  border-radius:999px;padding:12px 20px;
+  font:700 .76rem/1 var(--mono);
+  letter-spacing:.08em;text-transform:uppercase;
+  border:1px solid rgba(var(--accent),.30);
+  background:rgba(var(--accent),.11);color:var(--text);
+  cursor:pointer;transition:all .3s ease;
+}
+.btn:hover{background:rgba(var(--accent),.2);border-color:rgba(var(--accent),.5);transform:translateY(-1px)}
+.btn:active{transform:translateY(0)}
+.btn.secondary{background:rgba(255,255,255,.035);border-color:var(--line);color:var(--muted)}
+.btn.secondary:hover{border-color:rgba(var(--accent),.3);color:var(--text);background:rgba(var(--accent),.06)}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}
+
+/* ── Panels ── */
+.panel{
+  border:1px solid var(--line);border-radius:var(--radius);
+  background:linear-gradient(145deg,var(--panel),var(--panel-2));
+  backdrop-filter:blur(18px);
+  padding:36px 32px;
+  margin-top:24px;
+}
+
+/* ── Textarea ── */
+.text-input-group{margin-top:20px}
+.text-label{
+  font:600 .72rem/1 var(--mono);
+  letter-spacing:.08em;text-transform:uppercase;
+  color:var(--muted);margin-bottom:8px;display:block;
+}
+.text-textarea{
+  width:100%;
+  min-height:200px;
+  background:rgba(255,255,255,.04);
+  border:1px solid var(--line);
+  border-radius:var(--radius-sm);
+  padding:16px 18px;
+  font-size:.88rem;
+  font-family:var(--mono);
+  letter-spacing:.01em;
+  color:var(--text);
+  outline:none;
+  resize:vertical;
+  transition:border-color .2s;
+  line-height:1.75;
+}
+.text-textarea:focus{border-color:rgba(var(--accent),.5)}
+.text-textarea::placeholder{color:var(--faint);letter-spacing:0;line-height:1.75}
+.text-hint{
+  font-size:.72rem;color:var(--faint);margin-top:8px;line-height:1.5;
+}
+.text-hint strong{color:var(--muted);font-weight:600}
+
+/* ── PII Category Toggles ── */
+.category-grid{
+  display:flex;flex-wrap:wrap;gap:8px;
+  margin-top:16px;
+}
+.cat-toggle{
+  display:inline-flex;align-items:center;gap:6px;
+  font:600 .68rem/1 var(--mono);
+  letter-spacing:.04em;text-transform:uppercase;
+  padding:8px 14px;
+  border-radius:999px;
+  border:1px solid var(--line);
+  background:rgba(255,255,255,.03);
+  color:var(--muted);
+  cursor:pointer;
+  transition:all .2s ease;
+  user-select:none;
+}
+.cat-toggle:hover{border-color:rgba(255,255,255,.25)}
+.cat-toggle.active{color:var(--text)}
+.cat-toggle .dot{
+  width:8px;height:8px;border-radius:50%;
+  flex-shrink:0;
+}
+.cat-toggle[data-cat="email"] .dot{background:rgba(var(--pii-email),1)}
+.cat-toggle[data-cat="email"].active{background:rgba(var(--pii-email),.12);border-color:rgba(var(--pii-email),.35)}
+.cat-toggle[data-cat="phone"] .dot{background:rgba(var(--pii-phone),1)}
+.cat-toggle[data-cat="phone"].active{background:rgba(var(--pii-phone),.12);border-color:rgba(var(--pii-phone),.35)}
+.cat-toggle[data-cat="ip"] .dot{background:rgba(var(--pii-ip),1)}
+.cat-toggle[data-cat="ip"].active{background:rgba(var(--pii-ip),.12);border-color:rgba(var(--pii-ip),.35)}
+.cat-toggle[data-cat="cc"] .dot{background:rgba(var(--pii-cc),1)}
+.cat-toggle[data-cat="cc"].active{background:rgba(var(--pii-cc),.12);border-color:rgba(var(--pii-cc),.35)}
+.cat-toggle[data-cat="ssn"] .dot{background:rgba(var(--pii-ssn),1)}
+.cat-toggle[data-cat="ssn"].active{background:rgba(var(--pii-ssn),.12);border-color:rgba(var(--pii-ssn),.35)}
+.cat-toggle[data-cat="url"] .dot{background:rgba(var(--pii-url),1)}
+.cat-toggle[data-cat="url"].active{background:rgba(var(--pii-url),.12);border-color:rgba(var(--pii-url),.35)}
+.cat-toggle[data-cat="date"] .dot{background:rgba(var(--pii-date),1)}
+.cat-toggle[data-cat="date"].active{background:rgba(var(--pii-date),.12);border-color:rgba(var(--pii-date),.35)}
+.cat-toggle[data-cat="key"] .dot{background:rgba(var(--pii-key),1)}
+.cat-toggle[data-cat="key"].active{background:rgba(var(--pii-key),.12);border-color:rgba(var(--pii-key),.35)}
+.cat-toggle[data-cat="crypto"] .dot{background:rgba(var(--pii-crypto),1)}
+.cat-toggle[data-cat="crypto"].active{background:rgba(var(--pii-crypto),.12);border-color:rgba(var(--pii-crypto),.35)}
+
+/* ── Replacement Mode ── */
+.replace-group{margin-top:20px}
+.replace-label{
+  font:600 .72rem/1 var(--mono);
+  letter-spacing:.08em;text-transform:uppercase;
+  color:var(--muted);margin-bottom:8px;display:block;
+}
+.replace-options{
+  display:flex;gap:8px;flex-wrap:wrap;
+}
+.replace-opt{
+  font:600 .68rem/1 var(--mono);
+  letter-spacing:.04em;text-transform:uppercase;
+  padding:8px 14px;
+  border-radius:999px;
+  border:1px solid var(--line);
+  background:rgba(255,255,255,.03);
+  color:var(--muted);
+  cursor:pointer;
+  transition:all .2s ease;
+}
+.replace-opt:hover{border-color:rgba(var(--accent),.3);color:var(--text)}
+.replace-opt.active{
+  background:rgba(var(--accent),.12);
+  border-color:rgba(var(--accent),.35);
+  color:rgba(var(--accent),1);
+}
+
+/* ── Stats ── */
+.stats-bar{
+  display:flex;gap:12px;flex-wrap:wrap;
+  margin-top:16px;
+}
+.stat-chip{
+  display:inline-flex;align-items:center;gap:6px;
+  font:600 .68rem/1 var(--mono);
+  letter-spacing:.04em;
+  padding:8px 14px;
+  border:1px solid var(--line);border-radius:999px;
+  background:rgba(var(--accent),.04);
+}
+.stat-chip .stat-num{color:rgba(var(--accent),1);font-weight:700}
+
+/* ── Preview / Output ── */
+.output-section{margin-top:24px}
+.output-tabs{
+  display:flex;gap:4px;
+  border:1px solid var(--line);border-radius:999px;
+  background:rgba(255,255,255,.03);
+  padding:4px;
+  width:fit-content;
+  margin-bottom:14px;
+}
+.output-tab{
+  font:700 .68rem/1 var(--mono);
+  letter-spacing:.06em;text-transform:uppercase;
+  padding:9px 18px;border-radius:999px;
+  border:none;background:none;color:var(--muted);
+  cursor:pointer;transition:all .25s ease;
+}
+.output-tab:hover{color:var(--text)}
+.output-tab.active{
+  background:rgba(var(--accent),.15);
+  color:rgba(var(--accent),1);
+  border:1px solid rgba(var(--accent),.3);
+}
+
+.output-box{
+  padding:20px 24px;
+  border:1px solid var(--line);border-radius:var(--radius-sm);
+  background:rgba(0,0,0,.2);
+  font-family:var(--mono);font-size:.82rem;line-height:1.8;
+  word-break:break-word;
+  white-space:pre-wrap;
+  max-height:400px;
+  overflow-y:auto;
+  min-height:100px;
+}
+.light-mode .output-box{background:rgba(0,0,0,.04)}
+
+/* PII highlights in preview */
+.pii-hl{
+  padding:1px 4px;
+  border-radius:3px;
+  cursor:default;
+}
+.pii-hl.email{background:rgba(var(--pii-email),.18);color:rgba(var(--pii-email),1);border-bottom:2px solid rgba(var(--pii-email),.5)}
+.pii-hl.phone{background:rgba(var(--pii-phone),.18);color:rgba(var(--pii-phone),1);border-bottom:2px solid rgba(var(--pii-phone),.5)}
+.pii-hl.ip{background:rgba(var(--pii-ip),.18);color:rgba(var(--pii-ip),1);border-bottom:2px solid rgba(var(--pii-ip),.5)}
+.pii-hl.cc{background:rgba(var(--pii-cc),.18);color:rgba(var(--pii-cc),1);border-bottom:2px solid rgba(var(--pii-cc),.5)}
+.pii-hl.ssn{background:rgba(var(--pii-ssn),.18);color:rgba(var(--pii-ssn),1);border-bottom:2px solid rgba(var(--pii-ssn),.5)}
+.pii-hl.url{background:rgba(var(--pii-url),.18);color:rgba(var(--pii-url),1);border-bottom:2px solid rgba(var(--pii-url),.5)}
+.pii-hl.date{background:rgba(var(--pii-date),.18);color:rgba(var(--pii-date),1);border-bottom:2px solid rgba(var(--pii-date),.5)}
+.pii-hl.key{background:rgba(var(--pii-key),.18);color:rgba(var(--pii-key),1);border-bottom:2px solid rgba(var(--pii-key),.5)}
+.pii-hl.crypto{background:rgba(var(--pii-crypto),.18);color:rgba(var(--pii-crypto),1);border-bottom:2px solid rgba(var(--pii-crypto),.5)}
+
+/* Redacted text blocks in output */
+.redacted-block{
+  background:rgba(var(--accent),.15);
+  color:rgba(var(--accent),.9);
+  padding:1px 6px;
+  border-radius:3px;
+  font-weight:600;
+  letter-spacing:.02em;
+}
+
+/* ── Findings list ── */
+.findings-list{margin-top:16px;display:flex;flex-direction:column;gap:8px}
+.finding-row{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 14px;
+  border:1px solid var(--line);border-radius:var(--radius-xs);
+  background:rgba(255,255,255,.02);
+  font-family:var(--mono);font-size:.78rem;
+}
+.finding-cat{
+  font:600 .62rem/1 var(--mono);
+  letter-spacing:.06em;text-transform:uppercase;
+  padding:4px 8px;
+  border-radius:999px;
+  flex-shrink:0;
+  min-width:60px;
+  text-align:center;
+}
+.finding-cat.email{background:rgba(var(--pii-email),.12);color:rgba(var(--pii-email),1)}
+.finding-cat.phone{background:rgba(var(--pii-phone),.12);color:rgba(var(--pii-phone),1)}
+.finding-cat.ip{background:rgba(var(--pii-ip),.12);color:rgba(var(--pii-ip),1)}
+.finding-cat.cc{background:rgba(var(--pii-cc),.12);color:rgba(var(--pii-cc),1)}
+.finding-cat.ssn{background:rgba(var(--pii-ssn),.12);color:rgba(var(--pii-ssn),1)}
+.finding-cat.url{background:rgba(var(--pii-url),.12);color:rgba(var(--pii-url),1)}
+.finding-cat.date{background:rgba(var(--pii-date),.12);color:rgba(var(--pii-date),1)}
+.finding-cat.key{background:rgba(var(--pii-key),.12);color:rgba(var(--pii-key),1)}
+.finding-cat.crypto{background:rgba(var(--pii-crypto),.12);color:rgba(var(--pii-crypto),1)}
+.finding-value{flex:1;color:var(--faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.finding-count{color:var(--muted);font-weight:600;flex-shrink:0}
+
+/* ── Info blocks ── */
+.info-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:20px;
+}
+@media(max-width:640px){.info-grid{grid-template-columns:1fr}}
+.info-cell{
+  padding:14px 16px;
+  border:1px solid var(--line);border-radius:var(--radius-sm);
+  background:rgba(var(--accent),.02);
+}
+.info-cell-label{
+  font:500 .64rem/1 var(--mono);
+  color:var(--faint);letter-spacing:.06em;text-transform:uppercase;
+  margin-bottom:4px;
+}
+.info-cell-value{font-size:.88rem;font-weight:600}
+
+/* ── Toast ── */
+.toast{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);
+  padding:14px 22px;border-radius:999px;
+  font:600 .76rem/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;
+  z-index:100;opacity:0;
+  transition:all .35s cubic-bezier(.4,0,.2,1);
+  pointer-events:none;
+  backdrop-filter:blur(18px);
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.success{background:rgba(46,213,115,.15);color:var(--ok);border:1px solid rgba(46,213,115,.3)}
+.toast.error{background:rgba(255,71,87,.15);color:var(--danger);border:1px solid rgba(255,71,87,.3)}
+.toast.info{background:rgba(var(--accent),.12);color:rgba(var(--accent),1);border:1px solid rgba(var(--accent),.3)}
+
+/* ── Footer ── */
+.footer{
+  text-align:center;padding:48px 24px 36px;
+  font-size:.82rem;color:var(--faint);
+  border-top:1px solid var(--line);margin-top:48px;
+}
+.footer span{color:rgba(var(--accent),.7)}
+
+/* ── Utility ── */
+.hidden{display:none!important}
+.fade-in{animation:fadeIn .4s ease forwards;opacity:0}
+@keyframes fadeIn{to{opacity:1}}
+
+/* ── Responsive ── */
+@media(max-width:768px){
+  .hero h1{font-size:clamp(1.8rem,7vw,2.8rem)}
+  .panel{padding:24px 18px}
+  .info-grid{grid-template-columns:1fr}
+  .stats-bar{gap:8px}
+}
+@media(max-width:480px){
+  .topbar{padding:14px 16px}
+  .brand span{display:none}
+  .nav a,.theme-toggle{font-size:.65rem;padding:7px 10px}
+  .text-textarea{font-size:.78rem;padding:12px 14px}
+  .output-box{font-size:.74rem}
+  .cat-toggle{padding:6px 10px;font-size:.62rem}
+}
+</style>
+</head>
+<body>
+<div class="site-shell">
+
+  <!-- Topbar -->
+  <header class="topbar">
+    <a href="../index.html" class="brand">
+      <img src="../assets/images/goanon-logo.png" alt="GoAnon" width="42" height="42">
+      <span>GoAnon</span>
+    </a>
+    <nav class="nav">
+      <a href="../tools/index.html">Tools</a>
+      <a href="../products/browser.html">Products</a>
+      <button class="theme-toggle" onclick="toggleGoAnonTheme()" aria-label="Toggle theme">Theme</button>
+    </nav>
+  </header>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <!-- Main -->
+  <main class="container">
+
+    <!-- Hero -->
+    <section class="hero">
+      <div class="eyebrow">Text redaction</div>
+      <h1>Redactana</h1>
+      <p>Automatically detect and redact personally identifiable information from text before sharing. Emails, phones, IPs, credit cards, API keys, and more — all detected locally, nothing uploaded.</p>
+    </section>
+
+    <!-- ═══════════ MAIN PANEL ═══════════ -->
+    <div class="panel" id="mainPanel">
+      <h3 style="font-size:1.1rem;letter-spacing:-.02em;margin-bottom:4px">Redact text</h3>
+      <p style="font-size:.86rem;color:var(--muted);line-height:1.6">Paste or type text below. Redactana detects PII automatically. Toggle categories, choose a replacement style, and copy the redacted result.</p>
+
+      <!-- Text Input -->
+      <div class="text-input-group">
+        <label class="text-label" for="textInput">Text to scan</label>
+        <textarea class="text-textarea" id="textInput"
+                  placeholder="Paste your text here — emails, phone numbers, IP addresses, credit card numbers, and other PII will be automatically detected…"
+                  autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></textarea>
+        <div class="text-hint">
+          <strong>Zero network calls.</strong> All detection happens in your browser. Your text is never sent anywhere.
+        </div>
+      </div>
+
+      <!-- PII Category Toggles -->
+      <div style="margin-top:16px">
+        <div class="text-label">Categories to detect</div>
+        <div class="category-grid" id="categoryGrid"></div>
+      </div>
+
+      <!-- Replacement Mode -->
+      <div class="replace-group">
+        <div class="replace-label">Replacement style</div>
+        <div class="replace-options" id="replaceOptions">
+          <button class="replace-opt active" data-mode="tag" onclick="setReplaceMode('tag')">[REDACTED]</button>
+          <button class="replace-opt" data-mode="block" onclick="setReplaceMode('block')">Full block</button>
+          <button class="replace-opt" data-mode="partial" onclick="setReplaceMode('partial')">Partial</button>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="btn-row" style="justify-content:flex-end">
+        <button class="btn secondary" onclick="clearAll()">
+          Clear
+        </button>
+        <button class="btn" onclick="handleRedact()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="12" width="18" height="8" rx="1"/><path d="M17 12V8a5 5 0 0 0-10 0v4"/></svg>
+          Redact
+        </button>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-bar hidden" id="statsBar">
+        <div class="stat-chip"><span class="stat-num" id="statFindings">0</span> PII items found</div>
+        <div class="stat-chip"><span class="stat-num" id="statCategories">0</span> categories</div>
+        <div class="stat-chip"><span class="stat-num" id="statRedacted">0</span> items redacted</div>
+      </div>
+
+      <!-- Findings List -->
+      <div class="findings-list hidden" id="findingsList"></div>
+
+      <!-- Output Section -->
+      <div class="output-section hidden" id="outputSection">
+        <div class="output-tabs">
+          <button class="output-tab active" id="tabPreview" onclick="switchOutputTab('preview')">Preview</button>
+          <button class="output-tab" id="tabRedacted" onclick="switchOutputTab('redacted')">Redacted</button>
+        </div>
+        <div class="output-box" id="outputBox"></div>
+        <div class="btn-row" style="margin-top:12px;justify-content:flex-end">
+          <button class="btn secondary" onclick="copyRedacted()">
+            Copy redacted text
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════ HOW IT WORKS ═══════════ -->
+    <div class="panel" style="margin-top:16px;padding:24px 28px">
+      <h3 style="font-size:.92rem;letter-spacing:-.01em;margin-bottom:12px">How it works</h3>
+      <div class="info-grid">
+        <div class="info-cell">
+          <div class="info-cell-label">Detection</div>
+          <div class="info-cell-value">Regex pattern matching, local-only</div>
+        </div>
+        <div class="info-cell">
+          <div class="info-cell-label">Categories</div>
+          <div class="info-cell-value">9 PII types + toggleable</div>
+        </div>
+        <div class="info-cell">
+          <div class="info-cell-label">Replacement</div>
+          <div class="info-cell-value">Tag, block, or partial</div>
+        </div>
+        <div class="info-cell">
+          <div class="info-cell-label">Data leaves device?</div>
+          <div class="info-cell-value" style="color:var(--ok)">Never</div>
+        </div>
+      </div>
+      <p style="font-size:.78rem;color:var(--faint);line-height:1.6;margin-top:14px">
+        Redactana scans your text using regular expressions to detect common patterns of personally identifiable information: email addresses, phone numbers, IP addresses, credit card numbers, national ID patterns, URLs, dates, API keys/tokens, and cryptocurrency addresses. Each category can be toggled on or off. Detection is approximate — always review the redacted output before sharing. Your text is never sent to any server.
+      </p>
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <span>GoAnon</span> · Private tools for a public internet
+  </footer>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ═══════════════════════════════════════════
+     REDACTANA — TEXT REDACTION ENGINE
+     ──────────────────────────────────────────
+     Design principles:
+     1. ZERO network calls — no analytics, no phoning home
+     2. All PII detection via local regex — no API calls
+     3. Toggleable categories — user controls what gets redacted
+     4. Multiple replacement styles
+     5. XSS-safe: all dynamic content escaped
+     6. Input cleared from memory on request
+     ═══════════════════════════════════════════ */
+
+  /* ═══════════════════════════════════════════
+     PII DETECTION PATTERNS
+     ═══════════════════════════════════════════
+     Each pattern: { id, label, regex, placeholder }
+     Regex patterns are matched against the full text.
+     Placeholders are used for partial redaction mode.
+     ═══════════════════════════════════════════ */
+
+  var CATEGORIES = [
+    {
+      id: "email",
+      label: "Email",
+      regex: /[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}/g,
+      placeholder: "u***@e****.com"
+    },
+    {
+      id: "phone",
+      label: "Phone",
+      /* Matches international and US phone formats */
+      regex: /(?:(?:\+?\d{1,3}[\s.-]?)?(?:\(\d{1,4}\)[\s.-]?)?\d{1,4}[\s.-]?\d{1,4}[\s.-]?\d{1,9})/g,
+      placeholder: "***-***-****"
+    },
+    {
+      id: "ip",
+      label: "IP Address",
+      /* Matches IPv4 only (IPv6 is too ambiguous in free text) */
+      regex: /\b(?:(?:25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)\.){3}(?:25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)\b/g,
+      placeholder: "***.***.***.***"
+    },
+    {
+      id: "cc",
+      label: "Credit Card",
+      /* Matches 13-19 digit numbers with spaces/dashes (common CC formats) */
+      regex: /\b(?:\d[ \-]?){12,18}\d\b/g,
+      placeholder: "****-****-****-****"
+    },
+    {
+      id: "ssn",
+      label: "National ID",
+      /* Matches SSN (XXX-XX-XXXX) and similar national ID patterns */
+      regex: /\b\d{2,4}[\s-]\d{2,4}[\s-]\d{2,6}\b/g,
+      placeholder: "***-**-****"
+    },
+    {
+      id: "url",
+      label: "URL",
+      regex: /https?:\/\/[^\s<>"{}|\\^`[\]]+/g,
+      placeholder: "https://****.***"
+    },
+    {
+      id: "date",
+      label: "Date",
+      /* Matches common date formats: YYYY-MM-DD, DD/MM/YYYY, MM/DD/YYYY, etc. */
+      regex: /\b(?:(?:\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2,4})|(?:\d{4}[\/\-\.]\d{1,2}[\/\-\.]\d{1,2}))\b/g,
+      placeholder: "**/**/****"
+    },
+    {
+      id: "key",
+      label: "API Key",
+      /* Matches common API key/token patterns */
+      regex: /(?:api[_-]?key|token|secret|bearer|password|passwd|pwd|auth|credential|private[_-]?key)\s*[:=]\s*['"]?[a-zA-Z0-9_\-]{8,}['"]?/gi,
+      placeholder: "[API_KEY_REDACTED]"
+    },
+    {
+      id: "crypto",
+      label: "Crypto Address",
+      /* Matches Bitcoin (1/3/bc1), Ethereum (0x+40hex), and common wallet patterns */
+      regex: /(?:[13][a-km-zA-HJ-NP-Z1-9]{25,34}|bc1[a-zA-HJ-NP-Z0-9]{25,39}|0x[a-fA-F0-9]{40})/g,
+      placeholder: "0x****...****"
+    }
+  ];
+
+  /* ═══════════════════════════════════════════
+     STATE
+     ═══════════════════════════════════════════ */
+
+  var activeCategories = {};
+  for (var i = 0; i < CATEGORIES.length; i++) {
+    activeCategories[CATEGORIES[i].id] = true;
+  }
+  var replaceMode = "tag"; // tag | block | partial
+  var lastFindings = [];
+  var lastRedactedText = "";
+
+  /* ═══════════════════════════════════════════
+     BUILD CATEGORY TOGGLES
+     ═══════════════════════════════════════════ */
+
+  function buildCategoryGrid() {
+    var grid = document.getElementById("categoryGrid");
+    var html = "";
+    for (var i = 0; i < CATEGORIES.length; i++) {
+      var cat = CATEGORIES[i];
+      html += '<button class="cat-toggle active" data-cat="' + escapeAttr(cat.id) + '" onclick="toggleCategory(\'' + escapeAttr(cat.id) + '\')">';
+      html += '<span class="dot"></span>' + escapeHtml(cat.label);
+      html += '</button>';
+    }
+    grid.innerHTML = html;
+  }
+
+  buildCategoryGrid();
+
+  window.toggleCategory = function(catId) {
+    activeCategories[catId] = !activeCategories[catId];
+    var btns = document.querySelectorAll('.cat-toggle[data-cat=' + CSS.escape(catId) + ']');
+    for (var i = 0; i < btns.length; i++) {
+      if (activeCategories[catId]) {
+        btns[i].classList.add("active");
+      } else {
+        btns[i].classList.remove("active");
+      }
+    }
+  };
+
+  /* ═══════════════════════════════════════════
+     REPLACEMENT MODE
+     ═══════════════════════════════════════════ */
+
+  window.setReplaceMode = function(mode) {
+    replaceMode = mode;
+    var opts = document.querySelectorAll(".replace-opt");
+    for (var i = 0; i < opts.length; i++) {
+      if (opts[i].getAttribute("data-mode") === mode) {
+        opts[i].classList.add("active");
+      } else {
+        opts[i].classList.remove("active");
+      }
+    }
+  };
+
+  /* ═══════════════════════════════════════════
+     PII DETECTION ENGINE
+     ═══════════════════════════════════════════ */
+
+  /**
+   * Scan text for PII across active categories.
+   * Returns array of { catId, catLabel, match, index, endIndex, placeholder }
+   */
+  function detectPII(text) {
+    var findings = [];
+    for (var i = 0; i < CATEGORIES.length; i++) {
+      var cat = CATEGORIES[i];
+      if (!activeCategories[cat.id]) continue;
+
+      var regex = new RegExp(cat.regex.source, cat.regex.flags);
+      var match;
+      while ((match = regex.exec(text)) !== null) {
+        findings.push({
+          catId: cat.id,
+          catLabel: cat.label,
+          match: match[0],
+          index: match.index,
+          endIndex: match.index + match[0].length,
+          placeholder: cat.placeholder
+        });
+      }
+    }
+
+    /* Sort by position in text */
+    findings.sort(function(a, b) { return a.index - b.index; });
+
+    /* Remove overlapping matches — keep the earlier/longer one */
+    var filtered = [];
+    var lastEnd = -1;
+    for (var j = 0; j < findings.length; j++) {
+      if (findings[j].index >= lastEnd) {
+        filtered.push(findings[j]);
+        lastEnd = findings[j].endIndex;
+      }
+    }
+
+    return filtered;
+  }
+
+  /* ═══════════════════════════════════════════
+     REPLACEMENT GENERATOR
+     ═══════════════════════════════════════════ */
+
+  /**
+   * Generate replacement text for a match based on the current mode.
+   */
+  function getReplacement(match, placeholder, catLabel) {
+    if (replaceMode === "tag") {
+      return "[" + catLabel.toUpperCase() + "_REDACTED]";
+    } else if (replaceMode === "block") {
+      /* Full block: one block character per original char */
+      var len = match.length;
+      return new Array(len + 1).join("\u2588");
+    } else {
+      /* Partial: show placeholder for the category */
+      return placeholder;
+    }
+  }
+
+  /**
+   * Build the redacted text from original + findings.
+   */
+  function buildRedactedText(text, findings) {
+    var result = "";
+    var lastIdx = 0;
+    for (var i = 0; i < findings.length; i++) {
+      var f = findings[i];
+      result += text.slice(lastIdx, f.index);
+      result += getReplacement(f.match, f.placeholder, f.catLabel);
+      lastIdx = f.endIndex;
+    }
+    result += text.slice(lastIdx);
+    return result;
+  }
+
+  /* ═══════════════════════════════════════════
+     PREVIEW HIGHLIGHTING
+     ═══════════════════════════════════════════ */
+
+  /**
+   * Build HTML for the preview view with highlighted PII.
+   */
+  function buildPreviewHTML(text, findings) {
+    var html = "";
+    var lastIdx = 0;
+    for (var i = 0; i < findings.length; i++) {
+      var f = findings[i];
+      /* Text before this finding */
+      html += escapeHtml(text.slice(lastIdx, f.index));
+      /* Highlighted finding */
+      html += '<span class="pii-hl ' + escapeAttr(f.catId) + '" title="' + escapeAttr(f.catLabel) + '">' + escapeHtml(f.match) + '</span>';
+      lastIdx = f.endIndex;
+    }
+    html += escapeHtml(text.slice(lastIdx));
+    return html;
+  }
+
+  /**
+   * Build HTML for the redacted view.
+   */
+  function buildRedactedHTML(text, findings) {
+    var html = "";
+    var lastIdx = 0;
+    for (var i = 0; i < findings.length; i++) {
+      var f = findings[i];
+      var replacement = getReplacement(f.match, f.placeholder, f.catLabel);
+      html += escapeHtml(text.slice(lastIdx, f.index));
+      html += '<span class="redacted-block">' + escapeHtml(replacement) + '</span>';
+      lastIdx = f.endIndex;
+    }
+    html += escapeHtml(text.slice(lastIdx));
+    return html;
+  }
+
+  /* ═══════════════════════════════════════════
+     OUTPUT TAB SWITCHING
+     ═══════════════════════════════════════════ */
+
+  var currentOutputTab = "preview";
+
+  window.switchOutputTab = function(tab) {
+    currentOutputTab = tab;
+    var tabPreview = document.getElementById("tabPreview");
+    var tabRedacted = document.getElementById("tabRedacted");
+    var outputBox = document.getElementById("outputBox");
+    var text = document.getElementById("textInput").value;
+
+    if (tab === "preview") {
+      tabPreview.classList.add("active");
+      tabRedacted.classList.remove("active");
+      outputBox.innerHTML = buildPreviewHTML(text, lastFindings);
+    } else {
+      tabPreview.classList.remove("active");
+      tabRedacted.classList.add("active");
+      outputBox.innerHTML = buildRedactedHTML(text, lastFindings);
+    }
+  };
+
+  /* ═══════════════════════════════════════════
+     MAIN REDACT HANDLER
+     ═══════════════════════════════════════════ */
+
+  window.handleRedact = function() {
+    var text = document.getElementById("textInput").value;
+    if (!text.trim()) {
+      showToast("Enter some text first", "error");
+      return;
+    }
+
+    /* Detect PII */
+    var findings = detectPII(text);
+    lastFindings = findings;
+
+    /* Count categories */
+    var catCounts = {};
+    for (var i = 0; i < findings.length; i++) {
+      var catId = findings[i].catId;
+      catCounts[catId] = (catCounts[catId] || 0) + 1;
+    }
+    var numCategories = Object.keys(catCounts).length;
+
+    /* Build redacted text (for clipboard copy) */
+    lastRedactedText = buildRedactedText(text, findings);
+
+    /* Stats */
+    document.getElementById("statFindings").textContent = findings.length;
+    document.getElementById("statCategories").textContent = numCategories;
+    document.getElementById("statRedacted").textContent = findings.length;
+    document.getElementById("statsBar").classList.remove("hidden");
+
+    /* Findings list */
+    var findingsList = document.getElementById("findingsList");
+    findingsList.innerHTML = "";
+    if (findings.length > 0) {
+      var catIds = Object.keys(catCounts);
+      for (var c = 0; c < catIds.length; c++) {
+        var catId2 = catIds[c];
+        var catLabel = "";
+        var sampleValue = "";
+        for (var k = 0; k < findings.length; k++) {
+          if (findings[k].catId === catId2) {
+            catLabel = findings[k].catLabel;
+            sampleValue = findings[k].match;
+            break;
+          }
+        }
+        var row = document.createElement("div");
+        row.className = "finding-row";
+        row.innerHTML =
+          '<span class="finding-cat ' + escapeAttr(catId2) + '">' + escapeHtml(catLabel) + '</span>' +
+          '<span class="finding-value">' + escapeHtml(sampleValue) + (catCounts[catId2] > 1 ? ' +' + (catCounts[catId2] - 1) + ' more' : '') + '</span>' +
+          '<span class="finding-count">' + catCounts[catId2] + '</span>';
+        findingsList.appendChild(row);
+      }
+      findingsList.classList.remove("hidden");
+    } else {
+      findingsList.classList.add("hidden");
+    }
+
+    /* Output section */
+    var outputSection = document.getElementById("outputSection");
+    outputSection.classList.remove("hidden");
+    currentOutputTab = "preview";
+    document.getElementById("tabPreview").classList.add("active");
+    document.getElementById("tabRedacted").classList.remove("active");
+    document.getElementById("outputBox").innerHTML = buildPreviewHTML(text, findings);
+
+    if (findings.length > 0) {
+      showToast(findings.length + " PII item" + (findings.length !== 1 ? "s" : "") + " found and redacted", "success");
+    } else {
+      showToast("No PII detected — text looks clean", "info");
+    }
+  };
+
+  /* ═══════════════════════════════════════════
+     COPY REDACTED TEXT
+     ═══════════════════════════════════════════ */
+
+  window.copyRedacted = function() {
+    if (!lastRedactedText) {
+      showToast("Nothing to copy — redact first", "error");
+      return;
+    }
+    navigator.clipboard.writeText(lastRedactedText).then(function() {
+      showToast("Redacted text copied", "success");
+    }).catch(function() {
+      showToast("Copy failed — try selecting manually", "error");
+    });
+  };
+
+  /* ═══════════════════════════════════════════
+     CLEAR ALL
+     ═══════════════════════════════════════════ */
+
+  window.clearAll = function() {
+    document.getElementById("textInput").value = "";
+    document.getElementById("statFindings").textContent = "0";
+    document.getElementById("statCategories").textContent = "0";
+    document.getElementById("statRedacted").textContent = "0";
+    document.getElementById("statsBar").classList.add("hidden");
+    document.getElementById("findingsList").innerHTML = "";
+    document.getElementById("findingsList").classList.add("hidden");
+    document.getElementById("outputSection").classList.add("hidden");
+    document.getElementById("outputBox").innerHTML = "";
+    /* Best-effort overwrite PII strings before releasing references */
+    for (var i = 0; i < lastFindings.length; i++) { lastFindings[i].match = ""; }
+    lastFindings = [];
+    lastRedactedText = "";
+  };
+
+  /* ═══════════════════════════════════════════
+     KEYBOARD SHORTCUT
+     ═══════════════════════════════════════════ */
+
+  document.getElementById("textInput").addEventListener("keydown", function(e) {
+    if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+      e.preventDefault();
+      handleRedact();
+    }
+  });
+
+  /* ═══════════════════════════════════════════
+     CREDIT CARD VALIDATION (LUHN)
+     ═══════════════════════════════════════════
+     Filter CC regex matches through Luhn check
+     to reduce false positives on random digit sequences.
+     ═══════════════════════════════════════════ */
+
+  function luhnCheck(numStr) {
+    var digits = numStr.replace(/\D/g, "");
+    if (digits.length < 13 || digits.length > 19) return false;
+    var sum = 0;
+    var alt = false;
+    for (var i = digits.length - 1; i >= 0; i--) {
+      var n = parseInt(digits.charAt(i), 10);
+      if (alt) {
+        n *= 2;
+        if (n > 9) n -= 9;
+      }
+      sum += n;
+      alt = !alt;
+    }
+    return (sum % 10) === 0;
+  }
+
+  /* Override detectPII to add Luhn validation for CC */
+  var _origDetectPII = detectPII;
+
+  detectPII = function(text) {
+    var findings = _origDetectPII(text);
+    /* Filter CC findings through Luhn check */
+    return findings.filter(function(f) {
+      if (f.catId === "cc") {
+        return luhnCheck(f.match);
+      }
+      return true;
+    });
+  };
+
+  /* ═══════════════════════════════════════════
+     UTILITIES
+     ═══════════════════════════════════════════ */
+
+  function escapeHtml(str) {
+    var div = document.createElement("div");
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  function escapeAttr(str) {
+    return str.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/'/g, "&#39;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+
+  /* ═══════════════════════════════════════════
+     TOAST NOTIFICATIONS
+     ═══════════════════════════════════════════ */
+  var toastTimer = null;
+  function showToast(message, type) {
+    var toast = document.getElementById("toast");
+    toast.textContent = message;
+    toast.className = "toast " + type;
+    clearTimeout(toastTimer);
+    requestAnimationFrame(function() {
+      toast.classList.add("show");
+      toastTimer = setTimeout(function() { toast.classList.remove("show"); }, 2500);
+    });
+  }
+
+  /* ═══════════════════════════════════════════
+     THEME TOGGLE
+     ═══════════════════════════════════════════ */
+  (function(){
+    var key = "goanon-theme";
+    var saved = localStorage.getItem(key);
+    var cookie = (document.cookie.match(/(?:^|; )goanon_theme=([^;]+)/) || [])[1];
+    var theme = saved || cookie;
+    if (theme === "light") document.body.classList.add("light-mode");
+
+    window.toggleGoAnonTheme = function() {
+      var light = document.body.classList.toggle("light-mode");
+      var value = light ? "light" : "dark";
+      localStorage.setItem(key, value);
+      document.cookie = "goanon_theme=" + value + "; path=/; domain=.goanon.pro; max-age=31536000; SameSite=Lax; Secure";
+    };
+  })();
+
+})();
+</script>
+</body>
+</html>
