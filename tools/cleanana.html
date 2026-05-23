@@ -78,7 +78,7 @@ a{color:inherit;text-decoration:none}
 }
 .light-mode .topbar{background:rgba(255,255,255,.62)}
 .brand{display:flex;align-items:center;gap:12px}
-.brand img{width:42px;height:42px;object-fit:contain}
+.brand img{width:52px;height:52px;object-fit:contain}
 .brand span{font-weight:700;letter-spacing:-.03em;font-size:1.1rem}
 .nav{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .nav a,.theme-toggle{
@@ -339,7 +339,8 @@ a{color:inherit;text-decoration:none}
   .stat-item:last-child{border-bottom:none;padding-bottom:0}
 }
 @media(max-width:480px){
-  .topbar{padding:14px 16px}
+  .topbar{flex-wrap:wrap;padding:14px 16px}
+  .brand img{width:40px!important;height:40px!important}
   .brand span{display:none}
   .nav a,.theme-toggle{font-size:.65rem;padding:7px 10px}
   .file-card-header{flex-direction:column;align-items:flex-start}
@@ -352,7 +353,7 @@ a{color:inherit;text-decoration:none}
   <!-- Topbar -->
   <header class="topbar">
     <a href="../index.html" class="brand">
-      <img src="../assets/images/goanon-logo.png" alt="GoAnon" width="42" height="42">
+      <img src="../assets/images/goanon-logo.png" alt="GoAnon" width="52" height="52">
       <span>GoAnon</span>
     </a>
     <nav class="nav">

@@ -1,1 +1,1249 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Memory Vault — GoAnon</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="../assets/css/product.css"><style>:root{--accent:150,110,255;--accent2:255,205,105;}</style></head><body><div class="site-shell"><header class="topbar"><a class="brand" href="../index.html"><img src="../assets/images/goanon-logo.png" alt="GoAnon logo"><span>GoAnon</span></a><nav class="nav"><a href="../index.html">Ecosystem</a><a href="../tools/index.html">Tools</a><button class="theme-toggle" onclick="toggleGoAnonTheme()">Theme</button></nav></header><main class="container"><section class="hero"><div class="eyebrow">Private assistant memory</div><h1>Memory Vault</h1><p>A local encrypted memory layer for Etherana projects, preferences, notes, documents, and workflows.</p><div class="hero-actions"><a class="btn" href="./index.html">Back to tools</a><a class="btn secondary" href="#details">Details</a></div></section><section class="section" id="details"><div class="grid two"><article class="card"><span class="status">Labs</span><h3 style="margin-top:18px;">Current status</h3><p>This page is a ready placeholder so the product can have a home while development, downloads, pricing, screenshots, or live functionality are added.</p><span class="tag price">Freemium</span></article><article class="card"><h3>What it should communicate</h3><p>A focused GoAnon tool page: privacy-first, useful, honest about status, and ready to become a real product page when the tool is built.</p></article></div></section><section class="section"><h2>Core direction</h2><p class="section-sub">Keep the promise clear, practical, and believable. No surveillance economy. No fake magic. Strong privacy by design.</p><article class="card"><ul class="list"><li>Designed for Etherana SX and Coder</li><li>Local-first memory store</li><li>Project and personal compartments</li><li>Hosted sync only as optional paid layer</li></ul></article></section><section class="section"><div class="notice"><strong>Next content to add:</strong> screenshots, real availability, download/waitlist CTA, pricing, technical privacy notes, FAQ, and a short changelog.</div></section></main><footer class="footer"><div class="container"><a href="../index.html">GoAnon</a> · Private tools for a public internet.</div></footer></div><script src="../assets/js/theme.js"></script></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Memory Vault — GoAnon</title>
+<meta name="description" content="A local encrypted memory layer for projects, preferences, notes, documents, and workflows. All data encrypted with AES-GCM in your browser.">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self'; connect-src 'none'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; object-src 'none'; frame-src 'none'; form-action 'none'; base-uri 'self'; manifest-src 'none';">
+<link rel="icon" href="../assets/images/goanon-logo.png" type="image/png">
+<style>
+/* ────────────────────────────────────────────
+   GoAnon Design System — Memory Vault
+   Accent: purple-violet (memory/mind theme)
+   ──────────────────────────────────────────── */
+:root{
+  --accent:150,110,255;
+  --accent2:255,205,105;
+  --panel:rgba(255,255,255,.055);
+  --panel-2:rgba(255,255,255,.03);
+  --text:rgba(255,255,255,.92);
+  --muted:rgba(255,255,255,.62);
+  --faint:rgba(255,255,255,.38);
+  --line:rgba(255,255,255,.12);
+  --ok:#2ed573;
+  --warn:#ffd166;
+  --danger:#ff4757;
+  --radius:26px;
+  --radius-sm:14px;
+  --radius-xs:8px;
+  --mono:'SFMono-Regular',Consolas,'Liberation Mono',Menlo,monospace;
+}
+body.light-mode{
+  --panel:rgba(255,255,255,.82);
+  --panel-2:rgba(255,255,255,.58);
+  --text:rgba(18,18,18,.9);
+  --muted:rgba(18,18,18,.64);
+  --faint:rgba(18,18,18,.42);
+  --line:rgba(0,0,0,.10);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{
+  min-height:100vh;
+  font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,sans-serif;
+  background:radial-gradient(circle at 18% 12%,rgba(var(--accent),.13),transparent 34%),
+             radial-gradient(circle at 78% 18%,rgba(var(--accent2),.11),transparent 35%),
+             linear-gradient(135deg,#071019,#020306 70%);
+  color:var(--text);
+  -webkit-font-smoothing:antialiased;
+  transition:background .6s ease,color .4s ease;
+}
+body.light-mode{
+  background:radial-gradient(circle at 18% 12%,rgba(var(--accent),.12),transparent 34%),
+             radial-gradient(circle at 78% 18%,rgba(var(--accent2),.09),transparent 35%),
+             linear-gradient(135deg,#fff,#f4f5f7 70%);
+}
+a{color:inherit;text-decoration:none}
+
+/* ── Shell ── */
+.site-shell{min-height:100vh;position:relative;overflow-x:hidden}
+.site-shell::before{
+  content:"";position:fixed;inset:0;
+  background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),
+                    linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);
+  background-size:44px 44px;
+  mask-image:linear-gradient(to bottom,#000,transparent 85%);
+  pointer-events:none;z-index:0;
+}
+
+/* ── Topbar ── */
+.topbar{
+  position:sticky;top:0;z-index:30;
+  display:flex;align-items:center;justify-content:space-between;gap:18px;
+  padding:18px clamp(18px,4vw,52px);
+  backdrop-filter:blur(18px);
+  background:rgba(2,3,6,.52);
+  border-bottom:1px solid var(--line);
+}
+.light-mode .topbar{background:rgba(255,255,255,.62)}
+.brand{display:flex;align-items:center;gap:12px}
+.brand img{width:52px;height:52px;object-fit:contain}
+.brand span{font-weight:700;letter-spacing:-.03em;font-size:1.1rem}
+.nav{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.nav a,.theme-toggle{
+  font:600 .72rem/1 var(--mono);
+  letter-spacing:.08em;text-transform:uppercase;
+  color:var(--muted);border:1px solid var(--line);border-radius:999px;
+  padding:9px 13px;background:rgba(255,255,255,.035);
+  cursor:pointer;transition:all .25s ease;
+}
+.nav a:hover,.theme-toggle:hover{
+  border-color:rgba(var(--accent),.4);color:var(--text);
+  background:rgba(var(--accent),.08);
+}
+
+/* ── Container ── */
+.container{width:min(860px,calc(100% - 36px));margin:0 auto;position:relative;z-index:1}
+
+/* ── Hero ── */
+.hero{padding:56px 0 28px;text-align:center}
+.eyebrow{
+  display:inline-flex;
+  font:600 .76rem/1 var(--mono);
+  letter-spacing:.12em;text-transform:uppercase;
+  color:rgba(var(--accent),.95);
+  border:1px solid rgba(var(--accent),.24);
+  background:rgba(var(--accent),.07);
+  border-radius:999px;padding:9px 14px;margin-bottom:18px;
+}
+.hero h1{
+  font-size:clamp(2.2rem,5vw,4rem);line-height:.96;
+  letter-spacing:-.06em;margin:0 0 14px;
+}
+.hero p{
+  font-size:clamp(.95rem,1.8vw,1.12rem);line-height:1.75;
+  color:var(--muted);max-width:580px;margin:0 auto;
+}
+
+/* ── Buttons ── */
+.btn{
+  display:inline-flex;align-items:center;gap:8px;
+  border-radius:999px;padding:12px 20px;
+  font:700 .76rem/1 var(--mono);
+  letter-spacing:.08em;text-transform:uppercase;
+  border:1px solid rgba(var(--accent),.30);
+  background:rgba(var(--accent),.11);color:var(--text);
+  cursor:pointer;transition:all .3s ease;
+}
+.btn:hover{background:rgba(var(--accent),.2);border-color:rgba(var(--accent),.5);transform:translateY(-1px)}
+.btn:active{transform:translateY(0)}
+.btn.secondary{background:rgba(255,255,255,.035);border-color:var(--line);color:var(--muted)}
+.btn.secondary:hover{border-color:rgba(var(--accent),.3);color:var(--text);background:rgba(var(--accent),.06)}
+.btn.danger{border-color:rgba(255,71,87,.3);background:rgba(255,71,87,.08);color:var(--danger)}
+.btn.danger:hover{background:rgba(255,71,87,.15);border-color:rgba(255,71,87,.5)}
+.btn.sm{padding:8px 14px;font-size:.66rem}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}
+
+/* ── Card ── */
+.card{
+  border:1px solid var(--line);border-radius:var(--radius);
+  background:linear-gradient(145deg,var(--panel),var(--panel-2));
+  backdrop-filter:blur(18px);
+  padding:28px 24px;
+  margin-bottom:16px;
+}
+.card h2{font-size:1.05rem;letter-spacing:-.02em;margin-bottom:16px}
+
+/* ── Warning card ── */
+.warn-card{
+  border-color:rgba(var(--accent),.25);
+  background:linear-gradient(145deg,rgba(var(--accent),.06),rgba(var(--accent),.02));
+}
+.warn-card p{font-size:.88rem;color:var(--muted);line-height:1.7}
+.warn-card strong{color:rgba(var(--accent),1);font-weight:600}
+
+/* ── Form ── */
+.form-group{margin-bottom:18px}
+.form-group:last-child{margin-bottom:0}
+.form-label{
+  display:block;
+  font:600 .72rem/1 var(--mono);
+  letter-spacing:.08em;text-transform:uppercase;
+  color:var(--muted);margin-bottom:8px;
+}
+.form-input,.form-textarea{
+  width:100%;
+  background:rgba(255,255,255,.04);
+  border:1px solid var(--line);
+  border-radius:var(--radius-sm);
+  padding:13px 16px;
+  font-size:.88rem;
+  color:var(--text);
+  outline:none;
+  transition:border-color .2s;
+  font-family:inherit;
+}
+.form-input:focus,.form-textarea:focus{border-color:rgba(var(--accent),.5)}
+.form-input::placeholder,.form-textarea::placeholder{color:var(--faint)}
+.form-textarea{
+  min-height:140px;resize:vertical;
+  font-family:var(--mono);font-size:.78rem;
+  line-height:1.6;letter-spacing:.02em;
+}
+
+/* ── Lock screen ── */
+.lock-screen{
+  display:flex;flex-direction:column;align-items:center;
+  padding:48px 24px;text-align:center;
+}
+.lock-icon{
+  width:72px;height:72px;border-radius:50%;
+  border:2px solid rgba(var(--accent),.25);
+  background:rgba(var(--accent),.06);
+  display:flex;align-items:center;justify-content:center;
+  margin-bottom:20px;
+}
+.lock-icon svg{width:32px;height:32px;color:rgba(var(--accent),.8)}
+.lock-title{
+  font-size:1.2rem;font-weight:700;letter-spacing:-.02em;
+  margin-bottom:8px;
+}
+.lock-sub{
+  font-size:.88rem;color:var(--muted);line-height:1.65;
+  max-width:380px;margin-bottom:24px;
+}
+.lock-form{width:min(360px,100%)}
+.lock-form .form-input{
+  text-align:center;font-family:var(--mono);
+  letter-spacing:.1em;
+}
+
+/* ── Vault header ── */
+.vault-header{
+  display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:12px;margin-bottom:16px;
+}
+.vault-header h2{margin-bottom:0}
+.vault-actions{display:flex;gap:8px;flex-wrap:wrap}
+
+/* ── Compartments ── */
+.comp-list{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+.comp-chip{
+  padding:8px 14px;border-radius:999px;
+  font:600 .68rem/1 var(--mono);
+  letter-spacing:.06em;text-transform:uppercase;
+  border:1px solid var(--line);
+  background:rgba(255,255,255,.02);
+  color:var(--faint);cursor:pointer;
+  transition:all .25s;
+}
+.comp-chip:hover{border-color:rgba(var(--accent),.2);color:var(--muted);background:rgba(var(--accent),.03)}
+.comp-chip.active{
+  border-color:rgba(var(--accent),.4);
+  background:rgba(var(--accent),.1);
+  color:rgba(var(--accent),1);
+}
+.comp-chip .comp-count{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-width:18px;height:18px;border-radius:9px;
+  background:rgba(var(--accent),.15);
+  font-size:.58rem;font-weight:700;
+  margin-left:4px;padding:0 5px;
+}
+
+/* ── Memory entries ── */
+.mem-entry{
+  border:1px solid var(--line);
+  border-radius:var(--radius-sm);
+  background:rgba(255,255,255,.015);
+  padding:16px 18px;
+  margin-bottom:10px;
+  transition:border-color .2s;
+}
+.mem-entry:hover{border-color:rgba(var(--accent),.15)}
+.mem-header{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:8px;gap:8px;flex-wrap:wrap;
+}
+.mem-title{font-weight:600;font-size:.92rem;letter-spacing:-.01em}
+.mem-meta{display:flex;align-items:center;gap:8px}
+.mem-tag{
+  font:600 .6rem/1 var(--mono);
+  letter-spacing:.06em;text-transform:uppercase;
+  padding:3px 7px;border-radius:4px;
+  background:rgba(var(--accent),.08);
+  color:rgba(var(--accent),.8);
+  border:1px solid rgba(var(--accent),.15);
+}
+.mem-time{
+  font:500 .62rem/1 var(--mono);
+  color:var(--faint);letter-spacing:.04em;
+}
+.mem-body{
+  font-size:.84rem;color:var(--muted);line-height:1.65;
+  white-space:pre-wrap;word-break:break-word;
+  max-height:120px;overflow:hidden;
+  position:relative;
+}
+.mem-body.expanded{max-height:none}
+.mem-body-fade{
+  position:absolute;bottom:0;left:0;right:0;height:30px;
+  background:linear-gradient(transparent,rgba(var(--panel-2),1));
+  pointer-events:none;
+}
+.mem-actions{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+
+/* ── Empty state ── */
+.empty-state{
+  text-align:center;padding:40px 20px;
+  color:var(--faint);
+}
+.empty-state svg{width:40px;height:40px;margin-bottom:12px;opacity:.4}
+.empty-state p{font-size:.88rem;line-height:1.6}
+
+/* ── Stats ── */
+.vault-stats{
+  display:flex;gap:16px;flex-wrap:wrap;
+  padding:12px 0;
+  font:500 .68rem/1 var(--mono);
+  color:var(--faint);letter-spacing:.06em;text-transform:uppercase;
+}
+.vault-stats .stat-val{font-weight:700;color:var(--muted);margin-left:4px}
+
+/* ── Modal overlay ── */
+.modal-overlay{
+  position:fixed;inset:0;z-index:100;
+  background:rgba(0,0,0,.5);
+  backdrop-filter:blur(6px);
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;
+  transition:opacity .3s;
+}
+.modal-overlay.active{opacity:1;pointer-events:auto}
+.modal{
+  width:min(520px,calc(100% - 36px));
+  max-height:80vh;overflow-y:auto;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  background:linear-gradient(145deg,var(--panel),var(--panel-2));
+  backdrop-filter:blur(24px);
+  padding:28px 24px;
+}
+.modal h2{font-size:1.05rem;letter-spacing:-.02em;margin-bottom:16px}
+
+/* ── Search ── */
+.search-bar{
+  position:relative;margin-bottom:16px;
+}
+.search-bar .form-input{padding-left:40px}
+.search-icon{
+  position:absolute;left:14px;top:50%;transform:translateY(-50%);
+  color:var(--faint);pointer-events:none;
+}
+.search-icon svg{width:15px;height:15px}
+
+/* ── How it works ── */
+.collapse-toggle{
+  display:flex;align-items:center;justify-content:space-between;
+  cursor:pointer;user-select:none;width:100%;
+  background:none;border:none;color:var(--text);
+  font-size:1.05rem;font-weight:600;letter-spacing:-.02em;
+  padding:0;margin-bottom:0;
+}
+.collapse-toggle svg{
+  width:18px;height:18px;color:var(--faint);
+  transition:transform .3s;
+}
+.collapse-toggle.open svg{transform:rotate(180deg)}
+.collapse-body{
+  max-height:0;overflow:hidden;
+  transition:max-height .4s ease;
+}
+.collapse-body.open{max-height:1200px}
+.collapse-body-inner{padding-top:16px}
+.step-list{list-style:none;padding:0}
+.step-list li{
+  display:flex;gap:14px;margin-bottom:14px;
+  font-size:.88rem;color:var(--muted);line-height:1.65;
+}
+.step-num{
+  flex-shrink:0;width:28px;height:28px;
+  border-radius:50%;border:1px solid rgba(var(--accent),.25);
+  background:rgba(var(--accent),.06);
+  color:rgba(var(--accent),1);
+  font:700 .72rem/28px var(--mono);
+  text-align:center;letter-spacing:0;
+}
+
+/* ── Toast ── */
+.toast{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);
+  padding:14px 22px;border-radius:999px;
+  font:600 .76rem/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;
+  z-index:200;opacity:0;
+  transition:all .35s cubic-bezier(.4,0,.2,1);
+  pointer-events:none;
+  backdrop-filter:blur(18px);
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.success{background:rgba(46,213,115,.15);color:var(--ok);border:1px solid rgba(46,213,115,.3)}
+.toast.error{background:rgba(255,71,87,.15);color:var(--danger);border:1px solid rgba(255,71,87,.3)}
+.toast.info{background:rgba(var(--accent),.12);color:rgba(var(--accent),1);border:1px solid rgba(var(--accent),.3)}
+
+/* ── Footer ── */
+.footer{
+  text-align:center;padding:48px 24px 36px;
+  font-size:.82rem;color:var(--faint);
+  border-top:1px solid var(--line);margin-top:48px;
+}
+.footer span{color:rgba(var(--accent),.7)}
+
+/* ── Utility ── */
+.hidden{display:none!important}
+.fade-in{animation:fadeIn .4s ease forwards;opacity:0}
+@keyframes fadeIn{to{opacity:1}}
+
+/* ── Responsive ── */
+@media(max-width:768px){
+  .hero h1{font-size:clamp(1.8rem,7vw,2.8rem)}
+  .card{padding:22px 18px}
+  .vault-header{flex-direction:column;align-items:flex-start}
+}
+@media(max-width:480px){
+  .topbar{flex-wrap:wrap;padding:14px 16px}
+  .brand img{width:40px!important;height:40px!important}
+  .brand span{display:none}
+  .nav a,.theme-toggle{font-size:.65rem;padding:7px 10px}
+  .comp-list{gap:6px}
+  .mem-entry{padding:14px 14px}
+}
+</style>
+</head>
+<body>
+<div class="site-shell">
+
+  <!-- ═══ Topbar ═══ -->
+  <header class="topbar">
+    <a href="../index.html" class="brand">
+      <img src="../assets/images/goanon-logo.png" alt="GoAnon" width="52" height="52">
+      <span>GoAnon</span>
+    </a>
+    <nav class="nav">
+      <a href="index.html">Tools</a>
+      <a href="../products/browser.html">Products</a>
+      <button class="theme-toggle" onclick="toggleGoAnonTheme()" aria-label="Toggle theme">Theme</button>
+    </nav>
+  </header>
+
+  <!-- ═══ Toast ═══ -->
+  <div class="toast" id="toast"></div>
+
+  <!-- ═══ Add/Edit Modal ═══ -->
+  <div class="modal-overlay" id="entryModal">
+    <div class="modal">
+      <h2 id="modalTitle">New memory</h2>
+      <div class="form-group">
+        <label class="form-label" for="entryTitleInput">Title</label>
+        <input type="text" class="form-input" id="entryTitleInput"
+               placeholder="e.g. API keys for staging, Meeting notes Q2"
+               autocomplete="off" spellcheck="false">
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="entryCompInput">Compartment</label>
+        <input type="text" class="form-input" id="entryCompInput"
+               placeholder="e.g. project-alpha, personal, work"
+               autocomplete="off" spellcheck="false">
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="entryTagInput">Tag</label>
+        <input type="text" class="form-input" id="entryTagInput"
+               placeholder="e.g. notes, credentials, preferences, docs"
+               autocomplete="off" spellcheck="false">
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="entryBodyInput">Content</label>
+        <textarea class="form-textarea" id="entryBodyInput"
+                  placeholder="Write your note, paste your data, store your context..."
+                  style="min-height:180px"></textarea>
+      </div>
+      <div class="btn-row" style="justify-content:flex-end">
+        <button class="btn secondary" onclick="closeModal()">Cancel</button>
+        <button class="btn" id="modalSaveBtn" onclick="saveEntry()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          Save
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ Main Content ═══ -->
+  <main class="container">
+
+    <!-- Hero -->
+    <section class="hero">
+      <div class="eyebrow">Private assistant memory</div>
+      <h1>Memory Vault</h1>
+      <p>A local encrypted memory layer for projects, preferences, notes, documents, and workflows. Everything encrypted with AES-GCM in your browser.</p>
+    </section>
+
+    <!-- Info note -->
+    <div class="card warn-card" style="text-align:center">
+      <p><strong>Your passphrase is the key.</strong> Memory Vault encrypts all data with your passphrase using AES-256-GCM. If you forget the passphrase, your memories cannot be recovered. There is no server, no reset, no back door.</p>
+    </div>
+
+    <!-- ═══ Lock Screen ═══ -->
+    <div class="card" id="lockScreen">
+      <div class="lock-screen">
+        <div class="lock-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        </div>
+        <div class="lock-title" id="lockTitle">Unlock your vault</div>
+        <div class="lock-sub" id="lockSub">Enter your passphrase to decrypt your memories. First time? This passphrase will create your vault.</div>
+        <div class="lock-form">
+          <div class="form-group">
+            <input type="password" class="form-input" id="passphraseInput"
+                   placeholder="Passphrase"
+                   autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Confirm passphrase <span style="color:var(--faint);font-weight:400;text-transform:none;letter-spacing:0">(new vaults only)</span></label>
+            <input type="password" class="form-input" id="passphraseConfirm"
+                   placeholder="Confirm passphrase"
+                   autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+          </div>
+          <button class="btn" id="unlockBtn" onclick="unlockVault()" style="width:100%;justify-content:center;padding:16px 24px;font-size:.82rem">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            Unlock Vault
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ Vault (hidden until unlocked) ═══ -->
+    <div class="hidden" id="vaultScreen">
+
+      <!-- Vault header -->
+      <div class="card">
+        <div class="vault-header">
+          <h2>Your memories</h2>
+          <div class="vault-actions">
+            <button class="btn sm" onclick="openNewEntry()">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+              New
+            </button>
+            <button class="btn sm secondary" onclick="exportVault()">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Export
+            </button>
+            <button class="btn sm secondary" onclick="importVault()">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              Import
+            </button>
+            <button class="btn sm danger" onclick="lockVault()">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              Lock
+            </button>
+          </div>
+        </div>
+
+        <!-- Search -->
+        <div class="search-bar">
+          <span class="search-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </span>
+          <input type="text" class="form-input" id="searchInput"
+                 placeholder="Search memories..."
+                 autocomplete="off" spellcheck="false"
+                 oninput="renderEntries()">
+        </div>
+
+        <!-- Compartments -->
+        <div class="comp-list" id="compList"></div>
+
+        <!-- Stats -->
+        <div class="vault-stats" id="vaultStats"></div>
+      </div>
+
+      <!-- Entries list -->
+      <div id="entriesList"></div>
+
+    </div>
+
+    <!-- ═══ How It Works ═══ -->
+    <div class="card">
+      <button class="collapse-toggle" id="howToggle" onclick="toggleHow()">
+        How it works
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="collapse-body" id="howBody">
+        <div class="collapse-body-inner">
+          <ol class="step-list">
+            <li>
+              <span class="step-num">1</span>
+              <span>You choose a passphrase. Memory Vault derives a 256-bit encryption key from it using <strong>PBKDF2</strong> with SHA-256 and 600,000 iterations, salted with a unique random salt stored in localStorage.</span>
+            </li>
+            <li>
+              <span class="step-num">2</span>
+              <span>Every memory entry is encrypted individually with <strong>AES-256-GCM</strong> via the Web Crypto API. Each entry gets its own random 96-bit IV (initialization vector). The same plaintext encrypts to different ciphertext every time.</span>
+            </li>
+            <li>
+              <span class="step-num">3</span>
+              <span>Encrypted entries are stored in <strong>localStorage</strong> on this origin. The data is unreadable without the passphrase — even if someone accesses the browser's local storage, they see only encrypted blobs.</span>
+            </li>
+            <li>
+              <span class="step-num">4</span>
+              <span>When you unlock the vault, the passphrase is used to re-derive the encryption key in memory. All entries are decrypted on-the-fly for display. When you lock the vault or close the tab, the key is gone.</span>
+            </li>
+            <li>
+              <span class="step-num">5</span>
+              <span>Export produces an encrypted JSON file. Import reads it back. Neither operation exposes plaintext. The passphrase is required for both.</span>
+            </li>
+          </ol>
+          <p style="font-size:.86rem;color:var(--muted);line-height:1.65;margin-top:8px"><strong style="color:var(--text)">Memory Vault vs. Vaultana:</strong> Memory Vault stores freeform project context, notes, preferences, and documents. Vaultana is for passwords, recovery codes, and credentials. Use both — they serve different needs.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ Etherana Note ═══ -->
+    <div class="card" style="border-color:rgba(var(--accent),.18);background:linear-gradient(145deg,rgba(var(--accent),.04),rgba(var(--accent),.01))">
+      <p style="font-size:.86rem;color:var(--muted);line-height:1.65"><strong style="color:rgba(var(--accent),.95)">Designed for Etherana.</strong> Memory Vault is the local memory layer for Etherana projects. Store project context, agent preferences, workflow notes, and configuration — all encrypted, all local. Hosted sync will be available as an optional paid layer in the future.</p>
+    </div>
+
+  </main>
+
+  <!-- ═══ Footer ═══ -->
+  <footer class="footer">
+    <span>GoAnon</span> &middot; Private tools for a public internet
+  </footer>
+
+</div><!-- /site-shell -->
+
+<!-- ═══════════════════════════════════════════
+     MEMORY VAULT — ENCRYPTION ENGINE
+     ──────────────────────────────────────────
+     Design principles:
+     1. ZERO network calls — no analytics, no sync, no phoning home
+     2. AES-256-GCM encryption via Web Crypto API
+     3. PBKDF2 (600k iter) key derivation from passphrase
+     4. Each entry encrypted with unique IV
+     5. Passphrase never stored — key derived on unlock, cleared on lock
+     6. No Math.random() — crypto.getRandomValues only
+     ═══════════════════════════════════════════ -->
+<script>
+(function(){
+  "use strict";
+
+  /* ── Policy assertion ── */
+  var POLICY = Object.freeze({
+    NETWORK_CALLS: false,
+    ANALYTICS: false,
+    DATA_COLLECTION: false,
+    VERSION: "1.0.0"
+  });
+
+  /* ═══════════════════════════════════════════
+     STORAGE KEYS
+     ═══════════════════════════════════════════ */
+  var STORAGE_SALT = "mv-salt";
+  var STORAGE_VAULT = "mv-vault";
+  var STORAGE_EXISTS = "mv-exists";
+  var STORAGE_VERIFIER = "mv-verifier";
+  var VERIFIER_STRING = "goanon-memory-vault-verifier:v1";
+
+  /* ═══════════════════════════════════════════
+     CRYPTO ENGINE
+     ═══════════════════════════════════════════ */
+  var Crypto = {
+    ITERATIONS: 600000,
+
+    /* Generate a random salt */
+    generateSalt: function() {
+      var salt = new Uint8Array(32);
+      crypto.getRandomValues(salt);
+      return salt;
+    },
+
+    /* Derive an AES-GCM key from passphrase + salt */
+    deriveKey: function(passphrase, salt) {
+      var encoded = new TextEncoder().encode(passphrase);
+      return crypto.subtle.importKey("raw", encoded, "PBKDF2", false, ["deriveKey"]).then(function(keyMaterial) {
+        encoded.fill(0);
+        return crypto.subtle.deriveKey(
+          { name: "PBKDF2", salt: salt, iterations: Crypto.ITERATIONS, hash: "SHA-256" },
+          keyMaterial,
+          { name: "AES-GCM", length: 256 },
+          false,
+          ["encrypt", "decrypt"]
+        );
+      });
+    },
+
+    /* Encrypt a string with AES-GCM */
+    encrypt: function(key, plaintext) {
+      var iv = new Uint8Array(12);
+      crypto.getRandomValues(iv);
+      var encoded = new TextEncoder().encode(plaintext);
+      return crypto.subtle.encrypt({ name: "AES-GCM", iv: iv }, key, encoded).then(function(ciphertext) {
+        /* Prepend IV to ciphertext */
+        var result = new Uint8Array(iv.length + ciphertext.byteLength);
+        result.set(iv, 0);
+        result.set(new Uint8Array(ciphertext), iv.length);
+        /* Convert to base64 */
+        return btoa(String.fromCharCode.apply(null, result));
+      });
+    },
+
+    /* Decrypt a base64-encoded AES-GCM ciphertext */
+    decrypt: function(key, encoded) {
+      var bytes = Uint8Array.from(atob(encoded), function(c) { return c.charCodeAt(0); });
+      var iv = bytes.slice(0, 12);
+      var ciphertext = bytes.slice(12);
+      return crypto.subtle.decrypt({ name: "AES-GCM", iv: iv }, key, ciphertext).then(function(plaintext) {
+        return new TextDecoder().decode(plaintext);
+      });
+    }
+  };
+
+  /* ═══════════════════════════════════════════
+     VAULT STATE
+     ═══════════════════════════════════════════ */
+  var vaultKey = null;     /* Derived AES-GCM key (in memory only) */
+  var entries = [];        /* Decrypted entries (in memory only) */
+  var activeComp = "all";  /* Active compartment filter */
+  var editingId = null;    /* ID of entry being edited (null = new) */
+
+  /* ═══════════════════════════════════════════
+     VAULT OPERATIONS
+     ═══════════════════════════════════════════ */
+
+  /* Check if a vault exists in localStorage */
+  function vaultExists() {
+    return localStorage.getItem(STORAGE_EXISTS) === "true";
+  }
+
+  /* Unlock or create vault */
+  window.unlockVault = function() {
+    var passphrase = document.getElementById("passphraseInput").value;
+    var confirm = document.getElementById("passphraseConfirm").value;
+
+    if (!passphrase || passphrase.length < 8) {
+      showToast("Passphrase must be at least 8 characters", "error");
+      return;
+    }
+
+    var exists = vaultExists();
+
+    if (!exists) {
+      /* Creating new vault */
+      if (passphrase !== confirm) {
+        showToast("Passphrases do not match", "error");
+        return;
+      }
+      createVault(passphrase);
+    } else {
+      /* Unlocking existing vault */
+      loadVault(passphrase);
+    }
+  };
+
+  function createVault(passphrase) {
+    var btn = document.getElementById("unlockBtn");
+    btn.disabled = true;
+    btn.textContent = "Creating vault...";
+
+    var salt = Crypto.generateSalt();
+    var saltB64 = btoa(String.fromCharCode.apply(null, salt));
+
+    Crypto.deriveKey(passphrase, salt).then(function(key) {
+      vaultKey = key;
+      entries = [];
+      /* Encrypt verifier to validate passphrase on future unlocks */
+      return Crypto.encrypt(key, VERIFIER_STRING).then(function(verifier) {
+        localStorage.setItem(STORAGE_VERIFIER, verifier);
+        localStorage.setItem(STORAGE_SALT, saltB64);
+        localStorage.setItem(STORAGE_EXISTS, "true");
+        localStorage.setItem(STORAGE_VAULT, JSON.stringify([]));
+        /* Clear passphrase from input */
+        document.getElementById("passphraseInput").value = "";
+        document.getElementById("passphraseConfirm").value = "";
+        showVault();
+        showToast("Vault created — " + Crypto.ITERATIONS.toLocaleString() + " PBKDF2 iterations", "success");
+      });
+    }).catch(function(e) {
+      showToast("Failed to create vault", "error");
+    }).finally(function() {
+      btn.disabled = false;
+      btn.replaceChildren();
+      var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      svg.setAttribute("width", "16"); svg.setAttribute("height", "16");
+      svg.setAttribute("viewBox", "0 0 24 24"); svg.setAttribute("fill", "none");
+      svg.setAttribute("stroke", "currentColor"); svg.setAttribute("stroke-width", "2.5");
+      svg.setAttribute("stroke-linecap", "round"); svg.setAttribute("stroke-linejoin", "round");
+      var r = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+      r.setAttribute("x", "3"); r.setAttribute("y", "11"); r.setAttribute("width", "18"); r.setAttribute("height", "11"); r.setAttribute("rx", "2");
+      var p = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      p.setAttribute("d", "M7 11V7a5 5 0 0 1 10 0v4");
+      svg.appendChild(r); svg.appendChild(p);
+      btn.appendChild(svg);
+      btn.appendChild(document.createTextNode(" Unlock Vault"));
+    });
+  }
+
+  function loadVault(passphrase) {
+    var btn = document.getElementById("unlockBtn");
+    btn.disabled = true;
+    btn.textContent = "Decrypting...";
+
+    var saltB64 = localStorage.getItem(STORAGE_SALT);
+    var salt = Uint8Array.from(atob(saltB64), function(c) { return c.charCodeAt(0); });
+
+    Crypto.deriveKey(passphrase, salt).then(function(key) {
+      /* Verify passphrase by decrypting the verifier */
+      var verifier = localStorage.getItem(STORAGE_VERIFIER);
+      if (verifier) {
+        return Crypto.decrypt(key, verifier).then(function(check) {
+          if (check !== VERIFIER_STRING) {
+            throw new Error("Invalid verifier");
+          }
+          vaultKey = key;
+          return key;
+        });
+      } else {
+        /* Legacy vault without verifier — still set key */
+        vaultKey = key;
+        return key;
+      }
+    }).then(function(key) {
+      /* Decrypt vault entries */
+      var vaultData = localStorage.getItem(STORAGE_VAULT);
+      if (!vaultData) {
+        entries = [];
+        document.getElementById("passphraseInput").value = "";
+        document.getElementById("passphraseConfirm").value = "";
+        showVault();
+        showToast("Vault unlocked", "success");
+        return;
+      }
+
+      var encryptedEntries = JSON.parse(vaultData);
+      if (encryptedEntries.length === 0) {
+        entries = [];
+        document.getElementById("passphraseInput").value = "";
+        document.getElementById("passphraseConfirm").value = "";
+        showVault();
+        showToast("Vault unlocked", "success");
+        return;
+      }
+
+      /* Decrypt all entries */
+      var promises = encryptedEntries.map(function(enc) {
+        return Crypto.decrypt(vaultKey, enc).then(function(json) {
+          return JSON.parse(json);
+        });
+      });
+
+      return Promise.all(promises).then(function(decrypted) {
+        entries = decrypted;
+        document.getElementById("passphraseInput").value = "";
+        document.getElementById("passphraseConfirm").value = "";
+        showVault();
+        showToast("Vault unlocked — " + entries.length + " memories loaded", "success");
+      });
+    }).catch(function(e) {
+      vaultKey = null;
+      showToast("Wrong passphrase or corrupted data", "error");
+    }).finally(function() {
+      btn.disabled = false;
+      btn.replaceChildren();
+      var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      svg.setAttribute("width", "16"); svg.setAttribute("height", "16");
+      svg.setAttribute("viewBox", "0 0 24 24"); svg.setAttribute("fill", "none");
+      svg.setAttribute("stroke", "currentColor"); svg.setAttribute("stroke-width", "2.5");
+      svg.setAttribute("stroke-linecap", "round"); svg.setAttribute("stroke-linejoin", "round");
+      var r = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+      r.setAttribute("x", "3"); r.setAttribute("y", "11"); r.setAttribute("width", "18"); r.setAttribute("height", "11"); r.setAttribute("rx", "2");
+      var p = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      p.setAttribute("d", "M7 11V7a5 5 0 0 1 10 0v4");
+      svg.appendChild(r); svg.appendChild(p);
+      btn.appendChild(svg);
+      btn.appendChild(document.createTextNode(" Unlock Vault"));
+    });
+  }
+
+  /* Save encrypted vault to localStorage */
+  function persistVault() {
+    if (!vaultKey) return;
+    var promises = entries.map(function(entry) {
+      var json = JSON.stringify(entry);
+      return Crypto.encrypt(vaultKey, json);
+    });
+    Promise.all(promises).then(function(encrypted) {
+      localStorage.setItem(STORAGE_VAULT, JSON.stringify(encrypted));
+    }).catch(function(e) {
+      showToast("Failed to save vault", "error");
+    });
+  }
+
+  /* Lock the vault */
+  window.lockVault = function() {
+    vaultKey = null;
+    entries = [];
+    activeComp = "all";
+    document.getElementById("lockScreen").classList.remove("hidden");
+    document.getElementById("vaultScreen").classList.add("hidden");
+    document.getElementById("passphraseInput").value = "";
+    document.getElementById("passphraseConfirm").value = "";
+    updateLockUI();
+    showToast("Vault locked", "info");
+  };
+
+  /* ═══════════════════════════════════════════
+     ENTRY OPERATIONS
+     ═══════════════════════════════════════════ */
+  window.openNewEntry = function() {
+    editingId = null;
+    document.getElementById("modalTitle").textContent = "New memory";
+    document.getElementById("entryTitleInput").value = "";
+    document.getElementById("entryCompInput").value = activeComp !== "all" ? activeComp : "";
+    document.getElementById("entryTagInput").value = "";
+    document.getElementById("entryBodyInput").value = "";
+    document.getElementById("entryModal").classList.add("active");
+    document.getElementById("entryTitleInput").focus();
+  };
+
+  window.openEditEntry = function(id) {
+    var entry = entries.find(function(e) { return e.id === id; });
+    if (!entry) return;
+    editingId = id;
+    document.getElementById("modalTitle").textContent = "Edit memory";
+    document.getElementById("entryTitleInput").value = entry.title;
+    document.getElementById("entryCompInput").value = entry.compartment || "";
+    document.getElementById("entryTagInput").value = entry.tag || "";
+    document.getElementById("entryBodyInput").value = entry.body || "";
+    document.getElementById("entryModal").classList.add("active");
+    document.getElementById("entryTitleInput").focus();
+  };
+
+  window.closeModal = function() {
+    document.getElementById("entryModal").classList.remove("active");
+    editingId = null;
+  };
+
+  window.saveEntry = function() {
+    var title = document.getElementById("entryTitleInput").value.trim();
+    var comp = document.getElementById("entryCompInput").value.trim() || "default";
+    var tag = document.getElementById("entryTagInput").value.trim() || "note";
+    var body = document.getElementById("entryBodyInput").value;
+
+    if (!title) {
+      showToast("Title is required", "error");
+      document.getElementById("entryTitleInput").focus();
+      return;
+    }
+
+    if (editingId) {
+      /* Update existing */
+      var idx = entries.findIndex(function(e) { return e.id === editingId; });
+      if (idx !== -1) {
+        entries[idx].title = title;
+        entries[idx].compartment = comp;
+        entries[idx].tag = tag;
+        entries[idx].body = body;
+        entries[idx].updated = Date.now();
+      }
+    } else {
+      /* Create new */
+      var idBytes = new Uint8Array(16);
+      crypto.getRandomValues(idBytes);
+      var id = Array.from(idBytes, function(b) { return b.toString(16).padStart(2, "0"); }).join("");
+      entries.push({
+        id: id,
+        title: title,
+        compartment: comp,
+        tag: tag,
+        body: body,
+        created: Date.now(),
+        updated: Date.now()
+      });
+    }
+
+    persistVault();
+    renderEntries();
+    closeModal();
+    showToast(editingId ? "Memory updated" : "Memory saved", "success");
+  };
+
+  window.deleteEntry = function(id) {
+    if (!confirm("Delete this memory? This cannot be undone.")) return;
+    entries = entries.filter(function(e) { return e.id !== id; });
+    persistVault();
+    renderEntries();
+    showToast("Memory deleted", "info");
+  };
+
+  /* ═══════════════════════════════════════════
+     EXPORT / IMPORT
+     ═══════════════════════════════════════════ */
+  window.exportVault = function() {
+    if (!vaultKey) return;
+    var vaultData = localStorage.getItem(STORAGE_VAULT);
+    var saltB64 = localStorage.getItem(STORAGE_SALT);
+    var verifierB64 = localStorage.getItem(STORAGE_VERIFIER);
+    var exportObj = {
+      version: POLICY.VERSION,
+      exported: new Date().toISOString(),
+      salt: saltB64,
+      verifier: verifierB64,
+      entries: JSON.parse(vaultData || "[]")
+    };
+    var blob = new Blob([JSON.stringify(exportObj, null, 2)], { type: "application/json" });
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "memory-vault-export-" + new Date().toISOString().slice(0, 10) + ".json";
+    a.click();
+    URL.revokeObjectURL(a.href);
+    showToast("Vault exported (encrypted)", "success");
+  };
+
+  window.importVault = function() {
+    var input = document.createElement("input");
+    input.type = "file";
+    input.accept = ".json";
+    input.onchange = function(e) {
+      var file = e.target.files[0];
+      if (!file) return;
+      var reader = new FileReader();
+      reader.onload = function(ev) {
+        try {
+          var importObj = JSON.parse(ev.target.result);
+          if (!importObj.salt || !importObj.entries || !importObj.verifier) {
+            showToast("Invalid vault file", "error");
+            return;
+          }
+          /* Import replaces current vault */
+          localStorage.setItem(STORAGE_SALT, importObj.salt);
+          localStorage.setItem(STORAGE_VERIFIER, importObj.verifier);
+          localStorage.setItem(STORAGE_VAULT, JSON.stringify(importObj.entries));
+          localStorage.setItem(STORAGE_EXISTS, "true");
+          /* Need to re-derive key with new salt */
+          showToast("Vault imported — lock and unlock with the import passphrase", "info");
+        } catch(err) {
+          showToast("Failed to parse vault file", "error");
+        }
+      };
+      reader.readAsText(file);
+    };
+    input.click();
+  };
+
+  /* ═══════════════════════════════════════════
+     UI RENDERING
+     ═══════════════════════════════════════════ */
+  function showVault() {
+    document.getElementById("lockScreen").classList.add("hidden");
+    document.getElementById("vaultScreen").classList.remove("hidden");
+    renderEntries();
+  }
+
+  function updateLockUI() {
+    var exists = vaultExists();
+    var confirmGroup = document.getElementById("passphraseConfirm").closest(".form-group");
+    if (exists) {
+      document.getElementById("lockTitle").textContent = "Unlock your vault";
+      document.getElementById("lockSub").textContent = "Enter your passphrase to decrypt your memories.";
+      confirmGroup.classList.add("hidden");
+      document.getElementById("unlockBtn").querySelector("span,svg") || null;
+      /* Update button text */
+      document.getElementById("unlockBtn").lastChild.textContent = " Unlock Vault";
+    } else {
+      document.getElementById("lockTitle").textContent = "Create your vault";
+      document.getElementById("lockSub").textContent = "Choose a strong passphrase to encrypt your memories. This passphrase cannot be recovered if forgotten.";
+      confirmGroup.classList.remove("hidden");
+      document.getElementById("unlockBtn").lastChild.textContent = " Create Vault";
+    }
+  }
+
+  function renderEntries() {
+    if (!vaultKey) return;
+
+    var search = (document.getElementById("searchInput").value || "").toLowerCase();
+
+    /* Get compartments */
+    var comps = {};
+    for (var i = 0; i < entries.length; i++) {
+      var c = entries[i].compartment || "default";
+      if (!comps[c]) comps[c] = 0;
+      comps[c]++;
+    }
+
+    /* Render compartment chips */
+    var compHtml = '<span class="comp-chip' + (activeComp === "all" ? " active" : "") + '" onclick="setComp(\'all\')">All<span class="comp-count">' + entries.length + '</span></span>';
+    var compNames = Object.keys(comps).sort();
+    for (var j = 0; j < compNames.length; j++) {
+      compHtml += '<span class="comp-chip' + (activeComp === compNames[j] ? " active" : "") + '" onclick="setComp(\'' + escapeAttr(compNames[j]) + '\')">' + escapeHtml(compNames[j]) + '<span class="comp-count">' + comps[compNames[j]] + '</span></span>';
+    }
+    document.getElementById("compList").innerHTML = compHtml;
+
+    /* Stats */
+    var totalChars = 0;
+    for (var k = 0; k < entries.length; k++) {
+      totalChars += (entries[k].body || "").length;
+    }
+    document.getElementById("vaultStats").innerHTML =
+      '<span>Entries<span class="stat-val">' + entries.length + '</span></span>' +
+      '<span>Compartments<span class="stat-val">' + compNames.length + '</span></span>' +
+      '<span>Total size<span class="stat-val">' + formatSize(totalChars) + '</span></span>';
+
+    /* Filter entries */
+    var filtered = entries.filter(function(e) {
+      if (activeComp !== "all" && (e.compartment || "default") !== activeComp) return false;
+      if (search) {
+        var haystack = (e.title + " " + (e.body || "") + " " + (e.tag || "") + " " + (e.compartment || "")).toLowerCase();
+        return haystack.indexOf(search) !== -1;
+      }
+      return true;
+    });
+
+    /* Sort by updated descending */
+    filtered.sort(function(a, b) { return (b.updated || b.created) - (a.updated || a.created); });
+
+    /* Render entries */
+    if (filtered.length === 0) {
+      document.getElementById("entriesList").innerHTML =
+        '<div class="card"><div class="empty-state">' +
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>' +
+        '<p>' + (search ? 'No memories match your search' : 'No memories yet — create your first one') + '</p>' +
+        '</div></div>';
+      return;
+    }
+
+    var entriesHtml = "";
+    for (var m = 0; m < filtered.length; m++) {
+      var e = filtered[m];
+      var bodyPreview = (e.body || "").substring(0, 300);
+      var needsFade = (e.body || "").length > 300;
+
+      entriesHtml += '<div class="mem-entry">';
+      entriesHtml += '<div class="mem-header">';
+      entriesHtml += '<span class="mem-title">' + escapeHtml(e.title) + '</span>';
+      entriesHtml += '<div class="mem-meta">';
+      if (e.tag) entriesHtml += '<span class="mem-tag">' + escapeHtml(e.tag) + '</span>';
+      entriesHtml += '<span class="mem-time">' + formatTime(e.updated || e.created) + '</span>';
+      entriesHtml += '</div></div>';
+      entriesHtml += '<div class="mem-body' + (needsFade ? "" : " expanded") + '" id="body-' + e.id + '">';
+      entriesHtml += escapeHtml(bodyPreview);
+      if (needsFade) entriesHtml += '<div class="mem-body-fade"></div>';
+      entriesHtml += '</div>';
+      entriesHtml += '<div class="mem-actions">';
+      entriesHtml += '<button class="btn sm secondary" onclick="openEditEntry(\'' + e.id + '\')">Edit</button>';
+      entriesHtml += '<button class="btn sm danger" onclick="deleteEntry(\'' + e.id + '\')">Delete</button>';
+      entriesHtml += '</div>';
+      entriesHtml += '</div>';
+    }
+    document.getElementById("entriesList").innerHTML = entriesHtml;
+  }
+
+  window.setComp = function(comp) {
+    activeComp = comp;
+    renderEntries();
+  };
+
+  /* ═══════════════════════════════════════════
+     UTILITIES
+     ═══════════════════════════════════════════ */
+  function escapeHtml(text) {
+    var div = document.createElement("div");
+    div.appendChild(document.createTextNode(text));
+    return div.innerHTML;
+  }
+
+  function escapeAttr(text) {
+    return text.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/'/g, "&#39;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+
+  function formatTime(ts) {
+    if (!ts) return "";
+    var d = new Date(ts);
+    var now = new Date();
+    var diff = now - d;
+    if (diff < 60000) return "just now";
+    if (diff < 3600000) return Math.floor(diff / 60000) + "m ago";
+    if (diff < 86400000) return Math.floor(diff / 3600000) + "h ago";
+    if (diff < 604800000) return Math.floor(diff / 86400000) + "d ago";
+    return d.toLocaleDateString();
+  }
+
+  function formatSize(chars) {
+    var bytes = chars * 2;  /* Rough UTF-16 estimate */
+    if (bytes < 1024) return bytes + " B";
+    if (bytes < 1048576) return (bytes / 1024).toFixed(1) + " KB";
+    return (bytes / 1048576).toFixed(1) + " MB";
+  }
+
+  /* ═══════════════════════════════════════════
+     HOW IT WORKS TOGGLE
+     ═══════════════════════════════════════════ */
+  window.toggleHow = function() {
+    var toggle = document.getElementById("howToggle");
+    var body = document.getElementById("howBody");
+    toggle.classList.toggle("open");
+    body.classList.toggle("open");
+  };
+
+  /* ═══════════════════════════════════════════
+     TOAST NOTIFICATIONS
+     ═══════════════════════════════════════════ */
+  var toastTimer = null;
+  function showToast(message, type) {
+    var toast = document.getElementById("toast");
+    toast.textContent = message;
+    toast.className = "toast " + type;
+    clearTimeout(toastTimer);
+    requestAnimationFrame(function() {
+      toast.classList.add("show");
+      toastTimer = setTimeout(function() { toast.classList.remove("show"); }, 2500);
+    });
+  }
+
+  /* ═══════════════════════════════════════════
+     KEYBOARD SHORTCUTS
+     ═══════════════════════════════════════════ */
+  document.addEventListener("keydown", function(e) {
+    /* Escape closes modal */
+    if (e.key === "Escape") {
+      var modal = document.getElementById("entryModal");
+      if (modal.classList.contains("active")) {
+        closeModal();
+        e.preventDefault();
+      }
+    }
+    /* Enter on lock screen */
+    if (e.key === "Enter" && !document.getElementById("lockScreen").classList.contains("hidden")) {
+      var activeEl = document.activeElement;
+      if (activeEl && (activeEl.id === "passphraseInput" || activeEl.id === "passphraseConfirm")) {
+        unlockVault();
+        e.preventDefault();
+      }
+    }
+  });
+
+  /* ═══════════════════════════════════════════
+     THEME TOGGLE
+     ═══════════════════════════════════════════ */
+  (function(){
+    var key = "goanon-theme";
+    var saved = localStorage.getItem(key);
+    var cookie = (document.cookie.match(/(?:^|; )goanon_theme=([^;]+)/) || [])[1];
+    var theme = saved || cookie;
+    if (theme === "light") document.body.classList.add("light-mode");
+
+    window.toggleGoAnonTheme = function() {
+      var light = document.body.classList.toggle("light-mode");
+      var value = light ? "light" : "dark";
+      localStorage.setItem(key, value);
+      document.cookie = "goanon_theme=" + value + "; path=/; domain=.goanon.pro; max-age=31536000; SameSite=Lax; Secure";
+    };
+  })();
+
+  /* ═══════════════════════════════════════════
+     INIT
+     ═══════════════════════════════════════════ */
+  updateLockUI();
+  document.getElementById("passphraseInput").focus();
+
+})();
+</script>
+</body>
+</html>

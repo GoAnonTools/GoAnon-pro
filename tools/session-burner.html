@@ -1,1 +1,1064 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Session Burner — GoAnon</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="../assets/css/product.css"><style>:root{--accent:255,110,190;--accent2:255,205,105;}</style></head><body><div class="site-shell"><header class="topbar"><a class="brand" href="../index.html"><img src="../assets/images/goanon-logo.png" alt="GoAnon logo"><span>GoAnon</span></a><nav class="nav"><a href="../index.html">Ecosystem</a><a href="../tools/index.html">Tools</a><button class="theme-toggle" onclick="toggleGoAnonTheme()">Theme</button></nav></header><main class="container"><section class="hero"><div class="eyebrow">Disposable browsing session</div><h1>Session Burner</h1><p>Create a temporary isolated session for one task, then destroy cookies, cache, local storage, and history.</p><div class="hero-actions"><a class="btn" href="./index.html">Back to tools</a><a class="btn secondary" href="#details">Details</a></div></section><section class="section" id="details"><div class="grid two"><article class="card"><span class="status">Labs</span><h3 style="margin-top:18px;">Current status</h3><p>This page is a ready placeholder so the product can have a home while development, downloads, pricing, screenshots, or live functionality are added.</p><span class="tag price">Free</span></article><article class="card"><h3>What it should communicate</h3><p>A focused GoAnon tool page: privacy-first, useful, honest about status, and ready to become a real product page when the tool is built.</p></article></div></section><section class="section"><h2>Core direction</h2><p class="section-sub">Keep the promise clear, practical, and believable. No surveillance economy. No fake magic. Strong privacy by design.</p><article class="card"><ul class="list"><li>Disposable session concept</li><li>Container-based browsing later</li><li>Close tab = destroy context</li><li>Best as GoAnon Browser feature</li></ul></article></section><section class="section"><div class="notice"><strong>Next content to add:</strong> screenshots, real availability, download/waitlist CTA, pricing, technical privacy notes, FAQ, and a short changelog.</div></section></main><footer class="footer"><div class="container"><a href="../index.html">GoAnon</a> · Private tools for a public internet.</div></footer></div><script src="../assets/js/theme.js"></script></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Session Burner — GoAnon</title>
+<meta name="description" content="Start a temporary browser-origin session, inspect stored data, then delete cookies, localStorage, sessionStorage, and indexedDB for this origin.">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self'; connect-src 'none'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; object-src 'none'; frame-src 'none'; form-action 'none'; base-uri 'self'; manifest-src 'none';">
+<link rel="icon" href="../assets/images/goanon-logo.png" type="image/png">
+<style>
+/* ────────────────────────────────────────────
+   GoAnon Design System — Session Burner
+   Accent: pink-magenta (burn/destruct theme)
+   ──────────────────────────────────────────── */
+:root{
+  --accent:255,110,190;
+  --accent2:255,205,105;
+  --panel:rgba(255,255,255,.055);
+  --panel-2:rgba(255,255,255,.03);
+  --text:rgba(255,255,255,.92);
+  --muted:rgba(255,255,255,.62);
+  --faint:rgba(255,255,255,.38);
+  --line:rgba(255,255,255,.12);
+  --ok:#2ed573;
+  --warn:#ffd166;
+  --danger:#ff4757;
+  --radius:26px;
+  --radius-sm:14px;
+  --radius-xs:8px;
+  --mono:'SFMono-Regular',Consolas,'Liberation Mono',Menlo,monospace;
+}
+body.light-mode{
+  --panel:rgba(255,255,255,.82);
+  --panel-2:rgba(255,255,255,.58);
+  --text:rgba(18,18,18,.9);
+  --muted:rgba(18,18,18,.64);
+  --faint:rgba(18,18,18,.42);
+  --line:rgba(0,0,0,.10);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{
+  min-height:100vh;
+  font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,sans-serif;
+  background:radial-gradient(circle at 18% 12%,rgba(var(--accent),.13),transparent 34%),
+             radial-gradient(circle at 78% 18%,rgba(var(--accent2),.11),transparent 35%),
+             linear-gradient(135deg,#071019,#020306 70%);
+  color:var(--text);
+  -webkit-font-smoothing:antialiased;
+  transition:background .6s ease,color .4s ease;
+}
+body.light-mode{
+  background:radial-gradient(circle at 18% 12%,rgba(var(--accent),.12),transparent 34%),
+             radial-gradient(circle at 78% 18%,rgba(var(--accent2),.09),transparent 35%),
+             linear-gradient(135deg,#fff,#f4f5f7 70%);
+}
+a{color:inherit;text-decoration:none}
+
+/* ── Shell ── */
+.site-shell{min-height:100vh;position:relative;overflow-x:hidden}
+.site-shell::before{
+  content:"";position:fixed;inset:0;
+  background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),
+                    linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);
+  background-size:44px 44px;
+  mask-image:linear-gradient(to bottom,#000,transparent 85%);
+  pointer-events:none;z-index:0;
+}
+
+/* ── Topbar ── */
+.topbar{
+  position:sticky;top:0;z-index:30;
+  display:flex;align-items:center;justify-content:space-between;gap:18px;
+  padding:18px clamp(18px,4vw,52px);
+  backdrop-filter:blur(18px);
+  background:rgba(2,3,6,.52);
+  border-bottom:1px solid var(--line);
+}
+.light-mode .topbar{background:rgba(255,255,255,.62)}
+.brand{display:flex;align-items:center;gap:12px}
+.brand img{width:52px;height:52px;object-fit:contain}
+.brand span{font-weight:700;letter-spacing:-.03em;font-size:1.1rem}
+.nav{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.nav a,.theme-toggle{
+  font:600 .72rem/1 var(--mono);
+  letter-spacing:.08em;text-transform:uppercase;
+  color:var(--muted);border:1px solid var(--line);border-radius:999px;
+  padding:9px 13px;background:rgba(255,255,255,.035);
+  cursor:pointer;transition:all .25s ease;
+}
+.nav a:hover,.theme-toggle:hover{
+  border-color:rgba(var(--accent),.4);color:var(--text);
+  background:rgba(var(--accent),.08);
+}
+
+/* ── Container ── */
+.container{width:min(720px,calc(100% - 36px));margin:0 auto;position:relative;z-index:1}
+
+/* ── Hero ── */
+.hero{padding:56px 0 28px;text-align:center}
+.eyebrow{
+  display:inline-flex;
+  font:600 .76rem/1 var(--mono);
+  letter-spacing:.12em;text-transform:uppercase;
+  color:rgba(var(--accent),.95);
+  border:1px solid rgba(var(--accent),.24);
+  background:rgba(var(--accent),.07);
+  border-radius:999px;padding:9px 14px;margin-bottom:18px;
+}
+.hero h1{
+  font-size:clamp(2.2rem,5vw,4rem);line-height:.96;
+  letter-spacing:-.06em;margin:0 0 14px;
+}
+.hero p{
+  font-size:clamp(.95rem,1.8vw,1.12rem);line-height:1.75;
+  color:var(--muted);max-width:560px;margin:0 auto;
+}
+
+/* ── Buttons ── */
+.btn{
+  display:inline-flex;align-items:center;gap:8px;
+  border-radius:999px;padding:12px 20px;
+  font:700 .76rem/1 var(--mono);
+  letter-spacing:.08em;text-transform:uppercase;
+  border:1px solid rgba(var(--accent),.30);
+  background:rgba(var(--accent),.11);color:var(--text);
+  cursor:pointer;transition:all .3s ease;
+}
+.btn:hover{background:rgba(var(--accent),.2);border-color:rgba(var(--accent),.5);transform:translateY(-1px)}
+.btn:active{transform:translateY(0)}
+.btn.secondary{background:rgba(255,255,255,.035);border-color:var(--line);color:var(--muted)}
+.btn.secondary:hover{border-color:rgba(var(--accent),.3);color:var(--text);background:rgba(var(--accent),.06)}
+.btn.danger{border-color:rgba(255,71,87,.3);background:rgba(255,71,87,.08);color:var(--danger)}
+.btn.danger:hover{background:rgba(255,71,87,.15);border-color:rgba(255,71,87,.5)}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}
+
+/* ── Card ── */
+.card{
+  border:1px solid var(--line);border-radius:var(--radius);
+  background:linear-gradient(145deg,var(--panel),var(--panel-2));
+  backdrop-filter:blur(18px);
+  padding:28px 24px;
+  margin-bottom:16px;
+}
+.card h2{font-size:1.05rem;letter-spacing:-.02em;margin-bottom:16px}
+
+/* ── Warning card ── */
+.warn-card{
+  border-color:rgba(var(--accent),.25);
+  background:linear-gradient(145deg,rgba(var(--accent),.06),rgba(var(--accent),.02));
+}
+.warn-card p{font-size:.88rem;color:var(--muted);line-height:1.7}
+.warn-card strong{color:rgba(var(--accent),1);font-weight:600}
+
+/* ── Session Status ── */
+.session-status{
+  display:flex;align-items:center;justify-content:center;gap:14px;
+  padding:20px;margin-bottom:8px;
+}
+.status-dot{
+  width:14px;height:14px;border-radius:50%;
+  background:var(--faint);
+  transition:background .3s,box-shadow .3s;
+}
+.status-dot.active{
+  background:var(--ok);
+  box-shadow:0 0 12px rgba(46,213,115,.4);
+  animation:pulse 2s infinite;
+}
+.status-dot.burning{
+  background:var(--danger);
+  box-shadow:0 0 16px rgba(255,71,87,.5);
+  animation:burn-pulse .5s infinite;
+}
+@keyframes pulse{
+  0%,100%{opacity:1}
+  50%{opacity:.5}
+}
+@keyframes burn-pulse{
+  0%,100%{opacity:1;transform:scale(1)}
+  50%{opacity:.7;transform:scale(1.2)}
+}
+.status-label{
+  font:600 .82rem/1 var(--mono);
+  letter-spacing:.08em;text-transform:uppercase;
+  color:var(--muted);
+}
+.status-label.active{color:var(--ok)}
+.status-label.burning{color:var(--danger)}
+
+/* ── Timer ── */
+.timer-display{
+  text-align:center;margin:8px 0 4px;
+}
+.timer-value{
+  font:700 2.6rem/1 var(--mono);
+  letter-spacing:.04em;
+  color:var(--text);
+  font-variant-numeric:tabular-nums;
+}
+.timer-sub{
+  font:500 .68rem/1 var(--mono);
+  color:var(--faint);letter-spacing:.08em;text-transform:uppercase;
+  margin-top:4px;
+}
+
+/* ── Storage inventory ── */
+.inventory-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:10px;
+  margin-top:16px;
+}
+@media(max-width:480px){.inventory-grid{grid-template-columns:1fr}}
+.inv-item{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 14px;border-radius:var(--radius-sm);
+  border:1px solid var(--line);
+  background:rgba(255,255,255,.02);
+  transition:border-color .2s;
+}
+.inv-item:hover{border-color:rgba(var(--accent),.2)}
+.inv-label{
+  display:flex;align-items:center;gap:8px;
+  font:500 .76rem/1 var(--mono);
+  letter-spacing:.06em;text-transform:uppercase;
+  color:var(--muted);
+}
+.inv-icon{
+  width:28px;height:28px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(var(--accent),.06);
+  border:1px solid rgba(var(--accent),.15);
+  flex-shrink:0;
+}
+.inv-icon svg{width:13px;height:13px;color:rgba(var(--accent),.8)}
+.inv-count{
+  font:700 .88rem/1 var(--mono);
+  color:var(--text);min-width:24px;text-align:right;
+}
+.inv-count.zero{color:var(--faint)}
+
+/* ── Session log ── */
+.session-log{
+  max-height:240px;overflow-y:auto;
+  border:1px solid var(--line);border-radius:var(--radius-sm);
+  background:rgba(0,0,0,.15);padding:14px;
+  margin-top:12px;
+}
+.light-mode .session-log{background:rgba(255,255,255,.4)}
+.log-entry{
+  display:flex;align-items:flex-start;gap:10px;
+  padding:6px 0;
+  border-bottom:1px solid rgba(255,255,255,.04);
+  font-size:.82rem;color:var(--muted);line-height:1.55;
+}
+.log-entry:last-child{border-bottom:none}
+.log-time{
+  font:500 .68rem/1.4 var(--mono);
+  color:var(--faint);white-space:nowrap;flex-shrink:0;
+  letter-spacing:.04em;
+}
+.log-msg{flex:1}
+.log-msg .tag{
+  display:inline-block;
+  font:600 .62rem/1 var(--mono);
+  letter-spacing:.06em;text-transform:uppercase;
+  padding:3px 7px;border-radius:4px;
+  margin-right:6px;
+}
+.tag-created{background:rgba(46,213,115,.12);color:var(--ok);border:1px solid rgba(46,213,115,.2)}
+.tag-read{background:rgba(var(--accent),.1);color:rgba(var(--accent),1);border:1px solid rgba(var(--accent),.2)}
+.tag-burned{background:rgba(255,71,87,.12);color:var(--danger);border:1px solid rgba(255,71,87,.2)}
+.tag-warn{background:rgba(255,209,102,.12);color:var(--warn);border:1px solid rgba(255,209,102,.2)}
+
+/* ── Burn button ── */
+.burn-btn{
+  width:100%;justify-content:center;
+  padding:18px 24px;font-size:.88rem;
+  margin-top:8px;
+  position:relative;overflow:hidden;
+}
+.burn-btn::after{
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(90deg,transparent,rgba(255,71,87,.15),transparent);
+  transform:translateX(-100%);
+  transition:none;
+}
+.burn-btn:hover::after{
+  animation:burn-sweep 1.5s infinite;
+}
+@keyframes burn-sweep{
+  0%{transform:translateX(-100%)}
+  100%{transform:translateX(100%)}
+}
+.burn-btn.burning{
+  animation:burn-glow .3s ease;
+}
+@keyframes burn-glow{
+  0%{box-shadow:0 0 0 rgba(255,71,87,0)}
+  50%{box-shadow:0 0 40px rgba(255,71,87,.3)}
+  100%{box-shadow:0 0 0 rgba(255,71,87,0)}
+}
+
+/* ── Start button ── */
+.start-btn{
+  width:100%;justify-content:center;
+  padding:16px 24px;font-size:.82rem;
+  margin-top:4px;
+}
+
+/* ── How it works ── */
+.collapse-toggle{
+  display:flex;align-items:center;justify-content:space-between;
+  cursor:pointer;user-select:none;width:100%;
+  background:none;border:none;color:var(--text);
+  font-size:1.05rem;font-weight:600;letter-spacing:-.02em;
+  padding:0;margin-bottom:0;
+}
+.collapse-toggle svg{
+  width:18px;height:18px;color:var(--faint);
+  transition:transform .3s;
+}
+.collapse-toggle.open svg{transform:rotate(180deg)}
+.collapse-body{
+  max-height:0;overflow:hidden;
+  transition:max-height .4s ease;
+}
+.collapse-body.open{max-height:800px}
+.collapse-body-inner{padding-top:16px}
+.step-list{list-style:none;padding:0}
+.step-list li{
+  display:flex;gap:14px;margin-bottom:14px;
+  font-size:.88rem;color:var(--muted);line-height:1.65;
+}
+.step-num{
+  flex-shrink:0;width:28px;height:28px;
+  border-radius:50%;border:1px solid rgba(var(--accent),.25);
+  background:rgba(var(--accent),.06);
+  color:rgba(var(--accent),1);
+  font:700 .72rem/28px var(--mono);
+  text-align:center;letter-spacing:0;
+}
+
+/* ── Options toggles ── */
+.opt-toggle{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 14px;border-radius:var(--radius-sm);
+  border:1px solid var(--line);
+  cursor:pointer;user-select:none;
+  transition:all .2s;
+}
+.opt-toggle:hover{border-color:rgba(var(--accent),.2);background:rgba(var(--accent),.03)}
+.opt-toggle.active{border-color:rgba(var(--accent),.3);background:rgba(var(--accent),.06)}
+.opt-toggle .toggle-track{
+  width:28px;height:16px;border-radius:999px;
+  background:var(--line);position:relative;
+  transition:background .2s;flex-shrink:0;
+}
+.opt-toggle.active .toggle-track{background:rgba(var(--accent),.4)}
+.opt-toggle .toggle-thumb{
+  position:absolute;top:2px;left:2px;
+  width:12px;height:12px;border-radius:50%;
+  background:var(--faint);
+  transition:transform .2s,background .2s;
+}
+.opt-toggle.active .toggle-thumb{transform:translateX(12px);background:rgba(var(--accent),1)}
+.opt-toggle .toggle-label{
+  font:500 .72rem/1 var(--mono);
+  letter-spacing:.06em;text-transform:uppercase;
+  color:var(--faint);transition:color .2s;
+}
+.opt-toggle.active .toggle-label{color:var(--text)}
+.options-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:480px){.options-grid{grid-template-columns:1fr}}
+
+/* ── Burn overlay ── */
+.burn-overlay{
+  position:fixed;inset:0;z-index:200;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(255,20,60,.08);
+  backdrop-filter:blur(6px);
+  opacity:0;pointer-events:none;
+  transition:opacity .4s;
+}
+.burn-overlay.active{opacity:1;pointer-events:auto}
+.burn-overlay-inner{text-align:center}
+.burn-flame{
+  font-size:4rem;margin-bottom:12px;
+  animation:flame .6s infinite alternate;
+}
+@keyframes flame{
+  0%{transform:scale(1) rotate(-2deg);filter:brightness(1)}
+  100%{transform:scale(1.1) rotate(2deg);filter:brightness(1.3)}
+}
+.burn-text{
+  font:700 1.4rem/1 var(--mono);
+  letter-spacing:.06em;text-transform:uppercase;
+  color:var(--danger);
+}
+
+/* ── Toast ── */
+.toast{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);
+  padding:14px 22px;border-radius:999px;
+  font:600 .76rem/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;
+  z-index:100;opacity:0;
+  transition:all .35s cubic-bezier(.4,0,.2,1);
+  pointer-events:none;
+  backdrop-filter:blur(18px);
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.success{background:rgba(46,213,115,.15);color:var(--ok);border:1px solid rgba(46,213,115,.3)}
+.toast.error{background:rgba(255,71,87,.15);color:var(--danger);border:1px solid rgba(255,71,87,.3)}
+.toast.info{background:rgba(var(--accent),.12);color:rgba(var(--accent),1);border:1px solid rgba(var(--accent),.3)}
+
+/* ── Footer ── */
+.footer{
+  text-align:center;padding:48px 24px 36px;
+  font-size:.82rem;color:var(--faint);
+  border-top:1px solid var(--line);margin-top:48px;
+}
+.footer span{color:rgba(var(--accent),.7)}
+
+/* ── Utility ── */
+.hidden{display:none!important}
+.fade-in{animation:fadeIn .4s ease forwards;opacity:0}
+@keyframes fadeIn{to{opacity:1}}
+
+/* ── Responsive ── */
+@media(max-width:768px){
+  .hero h1{font-size:clamp(1.8rem,7vw,2.8rem)}
+  .card{padding:22px 18px}
+}
+@media(max-width:480px){
+  .topbar{flex-wrap:wrap;padding:14px 16px}
+  .brand img{width:40px!important;height:40px!important}
+  .brand span{display:none}
+  .nav a,.theme-toggle{font-size:.65rem;padding:7px 10px}
+  .inventory-grid{grid-template-columns:1fr}
+  .timer-value{font-size:2rem}
+}
+</style>
+</head>
+<body>
+<div class="site-shell">
+
+  <!-- ═══ Topbar ═══ -->
+  <header class="topbar">
+    <a href="../index.html" class="brand">
+      <img src="../assets/images/goanon-logo.png" alt="GoAnon" width="52" height="52">
+      <span>GoAnon</span>
+    </a>
+    <nav class="nav">
+      <a href="index.html">Tools</a>
+      <a href="../products/browser.html">Products</a>
+      <button class="theme-toggle" onclick="toggleGoAnonTheme()" aria-label="Toggle theme">Theme</button>
+    </nav>
+  </header>
+
+  <!-- ═══ Toast ═══ -->
+  <div class="toast" id="toast"></div>
+
+  <!-- ═══ Burn Overlay ═══ -->
+  <div class="burn-overlay" id="burnOverlay">
+    <div class="burn-overlay-inner">
+      <div class="burn-flame">&#128293;</div>
+      <div class="burn-text">Session burned</div>
+    </div>
+  </div>
+
+  <!-- ═══ Main Content ═══ -->
+  <main class="container">
+
+    <!-- Hero -->
+    <section class="hero">
+      <div class="eyebrow">Disposable browsing session</div>
+      <h1>Session Burner</h1>
+      <p>Start a temporary session, see what the browser stores, then burn it all — cookies, local storage, session storage, and indexedDB. Nothing survives.</p>
+    </section>
+
+    <!-- Warning note -->
+    <div class="card warn-card" style="text-align:center">
+      <p><strong>This tool burns real data.</strong> It will permanently delete cookies, localStorage, sessionStorage, and indexedDB for this origin. <strong>Burning localStorage will also delete data from other GoAnon tools on this domain</strong>, including Vaultana vaults, GoAnon Notes, and tool preferences. Export important data before burning. For full isolation, Session Burner should be hosted on its own subdomain (e.g. burn.goanon.pro) so it only burns storage for that subdomain.</p>
+    </div>
+
+    <!-- ═══ Session Control ═══ -->
+    <div class="card">
+
+      <!-- Status -->
+      <div class="session-status">
+        <div class="status-dot" id="statusDot"></div>
+        <span class="status-label" id="statusLabel">No active session</span>
+      </div>
+
+      <!-- Timer -->
+      <div class="timer-display">
+        <div class="timer-value" id="timerValue">00:00</div>
+        <div class="timer-sub" id="timerSub">Start a session to begin tracking</div>
+      </div>
+
+      <!-- Start / Stop -->
+      <div id="startSection">
+        <div class="form-group" style="margin-bottom:12px">
+          <label class="form-label">Session label <span style="color:var(--faint);font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></label>
+          <input type="text" class="form-input" id="sessionLabel"
+                 placeholder="e.g. Quick research, Shopping session"
+                 autocomplete="off" spellcheck="false">
+        </div>
+        <div class="options-grid" style="margin-bottom:16px">
+          <div class="opt-toggle active" id="optCookies" data-opt="cookies">
+            <span class="toggle-track"><span class="toggle-thumb"></span></span>
+            <span class="toggle-label">Burn cookies</span>
+          </div>
+          <div class="opt-toggle active" id="optLocal" data-opt="local">
+            <span class="toggle-track"><span class="toggle-thumb"></span></span>
+            <span class="toggle-label">Burn localStorage</span>
+          </div>
+          <div class="opt-toggle active" id="optSession" data-opt="session">
+            <span class="toggle-track"><span class="toggle-thumb"></span></span>
+            <span class="toggle-label">Burn sessionStorage</span>
+          </div>
+          <div class="opt-toggle active" id="optIndexed" data-opt="indexed">
+            <span class="toggle-track"><span class="toggle-thumb"></span></span>
+            <span class="toggle-label">Burn indexedDB</span>
+          </div>
+        </div>
+        <button class="btn start-btn" id="startBtn" onclick="startSession()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          Start Session
+        </button>
+      </div>
+
+      <div id="activeSection" class="hidden">
+        <button class="btn burn-btn danger" id="burnBtn" onclick="burnSession()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          Burn Session
+        </button>
+      </div>
+
+    </div>
+
+    <!-- ═══ Storage Inventory ═══ -->
+    <div class="card hidden" id="inventoryCard">
+      <h2>Storage inventory</h2>
+      <div class="inventory-grid">
+        <!-- Cookies -->
+        <div class="inv-item">
+          <div class="inv-label">
+            <span class="inv-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+            </span>
+            Cookies
+          </div>
+          <span class="inv-count" id="countCookies">0</span>
+        </div>
+        <!-- localStorage -->
+        <div class="inv-item">
+          <div class="inv-label">
+            <span class="inv-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+            </span>
+            Local Storage
+          </div>
+          <span class="inv-count" id="countLocal">0</span>
+        </div>
+        <!-- sessionStorage -->
+        <div class="inv-item">
+          <div class="inv-label">
+            <span class="inv-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+            </span>
+            Session Storage
+          </div>
+          <span class="inv-count" id="countSession">0</span>
+        </div>
+        <!-- indexedDB -->
+        <div class="inv-item">
+          <div class="inv-label">
+            <span class="inv-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+            </span>
+            IndexedDB
+          </div>
+          <span class="inv-count" id="countIndexed">0</span>
+        </div>
+      </div>
+
+      <!-- Session log -->
+      <div class="session-log" id="sessionLog">
+        <div class="log-entry" style="color:var(--faint);justify-content:center">
+          Session activity will appear here...
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ How It Works ═══ -->
+    <div class="card">
+      <button class="collapse-toggle" id="howToggle" onclick="toggleHow()">
+        How it works
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="collapse-body" id="howBody">
+        <div class="collapse-body-inner">
+          <ol class="step-list">
+            <li>
+              <span class="step-num">1</span>
+              <span>Click <strong>Start Session</strong> to begin. Session Burner records a baseline snapshot of all browser storage on this origin — cookies, localStorage, sessionStorage, and indexedDB databases.</span>
+            </li>
+            <li>
+              <span class="step-num">2</span>
+              <span>While the session is active, browse or use other tools. Come back to check the inventory — it refreshes each time you view the page and shows new items that appeared since the session started.</span>
+            </li>
+            <li>
+              <span class="step-num">3</span>
+              <span>When you're done, hit <strong>Burn Session</strong>. Session Burner deletes all cookies for this origin, clears localStorage and sessionStorage, and wipes all indexedDB databases — including its own session data.</span>
+            </li>
+            <li>
+              <span class="step-num">4</span>
+              <span>After the burn, the page resets to a clean state. No session data, no cookies, no traces. The session log is also destroyed.</span>
+            </li>
+          </ol>
+          <p style="font-size:.86rem;color:var(--muted);line-height:1.65;margin-top:8px"><strong style="color:var(--text)">What about cache and history?</strong> Browsers do not allow web pages to clear the HTTP cache or browsing history. For full session isolation including cache and history, use the GoAnon Browser (coming soon). Session Burner handles everything a web page <em>can</em> handle.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ Best as Browser Feature Note ═══ -->
+    <div class="card" style="border-color:rgba(var(--accent),.18);background:linear-gradient(145deg,rgba(var(--accent),.04),rgba(var(--accent),.01))">
+      <p style="font-size:.86rem;color:var(--muted);line-height:1.65"><strong style="color:rgba(var(--accent),.95)">Full isolation needs a browser.</strong> Session Burner works within web page boundaries. For true disposable sessions — with cache clearing, history isolation, container tabs, and network-level separation — look for Session Burner as a feature in the <strong>GoAnon Browser</strong>.</p>
+    </div>
+
+  </main>
+
+  <!-- ═══ Footer ═══ -->
+  <footer class="footer">
+    <span>GoAnon</span> &middot; Private tools for a public internet
+  </footer>
+
+</div><!-- /site-shell -->
+
+<!-- ═══════════════════════════════════════════
+     SESSION BURNER — ENGINE
+     ──────────────────────────────────────────
+     Design principles:
+     1. ZERO network calls — no analytics, no sync, no phoning home
+     2. Burns all storage on this origin: cookies, localStorage,
+        sessionStorage, indexedDB
+     3. Session data stored in sessionStorage (also burned)
+     4. No Math.random() — crypto.getRandomValues only
+     5. Timer resets on page close (sessionStorage dies with tab)
+     ═══════════════════════════════════════════ -->
+<script>
+(function(){
+  "use strict";
+
+  /* ── Policy assertion ── */
+  var POLICY = Object.freeze({
+    NETWORK_CALLS: false,
+    ANALYTICS: false,
+    DATA_COLLECTION: false,
+    VERSION: "1.0.0"
+  });
+
+  /* ═══════════════════════════════════════════
+     SESSION STATE
+     ═══════════════════════════════════════════ */
+  var sessionActive = false;
+  var sessionStartTime = null;
+  var timerInterval = null;
+  var logEntries = [];
+
+  /* ═══════════════════════════════════════════
+     STORAGE SCANNING
+     ═══════════════════════════════════════════ */
+  function countCookies() {
+    /* Count cookies visible to this origin */
+    var cookies = document.cookie;
+    if (!cookies || cookies.trim() === "") return 0;
+    /* Filter out the theme cookie we set ourselves */
+    return cookies.split(";").filter(function(c) {
+      var name = c.split("=")[0].trim();
+      return name !== "goanon_theme" && name !== "goanon-session-id";
+    }).length;
+  }
+
+  function countLocalStorage() {
+    var count = 0;
+    for (var i = 0; i < localStorage.length; i++) {
+      var key = localStorage.key(i);
+      if (key !== "goanon-theme") count++;
+    }
+    return count;
+  }
+
+  function countSessionStorage() {
+    var count = 0;
+    for (var i = 0; i < sessionStorage.length; i++) {
+      var key = sessionStorage.key(i);
+      if (key.indexOf("sb-") !== 0) count++;  /* Exclude our own session keys */
+    }
+    return count;
+  }
+
+  function countIndexedDB() {
+    /* Return a promise since indexedDB.databases() is async */
+    if (!indexedDB.databases) return Promise.resolve(0);
+    return indexedDB.databases().then(function(dbs) {
+      return dbs.filter(function(db) {
+        return db.name.indexOf("sb-session-") !== 0;
+      }).length;
+    }).catch(function() {
+      return 0;
+    });
+  }
+
+  function updateInventory() {
+    var cc = countCookies();
+    var cl = countLocalStorage();
+    var cs = countSessionStorage();
+
+    document.getElementById("countCookies").textContent = cc;
+    document.getElementById("countCookies").className = "inv-count" + (cc === 0 ? " zero" : "");
+    document.getElementById("countLocal").textContent = cl;
+    document.getElementById("countLocal").className = "inv-count" + (cl === 0 ? " zero" : "");
+    document.getElementById("countSession").textContent = cs;
+    document.getElementById("countSession").className = "inv-count" + (cs === 0 ? " zero" : "");
+
+    countIndexedDB().then(function(ci) {
+      document.getElementById("countIndexed").textContent = ci;
+      document.getElementById("countIndexed").className = "inv-count" + (ci === 0 ? " zero" : "");
+    });
+  }
+
+  /* ═══════════════════════════════════════════
+     TIMER
+     ═══════════════════════════════════════════ */
+  function startTimer(startAt) {
+    sessionStartTime = startAt || Date.now();
+    timerInterval = setInterval(function() {
+      var elapsed = Date.now() - sessionStartTime;
+      var mins = Math.floor(elapsed / 60000);
+      var secs = Math.floor((elapsed % 60000) / 1000);
+      document.getElementById("timerValue").textContent =
+        String(mins).padStart(2, "0") + ":" + String(secs).padStart(2, "0");
+    }, 1000);
+  }
+
+  function stopTimer() {
+    if (timerInterval) {
+      clearInterval(timerInterval);
+      timerInterval = null;
+    }
+  }
+
+  /* ═══════════════════════════════════════════
+     SESSION LOG
+     ═══════════════════════════════════════════ */
+  function addLogEntry(tag, message) {
+    var now = new Date();
+    var timeStr = String(now.getHours()).padStart(2, "0") + ":" +
+                  String(now.getMinutes()).padStart(2, "0") + ":" +
+                  String(now.getSeconds()).padStart(2, "0");
+    logEntries.push({ time: timeStr, tag: tag, message: message });
+    /* Persist log to sessionStorage so it survives page refresh */
+    try { sessionStorage.setItem("sb-log", JSON.stringify(logEntries)); } catch(e) {}
+    renderLog();
+  }
+
+  function renderLog() {
+    var logEl = document.getElementById("sessionLog");
+    if (logEntries.length === 0) {
+      logEl.innerHTML = '<div class="log-entry" style="color:var(--faint);justify-content:center">Session activity will appear here...</div>';
+      return;
+    }
+    var html = "";
+    for (var i = logEntries.length - 1; i >= 0; i--) {
+      var entry = logEntries[i];
+      html += '<div class="log-entry">';
+      html += '<span class="log-time">' + entry.time + '</span>';
+      html += '<span class="log-msg"><span class="tag tag-' + entry.tag + '">' + entry.tag + '</span>' + entry.message + '</span>';
+      html += '</div>';
+    }
+    logEl.innerHTML = html;
+  }
+
+  /* ═══════════════════════════════════════════
+     SESSION START
+     ═══════════════════════════════════════════ */
+  window.startSession = function() {
+    sessionActive = true;
+
+    /* Generate a random session ID */
+    var idBytes = new Uint8Array(8);
+    crypto.getRandomValues(idBytes);
+    var sessionId = "sb-session-" + Array.from(idBytes, function(b) {
+      return b.toString(16).padStart(2, "0");
+    }).join("");
+
+    /* Save to sessionStorage so it survives page refresh but dies with tab */
+    sessionStorage.setItem("sb-active", "true");
+    sessionStorage.setItem("sb-id", sessionId);
+    sessionStorage.setItem("sb-start", String(Date.now()));
+    sessionStorage.setItem("sb-log", JSON.stringify([]));
+
+    /* Save baseline snapshot */
+    var baseline = {
+      cookies: countCookies(),
+      localStorage: countLocalStorage(),
+      sessionStorage: countSessionStorage()
+    };
+    sessionStorage.setItem("sb-baseline", JSON.stringify(baseline));
+
+    /* Cookie to mark session */
+    document.cookie = "goanon-session-id=" + sessionId + "; path=/; max-age=86400; SameSite=Strict";
+
+    /* Update UI */
+    document.getElementById("startSection").classList.add("hidden");
+    document.getElementById("activeSection").classList.remove("hidden");
+    document.getElementById("inventoryCard").classList.remove("hidden");
+    document.getElementById("statusDot").classList.add("active");
+    document.getElementById("statusLabel").textContent = "Session active";
+    document.getElementById("statusLabel").className = "status-label active";
+    document.getElementById("timerSub").textContent = "Session is running";
+
+    logEntries = [];
+    addLogEntry("created", "Session started — " + (document.getElementById("sessionLabel").value || "Unlabeled session"));
+    addLogEntry("read", "Baseline: " + baseline.cookies + " cookies, " + baseline.localStorage + " localStorage, " + baseline.sessionStorage + " sessionStorage");
+
+    startTimer(sessionStartTime);
+    updateInventory();
+
+    /* Set up periodic inventory refresh */
+    window._sbInventoryInterval = setInterval(updateInventory, 3000);
+
+    showToast("Session started", "success");
+  };
+
+  /* ═══════════════════════════════════════════
+     SESSION BURN
+     ═══════════════════════════════════════════ */
+  window.burnSession = function() {
+    if (!sessionActive) return;
+
+    var opts = getBurnOptions();
+    var burnedCount = 0;
+
+    /* Update UI to burning state */
+    document.getElementById("statusDot").className = "status-dot burning";
+    document.getElementById("statusLabel").textContent = "Burning...";
+    document.getElementById("statusLabel").className = "status-label burning";
+    document.getElementById("burnBtn").classList.add("burning");
+    document.getElementById("burnBtn").disabled = true;
+
+    addLogEntry("warn", "Burn initiated — destroying all selected storage");
+
+    /* Show burn overlay */
+    document.getElementById("burnOverlay").classList.add("active");
+
+    stopTimer();
+
+    /* Clear inventory refresh */
+    if (window._sbInventoryInterval) {
+      clearInterval(window._sbInventoryInterval);
+      window._sbInventoryInterval = null;
+    }
+
+    /* Burn cookies */
+    if (opts.cookies) {
+      var cookies = document.cookie.split(";");
+      for (var i = 0; i < cookies.length; i++) {
+        var name = cookies[i].split("=")[0].trim();
+        if (!name) continue;
+        /* Try multiple path/domain combinations to ensure deletion */
+        document.cookie = name + "=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/";
+        document.cookie = name + "=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; domain=" + window.location.hostname;
+        document.cookie = name + "=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; domain=." + window.location.hostname;
+      }
+      burnedCount += cookies.length;
+      addLogEntry("burned", "Cookies destroyed (" + cookies.length + " items)");
+    }
+
+    /* Burn localStorage */
+    if (opts.local) {
+      var localCount = localStorage.length;
+      localStorage.clear();
+      burnedCount += localCount;
+      addLogEntry("burned", "localStorage cleared (" + localCount + " items)");
+    }
+
+    /* Burn sessionStorage */
+    if (opts.session) {
+      /* Save our session log first so we can show the final entry */
+      var finalLog = logEntries.slice();
+      var sessionCount = 0;
+      for (var j = 0; j < sessionStorage.length; j++) {
+        var key = sessionStorage.key(j);
+        if (key.indexOf("sb-") !== 0) sessionCount++;
+      }
+      sessionStorage.clear();
+      burnedCount += sessionCount;
+      addLogEntry("burned", "sessionStorage cleared (" + sessionCount + " items)");
+    }
+
+    /* Burn indexedDB */
+    if (opts.indexed && indexedDB.databases) {
+      indexedDB.databases().then(function(dbs) {
+        var deletePromises = dbs.map(function(db) {
+          return new Promise(function(resolve) {
+            var req = indexedDB.deleteDatabase(db.name);
+            req.onsuccess = resolve;
+            req.onerror = resolve;
+          });
+        });
+        return Promise.all(deletePromises).then(function() {
+          addLogEntry("burned", "IndexedDB cleared (" + dbs.length + " databases)");
+          finalizeBurn(burnedCount);
+        });
+      }).catch(function() {
+        addLogEntry("burned", "IndexedDB — could not enumerate databases");
+        finalizeBurn(burnedCount);
+      });
+    } else {
+      finalizeBurn(burnedCount);
+    }
+  };
+
+  function finalizeBurn(burnedCount) {
+    /* Wait a moment for visual effect, then reset */
+    setTimeout(function() {
+      /* Hide overlay */
+      document.getElementById("burnOverlay").classList.remove("active");
+
+      /* Reset state */
+      sessionActive = false;
+      sessionStartTime = null;
+      logEntries = [];
+
+      /* Reset UI */
+      document.getElementById("startSection").classList.remove("hidden");
+      document.getElementById("activeSection").classList.add("hidden");
+      document.getElementById("inventoryCard").classList.add("hidden");
+      document.getElementById("statusDot").className = "status-dot";
+      document.getElementById("statusLabel").textContent = "Session burned clean";
+      document.getElementById("statusLabel").className = "status-label";
+      document.getElementById("timerValue").textContent = "00:00";
+      document.getElementById("timerSub").textContent = "Start a new session";
+      document.getElementById("burnBtn").classList.remove("burning");
+      document.getElementById("burnBtn").disabled = false;
+      document.getElementById("sessionLabel").value = "";
+
+      showToast("Session burned — " + burnedCount + " items destroyed", "success");
+    }, 1200);
+  }
+
+  /* ═══════════════════════════════════════════
+     BURN OPTIONS
+     ═══════════════════════════════════════════ */
+  function getBurnOptions() {
+    return {
+      cookies: document.getElementById("optCookies").classList.contains("active"),
+      local:   document.getElementById("optLocal").classList.contains("active"),
+      session: document.getElementById("optSession").classList.contains("active"),
+      indexed: document.getElementById("optIndexed").classList.contains("active")
+    };
+  }
+
+  /* ═══════════════════════════════════════════
+     HOW IT WORKS TOGGLE
+     ═══════════════════════════════════════════ */
+  window.toggleHow = function() {
+    var toggle = document.getElementById("howToggle");
+    var body = document.getElementById("howBody");
+    toggle.classList.toggle("open");
+    body.classList.toggle("open");
+  };
+
+  /* ═══════════════════════════════════════════
+     TOAST NOTIFICATIONS
+     ═══════════════════════════════════════════ */
+  var toastTimer = null;
+  function showToast(message, type) {
+    var toast = document.getElementById("toast");
+    toast.textContent = message;
+    toast.className = "toast " + type;
+    clearTimeout(toastTimer);
+    requestAnimationFrame(function() {
+      toast.classList.add("show");
+      toastTimer = setTimeout(function() { toast.classList.remove("show"); }, 2500);
+    });
+  }
+
+  /* ═══════════════════════════════════════════
+     OPTION TOGGLES
+     ═══════════════════════════════════════════ */
+  document.querySelectorAll(".opt-toggle").forEach(function(el) {
+    el.addEventListener("click", function() {
+      el.classList.toggle("active");
+    });
+  });
+
+  /* ═══════════════════════════════════════════
+     RESTORE SESSION (if page was refreshed while session was active)
+     ═══════════════════════════════════════════ */
+  function restoreSession() {
+    var active = sessionStorage.getItem("sb-active");
+    if (active !== "true") return;
+
+    sessionActive = true;
+    var startTime = parseInt(sessionStorage.getItem("sb-start"), 10);
+    if (startTime) {
+      startTimer(startTime);
+    }
+
+    /* Restore log */
+    var savedLog = sessionStorage.getItem("sb-log");
+    if (savedLog) {
+      try { logEntries = JSON.parse(savedLog); } catch(e) { logEntries = []; }
+    }
+
+    /* Update UI */
+    document.getElementById("startSection").classList.add("hidden");
+    document.getElementById("activeSection").classList.remove("hidden");
+    document.getElementById("inventoryCard").classList.remove("hidden");
+    document.getElementById("statusDot").classList.add("active");
+    document.getElementById("statusLabel").textContent = "Session active";
+    document.getElementById("statusLabel").className = "status-label active";
+    document.getElementById("timerSub").textContent = "Session is running";
+
+    renderLog();
+    updateInventory();
+
+    /* Restart inventory refresh */
+    window._sbInventoryInterval = setInterval(updateInventory, 3000);
+
+    addLogEntry("read", "Session restored after page refresh");
+  }
+
+  /* ═══════════════════════════════════════════
+     THEME TOGGLE
+     ═══════════════════════════════════════════ */
+  (function(){
+    var key = "goanon-theme";
+    var saved = localStorage.getItem(key);
+    var cookie = (document.cookie.match(/(?:^|; )goanon_theme=([^;]+)/) || [])[1];
+    var theme = saved || cookie;
+    if (theme === "light") document.body.classList.add("light-mode");
+
+    window.toggleGoAnonTheme = function() {
+      var light = document.body.classList.toggle("light-mode");
+      var value = light ? "light" : "dark";
+      localStorage.setItem(key, value);
+      document.cookie = "goanon_theme=" + value + "; path=/; domain=.goanon.pro; max-age=31536000; SameSite=Lax; Secure";
+    };
+  })();
+
+  /* ═══════════════════════════════════════════
+     INIT
+     ═══════════════════════════════════════════ */
+  restoreSession();
+
+})();
+</script>
+</body>
+</html>

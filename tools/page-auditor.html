@@ -1,1 +1,1187 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Page Auditor — GoAnon</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="../assets/css/product.css"><style>:root{--accent:80,255,190;--accent2:180,220,255;}</style></head><body><div class="site-shell"><header class="topbar"><a class="brand" href="../index.html"><img src="../assets/images/goanon-logo.png" alt="GoAnon logo"><span>GoAnon</span></a><nav class="nav"><a href="../index.html">Ecosystem</a><a href="../tools/index.html">Tools</a><button class="theme-toggle" onclick="toggleGoAnonTheme()">Theme</button></nav></header><main class="container"><section class="hero"><div class="eyebrow">Website privacy audit</div><h1>Page Auditor</h1><p>Analyze what a website loads: trackers, analytics, pixels, external scripts, cookies, and fingerprinting attempts.</p><div class="hero-actions"><a class="btn" href="./index.html">Back to tools</a><a class="btn secondary" href="#details">Details</a></div></section><section class="section" id="details"><div class="grid two"><article class="card"><span class="status">Labs</span><h3 style="margin-top:18px;">Current status</h3><p>This page is a ready placeholder so the product can have a home while development, downloads, pricing, screenshots, or live functionality are added.</p><span class="tag price">Free</span></article><article class="card"><h3>What it should communicate</h3><p>A focused GoAnon tool page: privacy-first, useful, honest about status, and ready to become a real product page when the tool is built.</p></article></div></section><section class="section"><h2>Core direction</h2><p class="section-sub">Keep the promise clear, practical, and believable. No surveillance economy. No fake magic. Strong privacy by design.</p><article class="card"><ul class="list"><li>Privacy-oriented website audit</li><li>External script overview</li><li>Cookie and tracker notes</li><li>Browser extension feature later</li></ul></article></section><section class="section"><div class="notice"><strong>Next content to add:</strong> screenshots, real availability, download/waitlist CTA, pricing, technical privacy notes, FAQ, and a short changelog.</div></section></main><footer class="footer"><div class="container"><a href="../index.html">GoAnon</a> · Private tools for a public internet.</div></footer></div><script src="../assets/js/theme.js"></script></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Page Auditor — GoAnon</title>
+<meta name="description" content="Analyze what a website loads: trackers, analytics, pixels, external scripts, cookies, and fingerprinting attempts. Paste HTML and get a privacy report.">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self'; connect-src 'none'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; object-src 'none'; frame-src 'none'; form-action 'none'; base-uri 'self'; manifest-src 'none';">
+<link rel="icon" href="../assets/images/goanon-logo.png" type="image/png">
+<style>
+/* ────────────────────────────────────────────
+   GoAnon Design System — Page Auditor
+   Accent: green (scan/audit theme)
+   ──────────────────────────────────────────── */
+:root{
+  --accent:80,255,190;
+  --accent2:180,220,255;
+  --panel:rgba(255,255,255,.055);
+  --panel-2:rgba(255,255,255,.03);
+  --text:rgba(255,255,255,.92);
+  --muted:rgba(255,255,255,.62);
+  --faint:rgba(255,255,255,.38);
+  --line:rgba(255,255,255,.12);
+  --ok:#2ed573;
+  --warn:#ffd166;
+  --danger:#ff4757;
+  --critical:#ff4757;
+  --high:#ff8c42;
+  --medium:#ffd166;
+  --low:#56c8e8;
+  --info:#8e99a4;
+  --radius:26px;
+  --radius-sm:14px;
+  --radius-xs:8px;
+  --mono:'SFMono-Regular',Consolas,'Liberation Mono',Menlo,monospace;
+}
+body.light-mode{
+  --panel:rgba(255,255,255,.82);
+  --panel-2:rgba(255,255,255,.58);
+  --text:rgba(18,18,18,.9);
+  --muted:rgba(18,18,18,.64);
+  --faint:rgba(18,18,18,.42);
+  --line:rgba(0,0,0,.10);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{
+  min-height:100vh;
+  font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,sans-serif;
+  background:radial-gradient(circle at 18% 12%,rgba(var(--accent),.10),transparent 34%),
+             radial-gradient(circle at 78% 18%,rgba(var(--accent2),.08),transparent 35%),
+             linear-gradient(135deg,#071019,#020306 70%);
+  color:var(--text);
+  -webkit-font-smoothing:antialiased;
+  transition:background .6s ease,color .4s ease;
+}
+body.light-mode{
+  background:radial-gradient(circle at 18% 12%,rgba(var(--accent),.08),transparent 34%),
+             radial-gradient(circle at 78% 18%,rgba(var(--accent2),.06),transparent 35%),
+             linear-gradient(135deg,#fff,#f4f5f7 70%);
+}
+a{color:inherit;text-decoration:none}
+
+/* ── Shell ── */
+.site-shell{min-height:100vh;position:relative;overflow-x:hidden}
+.site-shell::before{
+  content:"";position:fixed;inset:0;
+  background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),
+                    linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);
+  background-size:44px 44px;
+  mask-image:linear-gradient(to bottom,#000,transparent 85%);
+  pointer-events:none;z-index:0;
+}
+
+/* ── Topbar ── */
+.topbar{
+  position:sticky;top:0;z-index:30;
+  display:flex;align-items:center;justify-content:space-between;gap:18px;
+  padding:18px clamp(18px,4vw,52px);
+  backdrop-filter:blur(18px);
+  background:rgba(2,3,6,.52);
+  border-bottom:1px solid var(--line);
+}
+.light-mode .topbar{background:rgba(255,255,255,.62)}
+.brand{display:flex;align-items:center;gap:12px}
+.brand img{width:52px;height:52px;object-fit:contain}
+.brand span{font-weight:700;letter-spacing:-.03em;font-size:1.1rem}
+.nav{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.nav a,.theme-toggle{
+  font:600 .72rem/1 var(--mono);
+  letter-spacing:.08em;text-transform:uppercase;
+  color:var(--muted);border:1px solid var(--line);border-radius:999px;
+  padding:9px 13px;background:rgba(255,255,255,.035);
+  cursor:pointer;transition:all .25s ease;
+}
+.nav a:hover,.theme-toggle:hover{
+  border-color:rgba(var(--accent),.4);color:var(--text);
+  background:rgba(var(--accent),.08);
+}
+
+/* ── Container ── */
+.container{width:min(920px,calc(100% - 36px));margin:0 auto;position:relative;z-index:1}
+
+/* ── Hero ── */
+.hero{padding:56px 0 28px;text-align:center}
+.eyebrow{
+  display:inline-flex;
+  font:600 .76rem/1 var(--mono);
+  letter-spacing:.12em;text-transform:uppercase;
+  color:rgba(var(--accent),.95);
+  border:1px solid rgba(var(--accent),.24);
+  background:rgba(var(--accent),.07);
+  border-radius:999px;padding:9px 14px;margin-bottom:18px;
+}
+.hero h1{
+  font-size:clamp(2.2rem,5vw,4rem);line-height:.96;
+  letter-spacing:-.06em;margin:0 0 14px;
+}
+.hero p{
+  font-size:clamp(.95rem,1.8vw,1.12rem);line-height:1.75;
+  color:var(--muted);max-width:600px;margin:0 auto;
+}
+
+/* ── Buttons ── */
+.btn{
+  display:inline-flex;align-items:center;gap:8px;
+  border-radius:999px;padding:12px 20px;
+  font:700 .76rem/1 var(--mono);
+  letter-spacing:.08em;text-transform:uppercase;
+  border:1px solid rgba(var(--accent),.30);
+  background:rgba(var(--accent),.11);color:var(--text);
+  cursor:pointer;transition:all .3s ease;
+}
+.btn:hover{background:rgba(var(--accent),.2);border-color:rgba(var(--accent),.5);transform:translateY(-1px)}
+.btn:active{transform:translateY(0)}
+.btn.secondary{background:rgba(255,255,255,.035);border-color:var(--line);color:var(--muted)}
+.btn.secondary:hover{border-color:rgba(var(--accent),.3);color:var(--text);background:rgba(var(--accent),.06)}
+.btn.danger{border-color:rgba(255,71,87,.3);background:rgba(255,71,87,.08);color:var(--danger)}
+.btn.danger:hover{background:rgba(255,71,87,.15);border-color:rgba(255,71,87,.5)}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}
+
+/* ── Card ── */
+.card{
+  border:1px solid var(--line);border-radius:var(--radius);
+  background:linear-gradient(145deg,var(--panel),var(--panel-2));
+  backdrop-filter:blur(18px);
+  padding:28px 24px;
+  margin-bottom:16px;
+}
+.card h2{font-size:1.05rem;letter-spacing:-.02em;margin-bottom:16px}
+
+/* ── Warning card ── */
+.warn-card{
+  border-color:rgba(var(--accent),.25);
+  background:linear-gradient(145deg,rgba(var(--accent),.06),rgba(var(--accent),.02));
+}
+.warn-card p{font-size:.88rem;color:var(--muted);line-height:1.7}
+.warn-card strong{color:rgba(var(--accent),1);font-weight:600}
+
+/* ── Form ── */
+.form-group{margin-bottom:18px}
+.form-group:last-child{margin-bottom:0}
+.form-label{
+  display:block;
+  font:600 .72rem/1 var(--mono);
+  letter-spacing:.08em;text-transform:uppercase;
+  color:var(--muted);margin-bottom:8px;
+}
+.form-input,.form-textarea{
+  width:100%;
+  background:rgba(255,255,255,.04);
+  border:1px solid var(--line);
+  border-radius:var(--radius-sm);
+  padding:13px 16px;
+  font-size:.88rem;
+  color:var(--text);
+  outline:none;
+  transition:border-color .2s;
+  font-family:inherit;
+}
+.form-input:focus,.form-textarea:focus{border-color:rgba(var(--accent),.5)}
+.form-input::placeholder,.form-textarea::placeholder{color:var(--faint)}
+.form-textarea{
+  min-height:180px;resize:vertical;
+  font-family:var(--mono);font-size:.78rem;
+  line-height:1.6;letter-spacing:.02em;
+  tab-size:2;
+}
+
+/* ── Mode tabs ── */
+.mode-tabs{
+  display:flex;gap:0;margin-bottom:16px;
+  border:1px solid var(--line);border-radius:var(--radius-sm);
+  overflow:hidden;
+}
+.mode-tab{
+  flex:1;padding:12px 16px;
+  font:600 .72rem/1 var(--mono);
+  letter-spacing:.08em;text-transform:uppercase;
+  color:var(--faint);background:rgba(255,255,255,.02);
+  border:none;cursor:pointer;
+  transition:all .25s;
+}
+.mode-tab:hover{color:var(--muted);background:rgba(var(--accent),.04)}
+.mode-tab.active{
+  color:rgba(var(--accent),1);
+  background:rgba(var(--accent),.08);
+  border-bottom:2px solid rgba(var(--accent),.5);
+}
+
+/* ── Audit button ── */
+.audit-btn{
+  width:100%;justify-content:center;
+  padding:16px 24px;font-size:.82rem;
+  margin-top:4px;
+}
+
+/* ── Score display ── */
+.score-section{
+  display:flex;align-items:center;gap:28px;
+  padding:8px 0 20px;flex-wrap:wrap;
+}
+.score-ring{
+  position:relative;width:100px;height:100px;flex-shrink:0;
+}
+.score-ring svg{width:100px;height:100px;transform:rotate(-90deg)}
+.score-ring-bg{fill:none;stroke:rgba(255,255,255,.06);stroke-width:8}
+.score-ring-fill{fill:none;stroke-width:8;stroke-linecap:round;transition:stroke-dashoffset .8s ease,stroke .4s}
+.score-ring-text{
+  position:absolute;inset:0;
+  display:flex;align-items:center;justify-content:center;
+  font:700 1.6rem/1 var(--mono);color:var(--text);
+}
+.score-summary{flex:1;min-width:200px}
+.score-summary h3{font-size:1.1rem;margin-bottom:6px;letter-spacing:-.02em}
+.score-summary p{font-size:.88rem;color:var(--muted);line-height:1.65}
+
+/* ── Finding categories ── */
+.category-list{margin-top:16px}
+.category-item{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 0;
+  border-bottom:1px solid rgba(255,255,255,.04);
+}
+.category-item:last-child{border-bottom:none}
+.category-left{display:flex;align-items:center;gap:10px}
+.category-dot{
+  width:10px;height:10px;border-radius:50%;flex-shrink:0;
+}
+.category-dot.critical{background:var(--critical)}
+.category-dot.high{background:var(--high)}
+.category-dot.medium{background:var(--medium)}
+.category-dot.low{background:var(--low)}
+.category-dot.info{background:var(--info)}
+.category-dot.clean{background:var(--ok)}
+.category-name{
+  font:500 .76rem/1 var(--mono);
+  letter-spacing:.06em;text-transform:uppercase;
+  color:var(--text);
+}
+.category-count{
+  font:700 .82rem/1 var(--mono);
+  color:var(--muted);
+}
+
+/* ── Findings list ── */
+.findings-list{margin-top:12px}
+.finding-item{
+  padding:14px 16px;
+  border:1px solid var(--line);
+  border-radius:var(--radius-sm);
+  margin-bottom:8px;
+  background:rgba(255,255,255,.015);
+  transition:border-color .2s;
+}
+.finding-item:hover{border-color:rgba(var(--accent),.15)}
+.finding-header{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.finding-severity{
+  font:700 .62rem/1 var(--mono);
+  letter-spacing:.08em;text-transform:uppercase;
+  padding:3px 8px;border-radius:4px;
+}
+.severity-critical{background:rgba(255,71,87,.12);color:var(--critical);border:1px solid rgba(255,71,87,.2)}
+.severity-high{background:rgba(255,140,66,.12);color:var(--high);border:1px solid rgba(255,140,66,.2)}
+.severity-medium{background:rgba(255,209,102,.12);color:var(--medium);border:1px solid rgba(255,209,102,.2)}
+.severity-low{background:rgba(86,200,232,.12);color:var(--low);border:1px solid rgba(86,200,232,.2)}
+.severity-info{background:rgba(142,153,164,.1);color:var(--info);border:1px solid rgba(142,153,164,.15)}
+.finding-category{
+  font:500 .62rem/1 var(--mono);
+  letter-spacing:.06em;text-transform:uppercase;
+  color:var(--faint);
+}
+.finding-desc{font-size:.84rem;color:var(--muted);line-height:1.6}
+.finding-detail{
+  font-family:var(--mono);font-size:.72rem;
+  color:var(--faint);margin-top:6px;
+  word-break:break-all;letter-spacing:.02em;
+}
+
+/* ── Stats bar ── */
+.stats-bar{
+  display:flex;gap:12px;flex-wrap:wrap;
+  margin-top:16px;
+}
+.stat-chip{
+  display:flex;align-items:center;gap:6px;
+  padding:8px 12px;border-radius:var(--radius-xs);
+  border:1px solid var(--line);
+  background:rgba(255,255,255,.02);
+  font:600 .68rem/1 var(--mono);
+  letter-spacing:.06em;text-transform:uppercase;
+  color:var(--muted);
+}
+.stat-chip .stat-val{
+  font-weight:700;font-size:.82rem;
+  color:var(--text);
+}
+
+/* ── How it works ── */
+.collapse-toggle{
+  display:flex;align-items:center;justify-content:space-between;
+  cursor:pointer;user-select:none;width:100%;
+  background:none;border:none;color:var(--text);
+  font-size:1.05rem;font-weight:600;letter-spacing:-.02em;
+  padding:0;margin-bottom:0;
+}
+.collapse-toggle svg{
+  width:18px;height:18px;color:var(--faint);
+  transition:transform .3s;
+}
+.collapse-toggle.open svg{transform:rotate(180deg)}
+.collapse-body{
+  max-height:0;overflow:hidden;
+  transition:max-height .4s ease;
+}
+.collapse-body.open{max-height:1200px}
+.collapse-body-inner{padding-top:16px}
+.step-list{list-style:none;padding:0}
+.step-list li{
+  display:flex;gap:14px;margin-bottom:14px;
+  font-size:.88rem;color:var(--muted);line-height:1.65;
+}
+.step-num{
+  flex-shrink:0;width:28px;height:28px;
+  border-radius:50%;border:1px solid rgba(var(--accent),.25);
+  background:rgba(var(--accent),.06);
+  color:rgba(var(--accent),1);
+  font:700 .72rem/28px var(--mono);
+  text-align:center;letter-spacing:0;
+}
+
+/* ── Toast ── */
+.toast{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);
+  padding:14px 22px;border-radius:999px;
+  font:600 .76rem/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;
+  z-index:100;opacity:0;
+  transition:all .35s cubic-bezier(.4,0,.2,1);
+  pointer-events:none;
+  backdrop-filter:blur(18px);
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.success{background:rgba(46,213,115,.15);color:var(--ok);border:1px solid rgba(46,213,115,.3)}
+.toast.error{background:rgba(255,71,87,.15);color:var(--danger);border:1px solid rgba(255,71,87,.3)}
+.toast.info{background:rgba(var(--accent),.12);color:rgba(var(--accent),1);border:1px solid rgba(var(--accent),.3)}
+
+/* ── Footer ── */
+.footer{
+  text-align:center;padding:48px 24px 36px;
+  font-size:.82rem;color:var(--faint);
+  border-top:1px solid var(--line);margin-top:48px;
+}
+.footer span{color:rgba(var(--accent),.7)}
+
+/* ── Utility ── */
+.hidden{display:none!important}
+.fade-in{animation:fadeIn .4s ease forwards;opacity:0}
+@keyframes fadeIn{to{opacity:1}}
+
+/* ── Responsive ── */
+@media(max-width:768px){
+  .hero h1{font-size:clamp(1.8rem,7vw,2.8rem)}
+  .card{padding:22px 18px}
+  .score-section{flex-direction:column;align-items:flex-start}
+}
+@media(max-width:480px){
+  .topbar{flex-wrap:wrap;padding:14px 16px}
+  .brand img{width:40px!important;height:40px!important}
+  .brand span{display:none}
+  .nav a,.theme-toggle{font-size:.65rem;padding:7px 10px}
+  .stats-bar{flex-direction:column}
+}
+</style>
+</head>
+<body>
+<div class="site-shell">
+
+  <!-- ═══ Topbar ═══ -->
+  <header class="topbar">
+    <a href="../index.html" class="brand">
+      <img src="../assets/images/goanon-logo.png" alt="GoAnon" width="52" height="52">
+      <span>GoAnon</span>
+    </a>
+    <nav class="nav">
+      <a href="index.html">Tools</a>
+      <a href="../products/browser.html">Products</a>
+      <button class="theme-toggle" onclick="toggleGoAnonTheme()" aria-label="Toggle theme">Theme</button>
+    </nav>
+  </header>
+
+  <!-- ═══ Toast ═══ -->
+  <div class="toast" id="toast"></div>
+
+  <!-- ═══ Main Content ═══ -->
+  <main class="container">
+
+    <!-- Hero -->
+    <section class="hero">
+      <div class="eyebrow">Website privacy audit</div>
+      <h1>Page Auditor</h1>
+      <p>Paste a page's HTML source and get an instant privacy report — trackers, analytics, pixels, fingerprinting scripts, cookies, and hidden resources.</p>
+    </section>
+
+    <!-- Info note -->
+    <div class="card warn-card" style="text-align:center">
+      <p><strong>How to get the HTML source:</strong> Right-click any web page, select "View Page Source" (or press Ctrl+U), copy all the HTML, and paste it below. All analysis happens locally in your browser — nothing is sent to any server.</p>
+    </div>
+
+    <!-- ═══ Input Panel ═══ -->
+    <div class="card">
+      <h2>Audit target</h2>
+
+      <!-- Mode tabs -->
+      <div class="mode-tabs">
+        <button class="mode-tab active" id="modePaste" onclick="setMode('paste')">Paste HTML</button>
+        <button class="mode-tab" id="modeBookmarklet" onclick="setMode('bookmarklet')">Bookmarklet</button>
+      </div>
+
+      <!-- Paste mode -->
+      <div id="pasteSection">
+        <div class="form-group">
+          <label class="form-label" for="urlInput">Page URL <span style="color:var(--faint);font-weight:400;text-transform:none;letter-spacing:0">(for reference only)</span></label>
+          <input type="text" class="form-input" id="urlInput"
+                 placeholder="e.g. https://example.com/page"
+                 autocomplete="off" autocorrect="off" spellcheck="false">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="htmlInput">HTML Source Code</label>
+          <textarea class="form-textarea" id="htmlInput"
+                    placeholder="Paste the full HTML source of the page here..."></textarea>
+        </div>
+        <button class="btn audit-btn" id="auditBtn" onclick="runAudit()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          Run Audit
+        </button>
+      </div>
+
+      <!-- Bookmarklet mode -->
+      <div id="bookmarkletSection" class="hidden">
+        <p style="font-size:.88rem;color:var(--muted);line-height:1.7;margin-bottom:14px">
+          Drag this bookmarklet to your bookmarks bar. When you click it on any page, it will extract the page source and redirect here with the HTML pre-loaded for analysis.
+        </p>
+        <div style="padding:16px;border:1px dashed rgba(var(--accent),.3);border-radius:var(--radius-sm);background:rgba(var(--accent),.03);text-align:center;margin-bottom:14px">
+          <a id="bookmarkletLink" href="#" style="font:700 .82rem/1 var(--mono);color:rgba(var(--accent),1);letter-spacing:.04em;text-decoration:none;display:inline-block;padding:8px 16px">
+            GoAnon Audit
+          </a>
+        </div>
+        <p style="font-size:.78rem;color:var(--faint);line-height:1.6">
+          The bookmarklet reads the page's outerHTML and opens Page Auditor with the source pre-filled. It does not send data anywhere — everything stays in your browser.
+        </p>
+      </div>
+
+    </div>
+
+    <!-- ═══ Results Panel ═══ -->
+    <div class="card hidden" id="resultsPanel">
+      <h2>Audit results</h2>
+
+      <!-- Score -->
+      <div class="score-section">
+        <div class="score-ring">
+          <svg viewBox="0 0 100 100">
+            <circle class="score-ring-bg" cx="50" cy="50" r="42"/>
+            <circle class="score-ring-fill" id="scoreRing" cx="50" cy="50" r="42"
+                    stroke-dasharray="263.9" stroke-dashoffset="263.9"/>
+          </svg>
+          <div class="score-ring-text" id="scoreText">--</div>
+        </div>
+        <div class="score-summary">
+          <h3 id="scoreLabel">Privacy Score</h3>
+          <p id="scoreDesc">Run an audit to see the privacy score.</p>
+        </div>
+      </div>
+
+      <!-- Stats bar -->
+      <div class="stats-bar" id="statsBar"></div>
+
+      <!-- Category summary -->
+      <div class="category-list" id="categoryList"></div>
+
+      <!-- Findings -->
+      <h2 style="margin-top:24px">Findings</h2>
+      <div class="findings-list" id="findingsList"></div>
+
+      <!-- Actions -->
+      <div class="btn-row" style="margin-top:16px">
+        <button class="btn secondary" onclick="exportReport()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Export Report
+        </button>
+        <button class="btn secondary" onclick="clearAudit()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+          Clear
+        </button>
+      </div>
+    </div>
+
+    <!-- ═══ How It Works ═══ -->
+    <div class="card">
+      <button class="collapse-toggle" id="howToggle" onclick="toggleHow()">
+        How it works
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="collapse-body" id="howBody">
+        <div class="collapse-body-inner">
+          <ol class="step-list">
+            <li>
+              <span class="step-num">1</span>
+              <span>You paste the HTML source of any web page. Page Auditor never fetches pages from the internet — CORS policies prevent web pages from reading other sites' content directly, so you provide the source manually.</span>
+            </li>
+            <li>
+              <span class="step-num">2</span>
+              <span>The scanner parses the HTML and searches for <strong>known tracker patterns</strong> — scripts from Google Analytics, Facebook Pixel, Segment, Hotjar, and hundreds of others in our local database. No network lookups.</span>
+            </li>
+            <li>
+              <span class="step-num">3</span>
+              <span>It also detects <strong>third-party resources</strong> (scripts, iframes, images from external domains), <strong>cookie-setting patterns</strong>, <strong>fingerprinting techniques</strong> (canvas, WebGL, font enumeration), and <strong>privacy-sensitive meta tags</strong>.</span>
+            </li>
+            <li>
+              <span class="step-num">4</span>
+              <span>Each finding is classified by severity (critical, high, medium, low, info) and category. The privacy score reflects how much tracking and data collection the page attempts.</span>
+            </li>
+            <li>
+              <span class="step-num">5</span>
+              <span>You get a full report you can export as a text file. All analysis is local — your pasted HTML never leaves your browser.</span>
+            </li>
+          </ol>
+          <p style="font-size:.86rem;color:var(--muted);line-height:1.65;margin-top:8px"><strong style="color:var(--text)">Limitations:</strong> Page Auditor can only analyze the static HTML you paste. Dynamically loaded scripts, server-side tracking, and post-load injection won't be detected. For runtime analysis, use the GoAnon Browser's built-in audit feature (coming soon).</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ Browser Feature Note ═══ -->
+    <div class="card" style="border-color:rgba(var(--accent),.18);background:linear-gradient(145deg,rgba(var(--accent),.04),rgba(var(--accent),.01))">
+      <p style="font-size:.86rem;color:var(--muted);line-height:1.65"><strong style="color:rgba(var(--accent),.95)">Runtime analysis is better.</strong> This static scan catches known patterns in HTML. For real-time detection of dynamically loaded trackers, network requests, and JavaScript-based fingerprinting, look for Page Auditor as a built-in feature of the <strong>GoAnon Browser</strong>.</p>
+    </div>
+
+  </main>
+
+  <!-- ═══ Footer ═══ -->
+  <footer class="footer">
+    <span>GoAnon</span> &middot; Private tools for a public internet
+  </footer>
+
+</div><!-- /site-shell -->
+
+<!-- ═══════════════════════════════════════════
+     PAGE AUDITOR — SCANNING ENGINE
+     ──────────────────────────────────────────
+     Design principles:
+     1. ZERO network calls — no analytics, no sync, no phoning home
+     2. All analysis is local — pasted HTML never leaves the browser
+     3. Known tracker database embedded in the page (no remote lookups)
+     4. Pattern-based detection — no heuristic ML, no cloud API
+     5. Severity classification follows privacy impact, not security
+     ═══════════════════════════════════════════ -->
+<script>
+(function(){
+  "use strict";
+
+  /* ── Policy assertion ── */
+  var POLICY = Object.freeze({
+    NETWORK_CALLS: false,
+    ANALYTICS: false,
+    DATA_COLLECTION: false,
+    VERSION: "1.0.0"
+  });
+
+  /* ═══════════════════════════════════════════
+     KNOWN TRACKER DATABASE
+     ──────────────────────────────────────────
+     Each entry: { pattern (regex or string), name, category, severity }
+     Categories: analytics, advertising, social, fingerprint, pixel, session, other
+     Severities: critical, high, medium, low, info
+     ═══════════════════════════════════════════ */
+  var TRACKERS = [
+    /* Analytics */
+    {p:/google-analytics\.com|googletagmanager\.com|gtag\(|ga\(|_gaq|UA-\d+-\d/,n:"Google Analytics",c:"analytics",s:"high"},
+    {p:/plausible\.io/,n:"Plausible Analytics",c:"analytics",s:"info"},
+    {p:/matomo\.|piwik\.|mtm\.|_paq/,n:"Matomo/Piwik",c:"analytics",s:"medium"},
+    {p:/segment\.com|segment\.io|analytics\.js|analytics\.min\.js/,n:"Segment",c:"analytics",s:"high"},
+    {p:/amplitude\.com|amplitude\.js/,n:"Amplitude",c:"analytics",s:"high"},
+    {p:/mixpanel\.com|mixpanel\.js/,n:"Mixpanel",c:"analytics",s:"high"},
+    {p:/hotjar\.com|hotjar\.js|_hj/,n:"Hotjar",c:"analytics",s:"high"},
+    {p:/fullstory\.com|fs\.js|_fs/,n:"FullStory",c:"analytics",s:"high"},
+    {p:/clarity\.ms|clarity\.js/,n:"Microsoft Clarity",c:"analytics",s:"high"},
+    {p:/heap\.io|heap\.js/,n:"Heap Analytics",c:"analytics",s:"high"},
+    {p:/sentry\.io|sentry\.js|raven\.js/,n:"Sentry",c:"analytics",s:"medium"},
+    {p:/newrelic\.com|nr-|NREUM/,n:"New Relic",c:"analytics",s:"medium"},
+    {p:/datadog|dd-js|DD_RUM/,n:"Datadog RUM",c:"analytics",s:"medium"},
+    {p:/posthog\.com|posthog\.js/,n:"PostHog",c:"analytics",s:"medium"},
+    {p:/umami\.|umami\.js/,n:"Umami Analytics",c:"analytics",s:"info"},
+    {p:/simpleanalytics\.com/,n:"Simple Analytics",c:"analytics",s:"info"},
+    {p:/clicky\.com|clicky\.js/,n:"Clicky",c:"analytics",s:"medium"},
+    {p:/statcounter\.com|sc_project/,n:"StatCounter",c:"analytics",s:"medium"},
+
+    /* Advertising */
+    {p:/doubleclick\.net|googlesyndication\.com|googleadservices\.com|gpt\.js/,n:"Google Ads/DoubleClick",c:"advertising",s:"critical"},
+    {p:/facebook\.net\/.*\/fbevents\.js|fbq\(|connect\.facebook\.net/,n:"Facebook Pixel",c:"advertising",s:"critical"},
+    {p:/ads\.twitter\.com|t\.co\/i\/adsct/,n:"Twitter/X Ads",c:"advertising",s:"high"},
+    {p:/linkedin\.com\/li\/|snap\.licdn\.com|_linkedin/,n:"LinkedIn Insight",c:"advertising",s:"high"},
+    {p:/tiktok\.com\/.*\/sdk|ttq\(/,n:"TikTok Pixel",c:"advertising",s:"high"},
+    {p:/pinterest\.com\/.*\/sdk|pintrk\(/,n:"Pinterest Tag",c:"advertising",s:"high"},
+    {p:/taboola\.com/,n:"Taboola",c:"advertising",s:"high"},
+    {p:/outbrain\.com/,n:"Outbrain",c:"advertising",s:"high"},
+    {p:/criteo\.com/,n:"Criteo",c:"advertising",s:"high"},
+    {p:/adroll\.com/,n:"AdRoll",c:"advertising",s:"high"},
+    {p:/amazon-adsystem\.com/,n:"Amazon Ads",c:"advertising",s:"high"},
+
+    /* Social */
+    {p:/connect\.facebook\.net|facebook\.com\/plugins\/|fb-root/,n:"Facebook SDK",c:"social",s:"high"},
+    {p:/platform\.twitter\.com\/widgets/,n:"Twitter Widgets",c:"social",s:"medium"},
+    {p:/apis\.google\.com\/js\/platform/,n:"Google Sign-In",c:"social",s:"medium"},
+    {p:/cdn\.instagram\.com\/embed/,n:"Instagram Embed",c:"social",s:"low"},
+
+    /* Fingerprinting */
+    {p:/fingerprintjs|fp\.js|fingerprint/,n:"FingerprintJS",c:"fingerprint",s:"critical"},
+    {p:/canvas\.toDataURL|canvas\.getContext.*2d.*toDataURL/,n:"Canvas Fingerprinting",c:"fingerprint",s:"critical"},
+    {p:/getChannel|webgl.*getParameter|WEBGL_debug_renderer/,n:"WebGL Fingerprinting",c:"fingerprint",s:"critical"},
+    {p:/font.*enumeration|document\.fonts/,n:"Font Enumeration",c:"fingerprint",s:"high"},
+    {p:/AudioContext|OscillatorNode|createOscillator/,n:"Audio Fingerprinting",c:"fingerprint",s:"high"},
+    {p:/navigator\.plugins|navigator\.mimeTypes/,n:"Plugin/MIME Detection",c:"fingerprint",s:"medium"},
+    {p:/screen\.(width|height|colorDepth|pixelDepth)|window\.(innerWidth|innerHeight|outerWidth|outerHeight)/,n:"Screen Resolution Probing",c:"fingerprint",s:"medium"},
+    {p:/Intl\.DateTimeFormat\.resolvedOptions|timezone/,n:"Timezone Detection",c:"fingerprint",s:"low"},
+    {p:/navigator\.hardwareConcurrency|navigator\.deviceMemory/,n:"Hardware Probing",c:"fingerprint",s:"medium"},
+    {p:/BatteryManager|getBattery/,n:"Battery API Access",c:"fingerprint",s:"high"},
+    {p:/mediaDevices\.enumerateDevices/,n:"Device Enumeration",c:"fingerprint",s:"high"},
+    {p:/RTCPeerConnection|webkitRTCPeerConnection/,n:"WebRTC Leak",c:"fingerprint",s:"high"},
+
+    /* Tracking pixels */
+    {p:/1x1\.gif|pixel\..*\.com|tracking-pixel|beacon\..*\.com/,n:"Tracking Pixel",c:"pixel",s:"high"},
+    {p:/ct\.pinterest\.com|pinit\.js/,n:"Pinterest Pixel",c:"pixel",s:"high"},
+    {p:/analytics\.tiktok\.com/,n:"TikTok Analytics Pixel",c:"pixel",s:"high"},
+
+    /* Session/identity */
+    {p:/intercom\.io|intercom\.js/,n:"Intercom",c:"session",s:"high"},
+    {p:/zendesk\.com|ze-snippet/,n:"Zendesk",c:"session",s:"medium"},
+    {p:/crisp\.chat|crisp\.js/,n:"Crisp Chat",c:"session",s:"medium"},
+    {p:/drift\.com|drift\.js/,n:"Drift",c:"session",s:"medium"},
+    {p:/hubspot\.com|hs-analytics/,n:"HubSpot",c:"session",s:"high"},
+    {p:/salesforce\.com\/.*\/liveagent/,n:"Salesforce Live Agent",c:"session",s:"medium"},
+  ];
+
+  /* ═══════════════════════════════════════════
+     SCANNER ENGINE
+     ═══════════════════════════════════════════ */
+  var Scanner = {
+    scan: function(html) {
+      var findings = [];
+      var seen = {};
+
+      /* 1. Scan for known trackers */
+      for (var i = 0; i < TRACKERS.length; i++) {
+        var t = TRACKERS[i];
+        t.p.lastIndex = 0;
+        if (t.p.test(html)) {
+          var key = t.n;
+          if (!seen[key]) {
+            seen[key] = true;
+            findings.push({
+              severity: t.s,
+              category: t.c,
+              name: t.n,
+              desc: this.describeTracker(t),
+              detail: this.extractContext(html, t.p)
+            });
+          }
+        }
+      }
+
+      /* 2. Detect third-party scripts */
+      var scriptRegex = /<script[^>]+src=["']([^"']+)["']/gi;
+      var match;
+      var externalScripts = [];
+      while ((match = scriptRegex.exec(html)) !== null) {
+        var src = match[1];
+        if (this.isThirdParty(src) && !this.isKnown(src, findings)) {
+          externalScripts.push(src);
+        }
+      }
+      if (externalScripts.length > 0) {
+        findings.push({
+          severity: "medium",
+          category: "other",
+          name: "Third-Party Scripts",
+          desc: externalScripts.length + " external script(s) loaded from third-party domains. Each script can access page data, set cookies, and track user behavior.",
+          detail: externalScripts.slice(0, 10).join("\n")
+        });
+      }
+
+      /* 3. Detect iframes */
+      var iframeRegex = /<iframe[^>]+src=["']([^"']+)["']/gi;
+      var iframes = [];
+      while ((match = iframeRegex.exec(html)) !== null) {
+        iframes.push(match[1]);
+      }
+      if (iframes.length > 0) {
+        findings.push({
+          severity: "medium",
+          category: "other",
+          name: "Third-Party Iframes",
+          desc: iframes.length + " iframe(s) embedded. Iframes can load tracking scripts, set cookies, and monitor parent page activity.",
+          detail: iframes.slice(0, 10).join("\n")
+        });
+      }
+
+      /* 4. Detect inline scripts with suspicious patterns */
+      var inlineScriptRegex = /<script[^>]*>([\s\S]*?)<\/script>/gi;
+      var inlineSuspicious = 0;
+      var cookieScripts = 0;
+      var localStorageAccess = 0;
+      while ((match = inlineScriptRegex.exec(html)) !== null) {
+        var code = match[1];
+        if (!code.trim()) continue;
+        if (/document\.cookie/.test(code) && !/goanon/.test(code)) cookieScripts++;
+        if (/localStorage|sessionStorage/.test(code) && !/goanon/.test(code)) localStorageAccess++;
+        if (/eval\(|Function\(|new Function/.test(code)) inlineSuspicious++;
+      }
+      if (cookieScripts > 0) {
+        findings.push({
+          severity: "medium",
+          category: "other",
+          name: "Cookie-Setting Scripts",
+          desc: cookieScripts + " inline script(s) set document.cookie directly. This may be for functionality or tracking — hard to tell without examining the code.",
+          detail: null
+        });
+      }
+      if (localStorageAccess > 0) {
+        findings.push({
+          severity: "low",
+          category: "other",
+          name: "Local Storage Access",
+          desc: localStorageAccess + " inline script(s) access localStorage or sessionStorage. Common for preferences and tracking alike.",
+          detail: null
+        });
+      }
+      if (inlineSuspicious > 0) {
+        findings.push({
+          severity: "high",
+          category: "other",
+          name: "Dynamic Code Execution",
+          desc: inlineSuspicious + " inline script(s) use eval() or new Function(). This can be used to obfuscate tracking code or load remote payloads.",
+          detail: null
+        });
+      }
+
+      /* 5. Check for Content-Security-Policy */
+      var cspMeta = /<meta[^>]+http-equiv=["']Content-Security-Policy["'][^>]+content=["']([^"']+)["']/i;
+      if (!cspMeta.test(html)) {
+        findings.push({
+          severity: "low",
+          category: "other",
+          name: "No Content-Security-Policy",
+          desc: "No CSP meta tag found. Without a Content-Security-Policy, the page allows scripts from any source, increasing the risk of XSS and data exfiltration.",
+          detail: null
+        });
+      }
+
+      /* 6. Check for referrer policy */
+      var referrerMeta = /<meta[^>]+name=["']referrer["']/i;
+      if (!referrerMeta.test(html)) {
+        findings.push({
+          severity: "info",
+          category: "other",
+          name: "No Referrer Policy",
+          desc: "No referrer policy set. The browser may send the full URL as a referrer to third-party resources, leaking page information.",
+          detail: null
+        });
+      }
+
+      return findings;
+    },
+
+    describeTracker: function(t) {
+      var descs = {
+        analytics: "An analytics service that collects user behavior data, page views, and interaction events.",
+        advertising: "An advertising/tracking service that builds user profiles for targeted advertising and cross-site tracking.",
+        social: "A social media integration that may track users across sites via social widgets and login buttons.",
+        fingerprint: "A fingerprinting technique that creates a unique identifier for your browser/device combination, enabling tracking without cookies.",
+        pixel: "A tracking pixel (1x1 image or beacon) that reports page visits and user actions to a remote server.",
+        session: "A customer communication tool that may track user sessions, page views, and conversation data."
+      };
+      return descs[t.c] || "A third-party service that may collect or track user data.";
+    },
+
+    extractContext: function(html, pattern) {
+      /* Find the first line containing the pattern and return a short excerpt */
+      var lines = html.split("\n");
+      for (var i = 0; i < lines.length; i++) {
+        pattern.lastIndex = 0;
+        if (pattern.test(lines[i])) {
+          var line = lines[i].trim();
+          return line.length > 200 ? line.substring(0, 200) + "..." : line;
+        }
+      }
+      return null;
+    },
+
+    isThirdParty: function(url) {
+      if (!url) return false;
+      if (url.indexOf("/") === 0) return false;
+      if (url.indexOf("data:") === 0) return false;
+      if (url.indexOf("blob:") === 0) return false;
+      return true;
+    },
+
+    isKnown: function(src, findings) {
+      for (var i = 0; i < findings.length; i++) {
+        if (src.toLowerCase().indexOf(findings[i].name.toLowerCase().replace(/\s/g, "").substring(0, 6).toLowerCase()) !== -1) return true;
+      }
+      return false;
+    }
+  };
+
+  /* ═══════════════════════════════════════════
+     SCORING ENGINE
+     ═══════════════════════════════════════════ */
+  function calculateScore(findings) {
+    var deductions = { critical: 25, high: 15, medium: 8, low: 3, info: 0 };
+    var score = 100;
+    for (var i = 0; i < findings.length; i++) {
+      score -= deductions[findings[i].severity] || 0;
+    }
+    return Math.max(0, Math.min(100, score));
+  }
+
+  function scoreColor(score) {
+    if (score >= 80) return "#2ed573";
+    if (score >= 60) return "#ffd166";
+    if (score >= 40) return "#ff8c42";
+    return "#ff4757";
+  }
+
+  function scoreLabel(score) {
+    if (score >= 90) return "Excellent";
+    if (score >= 75) return "Good";
+    if (score >= 55) return "Fair";
+    if (score >= 35) return "Poor";
+    return "Critical";
+  }
+
+  function scoreDescription(score, findings) {
+    var trackers = findings.filter(function(f) { return f.category !== "other"; }).length;
+    var critical = findings.filter(function(f) { return f.severity === "critical"; }).length;
+    var high = findings.filter(function(f) { return f.severity === "high"; }).length;
+
+    if (score >= 90) return "This page has minimal tracking. " + (trackers > 0 ? trackers + " tracker(s) detected but nothing aggressive." : "No known trackers detected.");
+    if (score >= 75) return "Moderate privacy concerns. " + trackers + " tracker(s) found, including " + high + " high-severity item(s). Consider blocking or sandboxing.";
+    if (score >= 55) return "Significant tracking detected. " + trackers + " tracker(s) found with " + high + " high-severity and " + critical + " critical item(s). Use privacy tools when visiting.";
+    if (score >= 35) return "Heavy tracking and/or fingerprinting detected. " + critical + " critical and " + high + " high-severity findings. Avoid without privacy protection.";
+    return "Extreme tracking. " + critical + " critical findings including fingerprinting or aggressive advertising. This page poses serious privacy risks.";
+  }
+
+  /* ═══════════════════════════════════════════
+     UI RENDERING
+     ═══════════════════════════════════════════ */
+  function renderResults(findings) {
+    var score = calculateScore(findings);
+    var color = scoreColor(score);
+
+    /* Score ring */
+    var ring = document.getElementById("scoreRing");
+    var circumference = 2 * Math.PI * 42;
+    var offset = circumference - (score / 100) * circumference;
+    ring.style.stroke = color;
+    ring.style.strokeDashoffset = offset;
+    document.getElementById("scoreText").textContent = score;
+    document.getElementById("scoreText").style.color = color;
+    document.getElementById("scoreLabel").textContent = scoreLabel(score);
+    document.getElementById("scoreDesc").textContent = scoreDescription(score, findings);
+
+    /* Stats bar */
+    var counts = { critical: 0, high: 0, medium: 0, low: 0, info: 0 };
+    for (var i = 0; i < findings.length; i++) counts[findings[i].severity]++;
+    var statsHtml = "";
+    var statDefs = [
+      { key: "critical", label: "Critical", color: "var(--critical)" },
+      { key: "high", label: "High", color: "var(--high)" },
+      { key: "medium", label: "Medium", color: "var(--medium)" },
+      { key: "low", label: "Low", color: "var(--low)" },
+      { key: "info", label: "Info", color: "var(--info)" }
+    ];
+    for (var j = 0; j < statDefs.length; j++) {
+      if (counts[statDefs[j].key] > 0) {
+        statsHtml += '<div class="stat-chip"><span style="color:' + statDefs[j].color + '">' + counts[statDefs[j].key] + '</span> ' + statDefs[j].label + '</div>';
+      }
+    }
+    statsHtml += '<div class="stat-chip"><span class="stat-val">' + findings.length + '</span> Total</div>';
+    document.getElementById("statsBar").innerHTML = statsHtml;
+
+    /* Category summary */
+    var catMap = {};
+    for (var k = 0; k < findings.length; k++) {
+      var cat = findings[k].category;
+      if (!catMap[cat]) catMap[cat] = { count: 0, worst: "info" };
+      catMap[cat].count++;
+      var sevOrder = ["critical", "high", "medium", "low", "info"];
+      if (sevOrder.indexOf(findings[k].severity) < sevOrder.indexOf(catMap[cat].worst)) {
+        catMap[cat].worst = findings[k].severity;
+      }
+    }
+    var catLabels = {
+      analytics: "Analytics", advertising: "Advertising", social: "Social",
+      fingerprint: "Fingerprinting", pixel: "Tracking Pixels",
+      session: "Session Tracking", other: "Other Findings"
+    };
+    var catHtml = "";
+    for (var catKey in catMap) {
+      var worst = catMap[catKey].worst;
+      var dotClass = worst === "info" && catMap[catKey].count === 0 ? "clean" : worst;
+      catHtml += '<div class="category-item">';
+      catHtml += '<div class="category-left"><span class="category-dot ' + dotClass + '"></span>';
+      catHtml += '<span class="category-name">' + (catLabels[catKey] || catKey) + '</span></div>';
+      catHtml += '<span class="category-count">' + catMap[catKey].count + '</span>';
+      catHtml += '</div>';
+    }
+    document.getElementById("categoryList").innerHTML = catHtml;
+
+    /* Findings list */
+    var findHtml = "";
+    /* Sort by severity */
+    var sevRank = { critical: 0, high: 1, medium: 2, low: 3, info: 4 };
+    findings.sort(function(a, b) { return (sevRank[a.severity] || 5) - (sevRank[b.severity] || 5); });
+    for (var m = 0; m < findings.length; m++) {
+      var f = findings[m];
+      findHtml += '<div class="finding-item">';
+      findHtml += '<div class="finding-header">';
+      findHtml += '<span class="finding-severity severity-' + f.severity + '">' + f.severity + '</span>';
+      findHtml += '<span class="finding-category">' + (catLabels[f.category] || f.category) + '</span>';
+      findHtml += '</div>';
+      findHtml += '<div style="font-weight:600;font-size:.88rem;margin-bottom:4px">' + f.name + '</div>';
+      findHtml += '<div class="finding-desc">' + f.desc + '</div>';
+      if (f.detail) {
+        findHtml += '<div class="finding-detail">' + escapeHtml(f.detail) + '</div>';
+      }
+      findHtml += '</div>';
+    }
+    document.getElementById("findingsList").innerHTML = findHtml;
+
+    /* Show results */
+    document.getElementById("resultsPanel").classList.remove("hidden");
+    document.getElementById("resultsPanel").scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  function escapeHtml(text) {
+    var div = document.createElement("div");
+    div.appendChild(document.createTextNode(text));
+    return div.innerHTML;
+  }
+
+  /* ═══════════════════════════════════════════
+     EVENT HANDLERS
+     ═══════════════════════════════════════════ */
+  window.runAudit = function() {
+    var html = document.getElementById("htmlInput").value;
+    if (!html.trim()) {
+      showToast("Paste HTML source code to audit", "error");
+      document.getElementById("htmlInput").focus();
+      return;
+    }
+    if (html.length < 50) {
+      showToast("HTML seems too short — paste the full source", "error");
+      return;
+    }
+
+    var btn = document.getElementById("auditBtn");
+    btn.disabled = true;
+    btn.textContent = "Scanning...";
+
+    /* Use setTimeout so UI updates before heavy scanning */
+    setTimeout(function() {
+      try {
+        var findings = Scanner.scan(html);
+        renderResults(findings);
+        showToast("Audit complete — " + findings.length + " findings", findings.length > 0 ? "info" : "success");
+      } catch(e) {
+        showToast("Scan failed: " + e.message, "error");
+      } finally {
+        btn.disabled = false;
+        btn.replaceChildren();
+        var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        svg.setAttribute("width", "16"); svg.setAttribute("height", "16");
+        svg.setAttribute("viewBox", "0 0 24 24"); svg.setAttribute("fill", "none");
+        svg.setAttribute("stroke", "currentColor"); svg.setAttribute("stroke-width", "2.5");
+        svg.setAttribute("stroke-linecap", "round"); svg.setAttribute("stroke-linejoin", "round");
+        var c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        c.setAttribute("cx", "11"); c.setAttribute("cy", "11"); c.setAttribute("r", "8");
+        var l = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        l.setAttribute("x1", "21"); l.setAttribute("y1", "21"); l.setAttribute("x2", "16.65"); l.setAttribute("y2", "16.65");
+        svg.appendChild(c); svg.appendChild(l);
+        btn.appendChild(svg);
+        btn.appendChild(document.createTextNode(" Run Audit"));
+      }
+    }, 50);
+  };
+
+  window.exportReport = function() {
+    var url = document.getElementById("urlInput").value || "Unknown URL";
+    var findings = document.getElementById("findingsList").querySelectorAll(".finding-item");
+    if (findings.length === 0) {
+      showToast("No audit results to export", "error");
+      return;
+    }
+
+    var report = "GoAnon Page Auditor Report\n";
+    report += "==========================\n\n";
+    report += "URL: " + url + "\n";
+    report += "Date: " + new Date().toISOString() + "\n";
+    report += "Score: " + document.getElementById("scoreText").textContent + "/100\n";
+    report += "Rating: " + document.getElementById("scoreLabel").textContent + "\n\n";
+    report += "Findings:\n";
+    report += "---------\n\n";
+
+    var items = document.getElementById("findingsList").querySelectorAll(".finding-item");
+    for (var i = 0; i < items.length; i++) {
+      var severity = items[i].querySelector(".finding-severity");
+      var category = items[i].querySelector(".finding-category");
+      var name = items[i].querySelector("div[style*='font-weight:600']");
+      var desc = items[i].querySelector(".finding-desc");
+      var detail = items[i].querySelector(".finding-detail");
+
+      report += (i + 1) + ". [" + (severity ? severity.textContent.toUpperCase() : "?") + "] " + (category ? category.textContent : "") + "\n";
+      report += "   " + (name ? name.textContent : "Unknown") + "\n";
+      if (desc) report += "   " + desc.textContent + "\n";
+      if (detail) report += "   Context: " + detail.textContent + "\n";
+      report += "\n";
+    }
+
+    report += "---\nGenerated by GoAnon Page Auditor — https://goanon.pro/tools/page-auditor.html\n";
+
+    var blob = new Blob([report], { type: "text/plain" });
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "page-audit-report.txt";
+    a.click();
+    URL.revokeObjectURL(a.href);
+
+    showToast("Report exported", "success");
+  };
+
+  window.clearAudit = function() {
+    document.getElementById("htmlInput").value = "";
+    document.getElementById("urlInput").value = "";
+    document.getElementById("resultsPanel").classList.add("hidden");
+    /* Reset score ring */
+    document.getElementById("scoreRing").style.strokeDashoffset = 263.9;
+    showToast("Audit cleared", "info");
+  };
+
+  /* ═══════════════════════════════════════════
+     MODE TABS
+     ═══════════════════════════════════════════ */
+  window.setMode = function(mode) {
+    document.getElementById("modePaste").classList.toggle("active", mode === "paste");
+    document.getElementById("modeBookmarklet").classList.toggle("active", mode === "bookmarklet");
+    document.getElementById("pasteSection").classList.toggle("hidden", mode !== "paste");
+    document.getElementById("bookmarkletSection").classList.toggle("hidden", mode !== "bookmarklet");
+  };
+
+  /* ═══════════════════════════════════════════
+     BOOKMARKLET
+     ═══════════════════════════════════════════ */
+  function setupBookmarklet() {
+    var auditorUrl = location.origin + "/tools/page-auditor.html#receive";
+
+    var code =
+      "javascript:(function(){" +
+      "var h=document.documentElement.outerHTML;" +
+      "var u=location.href;" +
+      "var w=window.open('" + auditorUrl + "','_blank');" +
+      "function send(){try{w.postMessage({type:'GOANON_PAGE_AUDIT',html:h,url:u},'" + location.origin + "');}catch(e){}}" +
+      "setTimeout(send,800);" +
+      "setTimeout(send,1800);" +
+      "setTimeout(send,3000);" +
+      "}())";
+
+    var link = document.getElementById("bookmarkletLink");
+    link.href = code;
+    link.onclick = function(e) {
+      e.preventDefault();
+      showToast("Drag this to your bookmarks bar", "info");
+    };
+  }
+
+  /* ═══════════════════════════════════════════
+     BOOKMARKLET RECEIVER (via postMessage)
+     ═══════════════════════════════════════════ */
+  function setupBookmarkletReceiver() {
+    window.addEventListener("message", function(event) {
+      if (event.origin !== location.origin) return;
+
+      var data = event.data;
+      if (!data || data.type !== "GOANON_PAGE_AUDIT") return;
+
+      if (typeof data.html !== "string" || data.html.length < 50) {
+        showToast("Received HTML is too short", "error");
+        return;
+      }
+
+      document.getElementById("htmlInput").value = data.html;
+      if (typeof data.url === "string") {
+        document.getElementById("urlInput").value = data.url;
+      }
+
+      setMode("paste");
+      showToast("HTML received from bookmarklet", "success");
+
+      setTimeout(function() {
+        window.runAudit();
+      }, 200);
+    });
+  }
+
+  /* ═══════════════════════════════════════════
+     HOW IT WORKS TOGGLE
+     ═══════════════════════════════════════════ */
+  window.toggleHow = function() {
+    var toggle = document.getElementById("howToggle");
+    var body = document.getElementById("howBody");
+    toggle.classList.toggle("open");
+    body.classList.toggle("open");
+  };
+
+  /* ═══════════════════════════════════════════
+     TOAST NOTIFICATIONS
+     ═══════════════════════════════════════════ */
+  var toastTimer = null;
+  function showToast(message, type) {
+    var toast = document.getElementById("toast");
+    toast.textContent = message;
+    toast.className = "toast " + type;
+    clearTimeout(toastTimer);
+    requestAnimationFrame(function() {
+      toast.classList.add("show");
+      toastTimer = setTimeout(function() { toast.classList.remove("show"); }, 2500);
+    });
+  }
+
+  /* ═══════════════════════════════════════════
+     THEME TOGGLE
+     ═══════════════════════════════════════════ */
+  (function(){
+    var key = "goanon-theme";
+    var saved = localStorage.getItem(key);
+    var cookie = (document.cookie.match(/(?:^|; )goanon_theme=([^;]+)/) || [])[1];
+    var theme = saved || cookie;
+    if (theme === "light") document.body.classList.add("light-mode");
+
+    window.toggleGoAnonTheme = function() {
+      var light = document.body.classList.toggle("light-mode");
+      var value = light ? "light" : "dark";
+      localStorage.setItem(key, value);
+      document.cookie = "goanon_theme=" + value + "; path=/; domain=.goanon.pro; max-age=31536000; SameSite=Lax; Secure";
+    };
+  })();
+
+  /* ═══════════════════════════════════════════
+     INIT
+     ═══════════════════════════════════════════ */
+  setupBookmarklet();
+  setupBookmarkletReceiver();
+
+})();
+</script>
+</body>
+</html>
