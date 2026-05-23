@@ -898,6 +898,8 @@ a{color:inherit;text-decoration:none}
       sessionStorage.clear();
       burnedCount += sessionCount;
       addLogEntry("burned", "sessionStorage cleared (" + sessionCount + " items)");
+      /* removeLogEntry recreates sb-log inside addLogEntry, so wipe it again */
+      try { sessionStorage.removeItem("sb-log"); } catch(e) {}
     }
 
     /* Burn indexedDB */
@@ -1034,16 +1036,9 @@ a{color:inherit;text-decoration:none}
     addLogEntry("read", "Session restored after page refresh");
   }
 
-  /* ═══════════════════════════════════════════
-     NAVIGATION GUARD
-     Warn if user tries to leave with an active session
-     ═══════════════════════════════════════════ */
-  window.addEventListener("beforeunload", function(e) {
-    if (sessionActive) {
-      e.preventDefault();
-      e.returnValue = "";
-    }
-  });
+  /* Navigation guard removed — sessionStorage is tab-scoped,
+     so closing the tab automatically destroys all session data.
+     No warning needed; the user can freely browse during a session. */
 
   /* ═══════════════════════════════════════════
      PAGE VISIBILITY — pause timer when tab is hidden
