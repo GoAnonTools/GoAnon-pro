@@ -750,6 +750,10 @@ a{color:inherit;text-decoration:none}
       clearInterval(timerInterval);
       timerInterval = null;
     }
+    if (window._sbInventoryInterval) {
+      clearInterval(window._sbInventoryInterval);
+      window._sbInventoryInterval = null;
+    }
   }
 
   /* ═══════════════════════════════════════════
@@ -826,6 +830,7 @@ a{color:inherit;text-decoration:none}
     addLogEntry("created", "Session started — " + (document.getElementById("sessionLabel").value || "Unlabeled session"));
     addLogEntry("read", "Baseline: " + baseline.cookies + " cookies, " + baseline.localStorage + " localStorage, " + baseline.sessionStorage + " sessionStorage");
 
+    sessionStartTime = Date.now();
     startTimer(sessionStartTime);
     updateInventory();
 
@@ -857,12 +862,6 @@ a{color:inherit;text-decoration:none}
     document.getElementById("burnOverlay").classList.add("active");
 
     stopTimer();
-
-    /* Clear inventory refresh */
-    if (window._sbInventoryInterval) {
-      clearInterval(window._sbInventoryInterval);
-      window._sbInventoryInterval = null;
-    }
 
     /* Burn cookies */
     if (opts.cookies) {
@@ -1036,22 +1035,39 @@ a{color:inherit;text-decoration:none}
   }
 
   /* ═══════════════════════════════════════════
-     THEME TOGGLE
+     NAVIGATION GUARD
+     Warn if user tries to leave with an active session
      ═══════════════════════════════════════════ */
-  (function(){
-    var key = "goanon-theme";
-    var saved = localStorage.getItem(key);
-    var cookie = (document.cookie.match(/(?:^|; )goanon_theme=([^;]+)/) || [])[1];
-    var theme = saved || cookie;
-    if (theme === "light") document.body.classList.add("light-mode");
+  window.addEventListener("beforeunload", function(e) {
+    if (sessionActive) {
+      e.preventDefault();
+      e.returnValue = "";
+    }
+  });
 
-    window.toggleGoAnonTheme = function() {
-      var light = document.body.classList.toggle("light-mode");
-      var value = light ? "light" : "dark";
-      localStorage.setItem(key, value);
-      document.cookie = "goanon_theme=" + value + "; path=/; domain=.goanon.pro; max-age=31536000; SameSite=Lax; Secure";
-    };
-  })();
+  /* ═══════════════════════════════════════════
+     PAGE VISIBILITY — pause timer when tab is hidden
+     ═══════════════════════════════════════════ */
+  var hiddenAt = null;
+  document.addEventListener("visibilitychange", function() {
+    if (!sessionActive) return;
+    if (document.hidden) {
+      hiddenAt = Date.now();
+      stopTimer();
+    } else {
+      if (hiddenAt !== null) {
+        /* Shift sessionStartTime forward by the time spent hidden */
+        var hiddenDuration = Date.now() - hiddenAt;
+        sessionStartTime += hiddenDuration;
+        /* Update the persisted start time so restore-on-refresh stays accurate */
+        try { sessionStorage.setItem("sb-start", String(sessionStartTime)); } catch(e) {}
+        hiddenAt = null;
+      }
+      /* Restart timer and inventory polling */
+      startTimer(sessionStartTime);
+      window._sbInventoryInterval = setInterval(updateInventory, 3000);
+    }
+  });
 
   /* ═══════════════════════════════════════════
      INIT
@@ -1060,5 +1076,6 @@ a{color:inherit;text-decoration:none}
 
 })();
 </script>
+<script src="../assets/js/theme.js"></script>
 </body>
 </html>

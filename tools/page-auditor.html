@@ -6,7 +6,7 @@
 <title>Page Auditor — GoAnon</title>
 <meta name="description" content="Analyze what a website loads: trackers, analytics, pixels, external scripts, cookies, and fingerprinting attempts. Paste HTML and get a privacy report.">
 <meta name="referrer" content="no-referrer">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self'; connect-src 'none'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; object-src 'none'; frame-src 'none'; form-action 'none'; base-uri 'self'; manifest-src 'none';">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self'; connect-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; object-src 'none'; frame-src 'none'; form-action 'none'; base-uri 'self'; manifest-src 'none';">
 <link rel="icon" href="../assets/images/goanon-logo.png" type="image/png">
 <style>
 /* ────────────────────────────────────────────
@@ -83,7 +83,7 @@ a{color:inherit;text-decoration:none}
 }
 .light-mode .topbar{background:rgba(255,255,255,.62)}
 .brand{display:flex;align-items:center;gap:12px}
-.brand img{width:52px;height:52px;object-fit:contain}
+.brand img{width:42px;height:42px;object-fit:contain}
 .brand span{font-weight:700;letter-spacing:-.03em;font-size:1.1rem}
 .nav{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .nav a,.theme-toggle{
@@ -385,8 +385,7 @@ a{color:inherit;text-decoration:none}
   .score-section{flex-direction:column;align-items:flex-start}
 }
 @media(max-width:480px){
-  .topbar{flex-wrap:wrap;padding:14px 16px}
-  .brand img{width:40px!important;height:40px!important}
+  .topbar{padding:14px 16px}
   .brand span{display:none}
   .nav a,.theme-toggle{font-size:.65rem;padding:7px 10px}
   .stats-bar{flex-direction:column}
@@ -399,7 +398,7 @@ a{color:inherit;text-decoration:none}
   <!-- ═══ Topbar ═══ -->
   <header class="topbar">
     <a href="../index.html" class="brand">
-      <img src="../assets/images/goanon-logo.png" alt="GoAnon" width="52" height="52">
+      <img src="../assets/images/goanon-logo.png" alt="GoAnon" width="42" height="42">
       <span>GoAnon</span>
     </a>
     <nav class="nav">
@@ -579,6 +578,9 @@ a{color:inherit;text-decoration:none}
 (function(){
   "use strict";
 
+  /* module-level findings store for export */
+  var lastFindings = [];
+
   /* ── Policy assertion ── */
   var POLICY = Object.freeze({
     NETWORK_CALLS: false,
@@ -617,7 +619,7 @@ a{color:inherit;text-decoration:none}
 
     /* Advertising */
     {p:/doubleclick\.net|googlesyndication\.com|googleadservices\.com|gpt\.js/,n:"Google Ads/DoubleClick",c:"advertising",s:"critical"},
-    {p:/facebook\.net\/.*\/fbevents\.js|fbq\(|connect\.facebook\.net/,n:"Facebook Pixel",c:"advertising",s:"critical"},
+    {p:/facebook\.net\/.*\/fbevents\.js|fbq\(/,n:"Facebook Pixel",c:"advertising",s:"critical"},
     {p:/ads\.twitter\.com|t\.co\/i\/adsct/,n:"Twitter/X Ads",c:"advertising",s:"high"},
     {p:/linkedin\.com\/li\/|snap\.licdn\.com|_linkedin/,n:"LinkedIn Insight",c:"advertising",s:"high"},
     {p:/tiktok\.com\/.*\/sdk|ttq\(/,n:"TikTok Pixel",c:"advertising",s:"high"},
@@ -629,7 +631,7 @@ a{color:inherit;text-decoration:none}
     {p:/amazon-adsystem\.com/,n:"Amazon Ads",c:"advertising",s:"high"},
 
     /* Social */
-    {p:/connect\.facebook\.net|facebook\.com\/plugins\/|fb-root/,n:"Facebook SDK",c:"social",s:"high"},
+    {p:/connect\.facebook\.net\/|facebook\.com\/plugins\/|fb-root/,n:"Facebook SDK",c:"social",s:"high"},
     {p:/platform\.twitter\.com\/widgets/,n:"Twitter Widgets",c:"social",s:"medium"},
     {p:/apis\.google\.com\/js\/platform/,n:"Google Sign-In",c:"social",s:"medium"},
     {p:/cdn\.instagram\.com\/embed/,n:"Instagram Embed",c:"social",s:"low"},
@@ -675,6 +677,7 @@ a{color:inherit;text-decoration:none}
         var t = TRACKERS[i];
         t.p.lastIndex = 0;
         if (t.p.test(html)) {
+          t.p.lastIndex = 0;
           var key = t.n;
           if (!seen[key]) {
             seen[key] = true;
@@ -826,8 +829,12 @@ a{color:inherit;text-decoration:none}
     },
 
     isKnown: function(src, findings) {
-      for (var i = 0; i < findings.length; i++) {
-        if (src.toLowerCase().indexOf(findings[i].name.toLowerCase().replace(/\s/g, "").substring(0, 6).toLowerCase()) !== -1) return true;
+      if (!this._knownUrls) this._knownUrls = new Set();
+      this._knownUrls.add(src);
+      /* A src is "known" if a tracker pattern already matched it */
+      for (var i = 0; i < TRACKERS.length; i++) {
+        TRACKERS[i].p.lastIndex = 0;
+        if (TRACKERS[i].p.test(src)) return true;
       }
       return false;
     }
@@ -939,6 +946,9 @@ a{color:inherit;text-decoration:none}
 
     /* Findings list */
     var findHtml = "";
+    /* Store findings for export */
+    lastFindings = findings;
+
     /* Sort by severity */
     var sevRank = { critical: 0, high: 1, medium: 2, low: 3, info: 4 };
     findings.sort(function(a, b) { return (sevRank[a.severity] || 5) - (sevRank[b.severity] || 5); });
@@ -949,8 +959,8 @@ a{color:inherit;text-decoration:none}
       findHtml += '<span class="finding-severity severity-' + f.severity + '">' + f.severity + '</span>';
       findHtml += '<span class="finding-category">' + (catLabels[f.category] || f.category) + '</span>';
       findHtml += '</div>';
-      findHtml += '<div style="font-weight:600;font-size:.88rem;margin-bottom:4px">' + f.name + '</div>';
-      findHtml += '<div class="finding-desc">' + f.desc + '</div>';
+      findHtml += '<div style="font-weight:600;font-size:.88rem;margin-bottom:4px">' + escapeHtml(f.name) + '</div>';
+      findHtml += '<div class="finding-desc">' + escapeHtml(f.desc) + '</div>';
       if (f.detail) {
         findHtml += '<div class="finding-detail">' + escapeHtml(f.detail) + '</div>';
       }
@@ -1017,11 +1027,16 @@ a{color:inherit;text-decoration:none}
 
   window.exportReport = function() {
     var url = document.getElementById("urlInput").value || "Unknown URL";
-    var findings = document.getElementById("findingsList").querySelectorAll(".finding-item");
-    if (findings.length === 0) {
+    if (lastFindings.length === 0) {
       showToast("No audit results to export", "error");
       return;
     }
+
+    var catLabels = {
+      analytics: "Analytics", advertising: "Advertising", social: "Social",
+      fingerprint: "Fingerprinting", pixel: "Tracking Pixels",
+      session: "Session Tracking", other: "Other Findings"
+    };
 
     var report = "GoAnon Page Auditor Report\n";
     report += "==========================\n\n";
@@ -1032,18 +1047,12 @@ a{color:inherit;text-decoration:none}
     report += "Findings:\n";
     report += "---------\n\n";
 
-    var items = document.getElementById("findingsList").querySelectorAll(".finding-item");
-    for (var i = 0; i < items.length; i++) {
-      var severity = items[i].querySelector(".finding-severity");
-      var category = items[i].querySelector(".finding-category");
-      var name = items[i].querySelector("div[style*='font-weight:600']");
-      var desc = items[i].querySelector(".finding-desc");
-      var detail = items[i].querySelector(".finding-detail");
-
-      report += (i + 1) + ". [" + (severity ? severity.textContent.toUpperCase() : "?") + "] " + (category ? category.textContent : "") + "\n";
-      report += "   " + (name ? name.textContent : "Unknown") + "\n";
-      if (desc) report += "   " + desc.textContent + "\n";
-      if (detail) report += "   Context: " + detail.textContent + "\n";
+    for (var i = 0; i < lastFindings.length; i++) {
+      var f = lastFindings[i];
+      report += (i + 1) + ". [" + f.severity.toUpperCase() + "] " + (catLabels[f.category] || f.category) + "\n";
+      report += "   " + f.name + "\n";
+      report += "   " + f.desc + "\n";
+      if (f.detail) report += "   Context: " + f.detail + "\n";
       report += "\n";
     }
 
@@ -1158,22 +1167,8 @@ a{color:inherit;text-decoration:none}
   }
 
   /* ═══════════════════════════════════════════
-     THEME TOGGLE
+     THEME TOGGLE — loaded via ../assets/js/theme.js
      ═══════════════════════════════════════════ */
-  (function(){
-    var key = "goanon-theme";
-    var saved = localStorage.getItem(key);
-    var cookie = (document.cookie.match(/(?:^|; )goanon_theme=([^;]+)/) || [])[1];
-    var theme = saved || cookie;
-    if (theme === "light") document.body.classList.add("light-mode");
-
-    window.toggleGoAnonTheme = function() {
-      var light = document.body.classList.toggle("light-mode");
-      var value = light ? "light" : "dark";
-      localStorage.setItem(key, value);
-      document.cookie = "goanon_theme=" + value + "; path=/; domain=.goanon.pro; max-age=31536000; SameSite=Lax; Secure";
-    };
-  })();
 
   /* ═══════════════════════════════════════════
      INIT
@@ -1183,5 +1178,6 @@ a{color:inherit;text-decoration:none}
 
 })();
 </script>
+<script src="../assets/js/theme.js"></script>
 </body>
 </html>
