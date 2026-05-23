@@ -397,6 +397,16 @@ textarea.field-input{resize:vertical;min-height:80px;line-height:1.6}
   .entry-card{padding:12px 14px;gap:10px}
   .modal{padding:24px 18px}
 }
+
+  .strength-meter{margin-top:8px}
+  .strength-bar{display:flex;gap:4px;margin-bottom:4px}
+  .strength-bar span{height:4px;flex:1;border-radius:2px;background:rgba(255,255,255,.1);transition:background .3s}
+  .strength-label{font-size:.72rem;color:var(--muted);font-family:var(--mono,monospace)}
+  .s-weak .strength-bar span:nth-child(1){background:#ff4d4d}
+  .s-fair .strength-bar span:nth-child(1),.s-fair .strength-bar span:nth-child(2){background:#ffaa00}
+  .s-good .strength-bar span:nth-child(-n+3){background:#4caf50}
+  .s-strong .strength-bar span{background:#00e5ff}
+
 </style>
 </head>
 <body>
@@ -439,7 +449,7 @@ textarea.field-input{resize:vertical;min-height:80px;line-height:1.6}
       <div class="passphrase-group">
         <label class="passphrase-label" for="masterPass">Master passphrase</label>
         <div class="passphrase-wrap">
-          <input type="password" class="passphrase-input" id="masterPass"
+          <input type="password" class="passphrase-input" id="masterPass" oninput="updateStrength(this.value)"
                  placeholder="Enter your master passphrase…"
                  autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
           <button class="passphrase-toggle" onclick="toggleVis('masterPass', this)" aria-label="Toggle visibility">&#128065;</button>
@@ -458,7 +468,7 @@ textarea.field-input{resize:vertical;min-height:80px;line-height:1.6}
       </div>
 
       <div class="passphrase-hint">
-        <strong>Minimum 8 characters.</strong> Your passphrase derives the encryption key via PBKDF2 (600k iterations). It is never stored — if you forget it, your vault is unrecoverable.<br>
+        <strong>Minimum 12 characters.</strong> Your passphrase derives the encryption key via PBKDF2 (600k iterations). It is never stored — if you forget it, your vault is unrecoverable.<br>
         Your passphrase is kept in memory only while deriving the key and is cleared after.
       </div>
 
@@ -507,7 +517,10 @@ textarea.field-input{resize:vertical;min-height:80px;line-height:1.6}
 
       <!-- Entry List -->
       <div class="entry-list" id="entryList">
-        <p style="text-align:center;padding:32px 0;color:var(--faint);font-size:.86rem">No entries yet. Add your first one above.</p>
+        <p style="text-align:center;padding:32px 0;color:var(--faint);font-size:.86rem">No entries yet. Add your first one above.</p><div class="strength-meter" id="strengthMeter" style="display:none">
+  <div class="strength-bar"><span></span><span></span><span></span><span></span></div>
+  <div class="strength-label" id="strengthLabel">Enter a passphrase</div>
+</div>
       </div>
     </div>
 
@@ -574,7 +587,32 @@ textarea.field-input{resize:vertical;min-height:80px;line-height:1.6}
   var IV_LENGTH = 12;
   var STORAGE_KEY = "goanon-vault-data";
   var STORAGE_SALT = "goanon-vault-salt";
-  var AUTO_LOCK_MS = 5 * 60 * 1000; // 5 minutes
+  var AUTO_LOCK_MS = 5 * 60 * 1000;
+
+  function ratePassphrase(p){
+    if(!p) return {cls:'',label:''};
+    var score=0;
+    if(p.length>=12) score++;
+    if(p.length>=16) score++;
+    if(/[A-Z]/.test(p)&&/[a-z]/.test(p)) score++;
+    if(/[0-9]/.test(p)) score++;
+    if(/[^A-Za-z0-9]/.test(p)) score++;
+    if(score<=1) return {cls:'s-weak',label:'Weak — add length and variety'};
+    if(score===2) return {cls:'s-fair',label:'Fair — try adding numbers or symbols'};
+    if(score===3) return {cls:'s-good',label:'Good passphrase'};
+    return {cls:'s-strong',label:'Strong passphrase'};
+  }
+  function updateStrength(val){
+    var meter=document.getElementById('strengthMeter');
+    var label=document.getElementById('strengthLabel');
+    if(!meter||!label) return;
+    if(!val){meter.style.display='none';return;}
+    meter.style.display='block';
+    var r=ratePassphrase(val);
+    meter.className='strength-meter '+(r.cls||'');
+    label.textContent=r.label||'';
+  }
+ // 5 minutes
 
   /* ── State ── */
   var vaultKey = null;       // CryptoKey object (not extractable)
@@ -682,7 +720,7 @@ textarea.field-input{resize:vertical;min-height:80px;line-height:1.6}
 
   window.handleUnlock = async function() {
     var passphrase = document.getElementById("masterPass").value;
-    if (passphrase.length < 8) {
+    if (passphrase.length < 12) {
       showToast("Passphrase must be at least 8 characters", "error");
       return;
     }

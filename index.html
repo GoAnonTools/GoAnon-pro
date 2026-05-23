@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GoAnon — Private Tools for a Public Internet</title>
+    <link rel="stylesheet" href="assets/fonts/fonts.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
         
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body, html { height: 100%; overflow: hidden; font-family: 'Inter', 'Arial', sans-serif; transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1); perspective: 1200px; background-color: #000; }
@@ -44,6 +44,7 @@
         .light-mode .mode-toggle:hover, .light-mode .why-how-toggle:hover { box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(0, 0, 0, 0.3); animation: togglePulseDark 1.5s infinite; }
         @keyframes togglePulseDark { 0% { box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(0, 0, 0, 0); } 100% { box-shadow: 0 0 0 0 rgba(0, 0, 0, 0); } }
         .toggle-ball, .why-how-ball { width: 32px; height: 32px; background: linear-gradient(145deg, #ffffff, #e6e6e6); border-radius: 50%; position: absolute; top: 2px; left: 2px; transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.8), inset 0 -1px 0 rgba(0, 0, 0, 0.1); }
+        .why-how-ball { left: 2px; }
         .light-mode .toggle-ball { left: 82px; background: linear-gradient(145deg, #333333, #1a1a1a); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1), inset 0 -1px 0 rgba(0, 0, 0, 0.3); }
         .light-mode .why-how-ball { background: linear-gradient(145deg, #333333, #1a1a1a); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1), inset 0 -1px 0 rgba(0, 0, 0, 0.3); }
         .why-how-active .why-how-ball { left: 82px; }
