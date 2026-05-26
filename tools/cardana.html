@@ -1,0 +1,1197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Cardana — Test Card Generator — GoAnon</title>
+<meta name="description" content="Generate fake, Luhn-valid test card numbers for developers, checkout demos, form validation, and payment UI testing. Not real, not chargeable, not for payment.">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self' data: blob:; connect-src 'none'; font-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; object-src 'none'; frame-src 'none'; form-action 'none'; base-uri 'self'; manifest-src 'none';">
+<link rel="icon" href="../assets/images/goanon-logo.png" type="image/png">
+<!-- No external font requests — system font stack only. Zero network calls. -->
+<style>
+/* ────────────────────────────────────────────
+   GoAnon Design System — Cardana
+   Accent: purple-orchid (card/finance theme)
+   ──────────────────────────────────────────── */
+:root{
+  --accent:147,51,234;
+  --accent2:192,132,252;
+  --panel:rgba(255,255,255,.055);
+  --panel-2:rgba(255,255,255,.03);
+  --text:rgba(255,255,255,.92);
+  --muted:rgba(255,255,255,.62);
+  --faint:rgba(255,255,255,.38);
+  --line:rgba(255,255,255,.12);
+  --ok:#2ed573;
+  --warn:#ffd166;
+  --danger:#ff4757;
+  --radius:26px;
+  --radius-sm:14px;
+  --radius-xs:8px;
+  --mono:'SFMono-Regular',Consolas,'Liberation Mono',Menlo,monospace;
+}
+body.light-mode{
+  --panel:rgba(255,255,255,.82);
+  --panel-2:rgba(255,255,255,.58);
+  --text:rgba(18,18,18,.9);
+  --muted:rgba(18,18,18,.64);
+  --faint:rgba(18,18,18,.42);
+  --line:rgba(0,0,0,.10);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{
+  min-height:100vh;
+  font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,sans-serif;
+  background:radial-gradient(circle at 20% 10%,rgba(var(--accent),.15),transparent 36%),
+             radial-gradient(circle at 74% 22%,rgba(var(--accent2),.11),transparent 34%),
+             linear-gradient(135deg,#0d0618,#020206 70%);
+  color:var(--text);
+  -webkit-font-smoothing:antialiased;
+  transition:background .6s ease,color .4s ease;
+}
+body.light-mode{
+  background:radial-gradient(circle at 20% 10%,rgba(var(--accent),.11),transparent 36%),
+             radial-gradient(circle at 74% 22%,rgba(var(--accent2),.08),transparent 34%),
+             linear-gradient(135deg,#fff,#f4f5f7 70%);
+}
+a{color:inherit;text-decoration:none}
+
+/* ── Shell ── */
+.site-shell{min-height:100vh;position:relative;overflow-x:hidden}
+.site-shell::before{
+  content:"";position:fixed;inset:0;
+  background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),
+                    linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);
+  background-size:44px 44px;
+  mask-image:linear-gradient(to bottom,#000,transparent 85%);
+  pointer-events:none;z-index:0;
+}
+
+/* ── Topbar ── */
+.topbar{
+  position:sticky;top:0;z-index:30;
+  display:flex;align-items:center;justify-content:space-between;gap:18px;
+  padding:18px clamp(18px,4vw,52px);
+  backdrop-filter:blur(18px);
+  background:rgba(2,3,6,.52);
+  border-bottom:1px solid var(--line);
+}
+.light-mode .topbar{background:rgba(255,255,255,.62)}
+.brand{display:flex;align-items:center;gap:12px}
+.brand img{width:52px;height:52px;object-fit:contain}
+.brand span{font-weight:700;letter-spacing:-.03em;font-size:1.1rem}
+.nav{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.nav a,.theme-toggle{
+  font:600 .72rem/1 var(--mono);
+  letter-spacing:.08em;text-transform:uppercase;
+  color:var(--muted);border:1px solid var(--line);border-radius:999px;
+  padding:9px 13px;background:rgba(255,255,255,.035);
+  cursor:pointer;transition:all .25s ease;
+}
+.nav a:hover,.theme-toggle:hover{
+  border-color:rgba(var(--accent),.4);color:var(--text);
+  background:rgba(var(--accent),.08);
+}
+
+/* ── Container ── */
+.container{width:min(740px,calc(100% - 36px));margin:0 auto;position:relative;z-index:1}
+
+/* ── Hero ── */
+.hero{padding:56px 0 28px;text-align:center}
+.eyebrow{
+  display:inline-flex;
+  font:600 .76rem/1 var(--mono);
+  letter-spacing:.12em;text-transform:uppercase;
+  color:rgba(var(--accent),.95);
+  border:1px solid rgba(var(--accent),.24);
+  background:rgba(var(--accent),.07);
+  border-radius:999px;padding:9px 14px;margin-bottom:18px;
+}
+.hero h1{
+  font-size:clamp(2.2rem,5vw,4rem);line-height:.96;
+  letter-spacing:-.06em;margin:0 0 14px;
+}
+.hero p{
+  font-size:clamp(.95rem,1.8vw,1.12rem);line-height:1.75;
+  color:var(--muted);max-width:600px;margin:0 auto;
+}
+
+/* ── Buttons ── */
+.btn{
+  display:inline-flex;align-items:center;gap:8px;
+  border-radius:999px;padding:12px 20px;
+  font:700 .76rem/1 var(--mono);
+  letter-spacing:.08em;text-transform:uppercase;
+  border:1px solid rgba(var(--accent),.30);
+  background:rgba(var(--accent),.11);color:var(--text);
+  cursor:pointer;transition:all .3s ease;
+}
+.btn:hover{background:rgba(var(--accent),.2);border-color:rgba(var(--accent),.5);transform:translateY(-1px)}
+.btn:active{transform:translateY(0)}
+.btn.secondary{background:rgba(255,255,255,.035);border-color:var(--line);color:var(--muted)}
+.btn.secondary:hover{border-color:rgba(var(--accent),.3);color:var(--text);background:rgba(var(--accent),.06)}
+.btn.danger{border-color:rgba(255,71,87,.3);background:rgba(255,71,87,.08);color:var(--danger)}
+.btn.danger:hover{background:rgba(255,71,87,.15);border-color:rgba(255,71,87,.5)}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}
+
+/* ── Card ── */
+.card{
+  border:1px solid var(--line);border-radius:var(--radius);
+  background:linear-gradient(145deg,var(--panel),var(--panel-2));
+  backdrop-filter:blur(18px);
+  padding:28px 24px;
+  margin-bottom:16px;
+}
+.card h2{font-size:1.05rem;letter-spacing:-.02em;margin-bottom:16px}
+
+/* ── Ethics card ── */
+.ethics-card{
+  border-color:rgba(255,71,87,.18);
+  background:linear-gradient(145deg,rgba(255,71,87,.04),rgba(255,71,87,.01));
+}
+.ethics-card p{font-size:.88rem;color:var(--muted);line-height:1.7}
+.ethics-card strong{color:var(--danger);font-weight:600}
+
+/* ── Info card ── */
+.info-card{
+  border-color:rgba(var(--accent),.25);
+  background:linear-gradient(145deg,rgba(var(--accent),.06),rgba(var(--accent),.02));
+}
+.info-card p{font-size:.88rem;color:var(--muted);line-height:1.7}
+.info-card strong{color:rgba(var(--accent),1);font-weight:600}
+
+/* ── Form ── */
+.form-group{margin-bottom:18px}
+.form-group:last-child{margin-bottom:0}
+.form-label{
+  display:block;
+  font:600 .72rem/1 var(--mono);
+  letter-spacing:.08em;text-transform:uppercase;
+  color:var(--muted);margin-bottom:8px;
+}
+.form-input,.form-select{
+  width:100%;
+  background:rgba(255,255,255,.04);
+  border:1px solid var(--line);
+  border-radius:var(--radius-sm);
+  padding:13px 16px;
+  font-size:.92rem;
+  color:var(--text);
+  outline:none;
+  transition:border-color .2s;
+  font-family:inherit;
+}
+.form-input:focus,.form-select:focus{border-color:rgba(var(--accent),.5)}
+.form-input::placeholder{color:var(--faint)}
+.form-input.mono{font-family:var(--mono);letter-spacing:.03em}
+.form-select{
+  appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='rgba(255,255,255,0.38)' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;
+  background-position:right 14px center;
+  padding-right:40px;
+  cursor:pointer;
+}
+.light-mode .form-select{
+  background-image:url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='rgba(0,0,0,0.35)' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+.form-select option{background:#1a1a2e;color:#eee}
+.light-mode .form-select option{background:#fff;color:#222}
+
+/* ── Option pills ── */
+.pill-group{display:flex;flex-wrap:wrap;gap:8px}
+.pill{
+  font:600 .72rem/1 var(--mono);
+  letter-spacing:.06em;text-transform:uppercase;
+  padding:10px 14px;border-radius:999px;
+  border:1px solid var(--line);
+  background:rgba(255,255,255,.035);
+  color:var(--faint);cursor:pointer;
+  transition:all .2s;user-select:none;
+}
+.pill:hover{border-color:rgba(var(--accent),.2);color:var(--muted);background:rgba(var(--accent),.03)}
+.pill.active{
+  border-color:rgba(var(--accent),.35);
+  background:rgba(var(--accent),.08);
+  color:var(--text);
+}
+
+/* ── Generate button ── */
+.generate-btn{
+  width:100%;justify-content:center;
+  padding:16px 24px;font-size:.82rem;
+  margin-top:4px;
+}
+
+/* ── Result panel ── */
+.result-panel{animation:fadeInUp .4s ease forwards}
+@keyframes fadeInUp{
+  from{opacity:0;transform:translateY(12px)}
+  to{opacity:1;transform:translateY(0)}
+}
+.result-header{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:18px;flex-wrap:wrap;gap:8px;
+}
+.result-meta{
+  display:flex;align-items:center;gap:10px;
+  font:500 .68rem/1 var(--mono);
+  color:var(--faint);letter-spacing:.04em;
+}
+.result-badge{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:5px 10px;border-radius:999px;
+  font:600 .62rem/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;
+  border:1px solid rgba(var(--accent),.2);
+  background:rgba(var(--accent),.06);
+  color:rgba(var(--accent),.9);
+}
+
+/* ── Card visual ── */
+.card-visual{
+  position:relative;
+  border-radius:var(--radius-sm);
+  padding:24px 22px;
+  margin-bottom:14px;
+  overflow:hidden;
+  border:1px solid rgba(var(--accent),.2);
+  background:linear-gradient(135deg,rgba(var(--accent),.14),rgba(var(--accent2),.08));
+}
+.card-visual::before{
+  content:"";position:absolute;top:-30%;right:-20%;
+  width:200px;height:200px;border-radius:50%;
+  background:radial-gradient(circle,rgba(255,255,255,.06),transparent 70%);
+  pointer-events:none;
+}
+.card-visual::after{
+  content:"";position:absolute;bottom:-40%;left:-15%;
+  width:260px;height:260px;border-radius:50%;
+  background:radial-gradient(circle,rgba(var(--accent2),.08),transparent 70%);
+  pointer-events:none;
+}
+.card-network-label{
+  font:600 .68rem/1 var(--mono);
+  letter-spacing:.08em;text-transform:uppercase;
+  color:rgba(var(--accent),.85);
+  margin-bottom:14px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.card-number{
+  font:500 1.28rem/1.3 var(--mono);
+  letter-spacing:.08em;
+  color:var(--text);
+  margin-bottom:16px;
+  position:relative;z-index:1;
+}
+.card-bottom-row{
+  display:flex;justify-content:space-between;align-items:flex-end;
+  position:relative;z-index:1;
+}
+.card-detail{
+  display:flex;flex-direction:column;gap:3px;
+}
+.card-detail-label{
+  font:600 .56rem/1 var(--mono);
+  letter-spacing:.08em;text-transform:uppercase;
+  color:rgba(var(--accent),.6);
+}
+.card-detail-value{
+  font:500 .88rem/1 var(--mono);
+  letter-spacing:.04em;
+  color:var(--text);
+}
+
+/* ── Card result item ── */
+.card-result-item{
+  margin-bottom:14px;
+  padding-bottom:14px;
+  border-bottom:1px solid var(--line);
+}
+.card-result-item:last-child{margin-bottom:0;padding-bottom:0;border-bottom:none}
+
+/* ── Bulk results ── */
+.bulk-grid{
+  display:grid;grid-template-columns:1fr;gap:12px;
+  margin-top:4px;
+}
+.bulk-item{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:12px 16px;border-radius:var(--radius-sm);
+  border:1px solid var(--line);
+  background:rgba(255,255,255,.02);
+  transition:border-color .2s;
+  flex-wrap:wrap;
+}
+.bulk-item:hover{border-color:rgba(var(--accent),.2)}
+.bulk-card-info{
+  display:flex;flex-direction:column;gap:3px;min-width:0;
+}
+.bulk-card-number{
+  font:500 .88rem/1 var(--mono);
+  letter-spacing:.04em;color:var(--text);
+  word-break:break-all;
+}
+.bulk-card-meta{
+  font:500 .66rem/1 var(--mono);
+  letter-spacing:.04em;color:var(--faint);
+}
+.bulk-badge{
+  display:inline-flex;align-items:center;
+  padding:4px 8px;border-radius:999px;
+  font:600 .58rem/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;
+  border:1px solid rgba(var(--accent),.15);
+  background:rgba(var(--accent),.04);
+  color:rgba(var(--accent),.7);flex-shrink:0;
+}
+.bulk-actions{
+  display:flex;gap:6px;flex-shrink:0;
+}
+.bulk-actions .btn{padding:8px 12px;font-size:.62rem}
+
+/* ── Result actions ── */
+.result-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px}
+
+/* ── Validator ── */
+.validator-result{
+  margin-top:14px;padding:14px 18px;
+  border-radius:var(--radius-sm);
+  border:1px solid var(--line);
+  font-size:.88rem;line-height:1.6;
+  color:var(--muted);
+}
+.validator-result.valid{
+  border-color:rgba(46,213,115,.25);
+  background:rgba(46,213,115,.04);
+  color:var(--ok);
+}
+.validator-result.invalid{
+  border-color:rgba(255,71,87,.25);
+  background:rgba(255,71,87,.04);
+  color:var(--danger);
+}
+.validator-result.neutral{
+  background:rgba(255,255,255,.02);
+}
+
+/* ── Collapse / How It Works ── */
+.collapse-toggle{
+  display:flex;align-items:center;justify-content:space-between;
+  cursor:pointer;user-select:none;width:100%;
+  background:none;border:none;color:var(--text);
+  font-size:1.05rem;font-weight:600;letter-spacing:-.02em;
+  padding:0;margin-bottom:0;
+}
+.collapse-toggle svg{
+  width:18px;height:18px;color:var(--faint);
+  transition:transform .3s;
+}
+.collapse-toggle.open svg{transform:rotate(180deg)}
+.collapse-body{
+  max-height:0;overflow:hidden;
+  transition:max-height .4s ease;
+}
+.collapse-body.open{max-height:1200px}
+.collapse-body-inner{padding-top:16px}
+.step-list{list-style:none;padding:0}
+.step-list li{
+  display:flex;gap:14px;margin-bottom:14px;
+  font-size:.88rem;color:var(--muted);line-height:1.65;
+}
+.step-num{
+  flex-shrink:0;width:28px;height:28px;
+  border-radius:50%;border:1px solid rgba(var(--accent),.25);
+  background:rgba(var(--accent),.06);
+  color:rgba(var(--accent),1);
+  font:700 .72rem/28px var(--mono);
+  text-align:center;letter-spacing:0;
+}
+
+/* ── Rules list ── */
+.rules-list{list-style:none;padding:0}
+.rules-list li{
+  display:flex;gap:12px;margin-bottom:10px;
+  font-size:.86rem;color:var(--muted);line-height:1.6;
+}
+.rules-list li::before{
+  content:"";flex-shrink:0;width:8px;height:8px;
+  border-radius:50%;margin-top:7px;
+  border:1.5px solid rgba(var(--accent),.5);
+  background:rgba(var(--accent),.1);
+}
+
+/* ── Integration note ── */
+.integration-card{
+  border-color:rgba(var(--accent),.18);
+  background:linear-gradient(145deg,rgba(var(--accent),.04),rgba(var(--accent),.01));
+}
+.integration-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px}
+@media(max-width:480px){.integration-grid{grid-template-columns:1fr}}
+.integration-item{
+  padding:12px 14px;border-radius:var(--radius-sm);
+  border:1px solid var(--line);
+}
+.integration-item strong{
+  display:block;font-size:.78rem;color:rgba(var(--accent),.9);
+  font-weight:600;letter-spacing:.04em;margin-bottom:4px;
+}
+.integration-item span{font-size:.82rem;color:var(--muted);line-height:1.55}
+
+/* ── Toast ── */
+.toast{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);
+  padding:14px 22px;border-radius:999px;
+  font:600 .76rem/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;
+  z-index:100;opacity:0;
+  transition:all .35s cubic-bezier(.4,0,.2,1);
+  pointer-events:none;
+  backdrop-filter:blur(18px);
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.success{background:rgba(46,213,115,.15);color:var(--ok);border:1px solid rgba(46,213,115,.3)}
+.toast.error{background:rgba(255,71,87,.15);color:var(--danger);border:1px solid rgba(255,71,87,.3)}
+.toast.info{background:rgba(var(--accent),.12);color:rgba(var(--accent),1);border:1px solid rgba(var(--accent),.3)}
+
+/* ── Footer ── */
+.footer{
+  text-align:center;padding:48px 24px 36px;
+  font-size:.82rem;color:var(--faint);
+  border-top:1px solid var(--line);margin-top:48px;
+}
+.footer span{color:rgba(var(--accent),.7)}
+
+/* ── Utility ── */
+.hidden{display:none!important}
+.fade-in{animation:fadeIn .4s ease forwards;opacity:0}
+@keyframes fadeIn{to{opacity:1}}
+
+/* ── Responsive ── */
+@media(max-width:768px){
+  .hero h1{font-size:clamp(1.8rem,7vw,2.8rem)}
+  .card{padding:22px 18px}
+  .card-visual{padding:18px 16px}
+  .card-number{font-size:1.08rem}
+}
+@media(max-width:480px){
+  .topbar{flex-wrap:wrap;padding:14px 16px}
+  .brand img{width:40px!important;height:40px!important}
+  .brand span{display:none}
+  .nav a,.theme-toggle{font-size:.65rem;padding:7px 10px}
+  .pill{font-size:.66rem;padding:8px 11px}
+  .result-actions{flex-direction:column}
+  .result-actions .btn{justify-content:center}
+  .integration-grid{grid-template-columns:1fr}
+  .bulk-item{flex-direction:column;align-items:flex-start}
+  .bulk-actions{width:100%;justify-content:flex-end}
+}
+</style>
+</head>
+<body>
+<div class="site-shell">
+
+  <!-- ═══ Topbar ═══ -->
+  <header class="topbar">
+    <a href="../index.html" class="brand">
+      <img src="../assets/images/goanon-logo.png" alt="GoAnon" width="52" height="52">
+      <span>GoAnon</span>
+    </a>
+    <nav class="nav">
+      <a href="../tools/index.html">Tools</a>
+      <a href="../products/browser.html">Products</a>
+      <button class="theme-toggle" onclick="toggleGoAnonTheme()" aria-label="Toggle theme">Theme</button>
+    </nav>
+  </header>
+
+  <!-- ═══ Toast ═══ -->
+  <div class="toast" id="toast"></div>
+
+  <!-- ═══ Main Content ═══ -->
+  <main class="container">
+
+    <!-- Hero -->
+    <section class="hero">
+      <div class="eyebrow">Test card generator</div>
+      <h1>Cardana</h1>
+      <p>Generate fake, Luhn-valid payment card numbers for development, checkout demos, and form validation. These numbers are not real, not chargeable, and must never be used for actual payments.</p>
+    </section>
+
+    <!-- Safety note -->
+    <div class="card ethics-card" style="text-align:center">
+      <p><strong>Cardana generates fake payment card data for development, demos, and form validation only.</strong> These numbers are not connected to banks, cannot be charged, and must not be used to bypass payment systems, subscriptions, or identity checks.</p>
+    </div>
+
+    <!-- ═══ Generator Panel ═══ -->
+    <div class="card">
+
+      <!-- Card network -->
+      <div class="form-group">
+        <label class="form-label">Card Network</label>
+        <div class="pill-group" id="networkGroup">
+          <span class="pill active" data-network="visa">Visa</span>
+          <span class="pill" data-network="mastercard">Mastercard</span>
+          <span class="pill" data-network="amex">Amex</span>
+          <span class="pill" data-network="random">Random</span>
+        </div>
+      </div>
+
+      <!-- Quantity -->
+      <div class="form-group">
+        <label class="form-label">Quantity</label>
+        <div class="pill-group" id="quantityGroup">
+          <span class="pill active" data-qty="1">1</span>
+          <span class="pill" data-qty="5">5</span>
+          <span class="pill" data-qty="10">10</span>
+          <span class="pill" data-qty="25">25</span>
+        </div>
+      </div>
+
+      <!-- Generate -->
+      <button class="btn generate-btn" id="generateBtn" onclick="handleGenerate()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="M12 8v8"/><path d="M8 12h8"/></svg>
+        Generate Test Card
+      </button>
+    </div>
+
+    <!-- ═══ Result Panel ═══ -->
+    <div class="card hidden" id="resultPanel">
+      <div class="result-header">
+        <h2>Generated Test Cards</h2>
+        <div class="result-meta">
+          <span class="result-badge" id="resultNetwork"></span>
+          <span class="result-badge" id="resultLuhn">Luhn valid</span>
+        </div>
+      </div>
+
+      <!-- Single card visual (shown when qty=1) -->
+      <div id="singleCardView">
+        <div class="card-visual" id="cardVisual">
+          <div class="card-network-label">
+            <span id="cardNetworkLabel">VISA</span>
+            <span style="font-size:.6rem;color:var(--faint)">TEST ONLY</span>
+          </div>
+          <div class="card-number" id="cardNumber"></div>
+          <div class="card-bottom-row">
+            <div class="card-detail">
+              <span class="card-detail-label">Cardholder</span>
+              <span class="card-detail-value" id="cardHolder"></span>
+            </div>
+            <div class="card-detail">
+              <span class="card-detail-label">Expires</span>
+              <span class="card-detail-value" id="cardExpiry"></span>
+            </div>
+            <div class="card-detail">
+              <span class="card-detail-label">CVC</span>
+              <span class="card-detail-value" id="cardCVC"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bulk list (shown when qty>1) -->
+      <div id="bulkCardView" class="hidden">
+        <div class="bulk-grid" id="bulkGrid"></div>
+      </div>
+
+      <!-- Actions -->
+      <div class="result-actions">
+        <button class="btn secondary" onclick="handleCopyFull()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Copy Full Card
+        </button>
+        <button class="btn secondary" onclick="handleCopyNumber()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Copy Number
+        </button>
+        <button class="btn secondary" onclick="handleCopyBulk()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Copy All as JSON
+        </button>
+        <button class="btn danger" onclick="handleClear()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+          Clear
+        </button>
+      </div>
+    </div>
+
+    <!-- ═══ Card Validator ═══ -->
+    <div class="card">
+      <h2>Validate a Card Number</h2>
+      <p style="font-size:.86rem;color:var(--muted);line-height:1.6;margin-bottom:14px">Paste any card number to check if it passes the Luhn algorithm. This does not verify that the card is real or connected to a bank.</p>
+      <div class="form-group">
+        <input type="text" class="form-input mono" id="validatorInput"
+               placeholder="e.g. 4111 1111 1111 1111"
+               autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+               oninput="handleValidate()">
+      </div>
+      <div class="validator-result hidden" id="validatorResult"></div>
+    </div>
+
+    <!-- ═══ What Cardana Does NOT Do ═══ -->
+    <div class="card info-card" style="text-align:center">
+      <p><strong>Cardana is local-only.</strong> No network calls, no storage, no analytics, no data leaves your browser. Generated numbers follow the Luhn algorithm and correct BIN prefixes but are not connected to any financial institution. They are not real payment cards and should only be used in sandbox, demo, or validation contexts.</p>
+    </div>
+
+    <!-- ═══ Good Test Card Rules ═══ -->
+    <div class="card">
+      <h2>Good Test Card Practices</h2>
+      <ul class="rules-list">
+        <li>Use test card numbers only in sandbox or test environments — never in production payment flows.</li>
+        <li>Never attempt to use generated numbers for real purchases, subscriptions, or identity verification.</li>
+        <li>Pair test cards with clearly fake personal data so they cannot be mistaken for real accounts.</li>
+        <li>Use your payment provider's official test card numbers for integration testing when available.</li>
+        <li>Cardana numbers are for UI mockups, form validation, and demo purposes only.</li>
+        <li>Do not store generated card data in production databases or share them as if they were real.</li>
+        <li>Always label test cards clearly in any documentation, screenshots, or demo recordings.</li>
+      </ul>
+    </div>
+
+    <!-- ═══ How It Works ═══ -->
+    <div class="card">
+      <button class="collapse-toggle" id="howToggle" onclick="toggleHow()">
+        How it works
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="collapse-body" id="howBody">
+        <div class="collapse-body-inner">
+          <ol class="step-list">
+            <li>
+              <span class="step-num">1</span>
+              <span>You choose a card network (Visa, Mastercard, Amex, or Random) and how many cards to generate. Cardana uses these preferences to shape the output.</span>
+            </li>
+            <li>
+              <span class="step-num">2</span>
+              <span>A cryptographically secure random number generator (<strong>crypto.getRandomValues</strong>) creates the card digits. The first digits (BIN/IIN prefix) match the selected network: Visa starts with 4, Mastercard with 51-55, Amex with 34 or 37. No Math.random() is used anywhere.</span>
+            </li>
+            <li>
+              <span class="step-num">3</span>
+              <span>Cardana applies the <strong>Luhn algorithm</strong> (mod 10) to compute a valid check digit, ensuring every generated number passes standard Luhn validation — the same check used by most payment forms.</span>
+            </li>
+            <li>
+              <span class="step-num">4</span>
+              <span>Expiry dates are generated within a realistic future range (1-5 years from now). CVC/CVV is a random 3-digit code (4 digits for Amex). Cardholder names are clearly fake placeholders.</span>
+            </li>
+            <li>
+              <span class="step-num">5</span>
+              <span>Nothing leaves your browser. No server, no sync, no storage, no analytics. Your generated cards exist only in the current session unless you copy or export them.</span>
+            </li>
+          </ol>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ Integration Note ═══ -->
+    <div class="card integration-card">
+      <h2>Use with GoAnon Tools</h2>
+      <div class="integration-grid">
+        <div class="integration-item">
+          <strong>Maskana</strong>
+          <span>Generate a compartment identity to pair with a test card for form-fill testing.</span>
+        </div>
+        <div class="integration-item">
+          <strong>Keyana</strong>
+          <span>Derive a strong password for test accounts that use these card numbers.</span>
+        </div>
+        <div class="integration-item">
+          <strong>Vaultana</strong>
+          <span>Store non-real test card profiles securely for reuse across development sessions.</span>
+        </div>
+        <div class="integration-item">
+          <strong>Session Burner</strong>
+          <span>Burn session data after testing checkout flows to leave no traces.</span>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ═══ Footer ═══ -->
+  <footer class="footer">
+    <span>GoAnon</span> &middot; Private tools for a public internet
+  </footer>
+
+</div><!-- /site-shell -->
+
+<!-- ═══════════════════════════════════════════
+     CARDANA — TEST CARD GENERATOR ENGINE
+     ──────────────────────────────────────────
+     Design principles:
+     1. ZERO network calls — no analytics, no sync, no phoning home
+     2. crypto.getRandomValues only — no Math.random()
+     3. Luhn-valid number generation with correct BIN prefixes
+     4. Numbers are NOT real and CANNOT be charged
+     5. No storage by default — session only
+     6. Expiry, CVC, and cardholder are all placeholders
+     ═══════════════════════════════════════════ -->
+<script>
+(function(){
+  "use strict";
+
+  /* ── Policy assertion ── */
+  var POLICY = Object.freeze({
+    NETWORK_CALLS: false,
+    ANALYTICS: false,
+    DATA_COLLECTION: false,
+    VERSION: "1.0.0"
+  });
+
+  /* ═══════════════════════════════════════════
+     CRYPTO-SECURE RANDOM UTILITIES
+     ═══════════════════════════════════════════ */
+  function secureRandom(max) {
+    /* Returns integer in [0, max) using rejection sampling */
+    if (max <= 0) return 0;
+    var bytesNeeded = Math.ceil(Math.log(max) / Math.log(256));
+    if (bytesNeeded < 1) bytesNeeded = 1;
+    var limit = Math.pow(256, bytesNeeded);
+    var threshold = limit - (limit % max);
+    var arr = new Uint8Array(bytesNeeded);
+    while (true) {
+      crypto.getRandomValues(arr);
+      var val = 0;
+      for (var i = 0; i < bytesNeeded; i++) {
+        val = val * 256 + arr[i];
+      }
+      if (val < threshold) return val % max;
+    }
+  }
+
+  function pick(arr) {
+    return arr[secureRandom(arr.length)];
+  }
+
+  function secureDigits(count) {
+    /* Generate a random digit string of given length (first digit 1-9, rest 0-9) */
+    var s = String(secureRandom(9) + 1);
+    for (var i = 1; i < count; i++) {
+      s += String(secureRandom(10));
+    }
+    return s;
+  }
+
+  /* ═══════════════════════════════════════════
+     CARD NETWORK DEFINITIONS
+     ═══════════════════════════════════════════ */
+
+  var NETWORKS = {
+    visa: {
+      name: "Visa",
+      prefixes: ["4"],
+      lengths: [16],
+      cvcLen: 3
+    },
+    mastercard: {
+      name: "Mastercard",
+      prefixes: ["51","52","53","54","55"],
+      lengths: [16],
+      cvcLen: 3
+    },
+    amex: {
+      name: "American Express",
+      prefixes: ["34","37"],
+      lengths: [15],
+      cvcLen: 4
+    }
+  };
+
+  var NETWORK_KEYS = Object.keys(NETWORKS);
+
+  /* ═══════════════════════════════════════════
+     LUHN ALGORITHM
+     ═══════════════════════════════════════════ */
+
+  function luhnCheckDigit(digits) {
+    /* Compute the Luhn check digit for a given digit string (without check digit) */
+    var sum = 0;
+    var alternate = true;
+    for (var i = digits.length - 1; i >= 0; i--) {
+      var d = parseInt(digits[i], 10);
+      if (alternate) {
+        d *= 2;
+        if (d > 9) d -= 9;
+      }
+      sum += d;
+      alternate = !alternate;
+    }
+    return (10 - (sum % 10)) % 10;
+  }
+
+  function luhnValidate(numberStr) {
+    /* Validate a full card number against the Luhn algorithm */
+    var digits = numberStr.replace(/\D/g, "");
+    if (digits.length < 2) return false;
+    var checkDigit = parseInt(digits[digits.length - 1], 10);
+    var computed = luhnCheckDigit(digits.slice(0, -1));
+    return checkDigit === computed;
+  }
+
+  /* ═══════════════════════════════════════════
+     CARD NUMBER GENERATION
+     ═══════════════════════════════════════════ */
+
+  function generateCardNumber(networkKey) {
+    var net = NETWORKS[networkKey];
+    var prefix = pick(net.prefixes);
+    var totalLen = pick(net.lengths);
+    var remaining = totalLen - prefix.length - 1; /* -1 for check digit */
+    var body = prefix;
+    for (var i = 0; i < remaining; i++) {
+      body += String(secureRandom(10));
+    }
+    var checkDigit = luhnCheckDigit(body);
+    return body + String(checkDigit);
+  }
+
+  /* ═══════════════════════════════════════════
+     EXPIRY DATE GENERATION
+     ═══════════════════════════════════════════ */
+
+  function generateExpiry() {
+    var now = new Date();
+    var yearsAhead = secureRandom(5) + 1; /* 1-5 years ahead */
+    var month = secureRandom(12) + 1;
+    var year = now.getFullYear() + yearsAhead;
+    return String(month).padStart(2, "0") + "/" + String(year).slice(-2);
+  }
+
+  /* ═══════════════════════════════════════════
+     CVC GENERATION
+     ═══════════════════════════════════════════ */
+
+  function generateCVC(length) {
+    var s = "";
+    for (var i = 0; i < length; i++) {
+      if (i === 0) {
+        s += String(secureRandom(9) + 1);
+      } else {
+        s += String(secureRandom(10));
+      }
+    }
+    return s;
+  }
+
+  /* ═══════════════════════════════════════════
+     CARDHOLDER NAME GENERATION
+     ═══════════════════════════════════════════ */
+
+  var FIRST_NAMES = [
+    "Test","Sandbox","Demo","Sample","Mock","Dev","QA",
+    "Staging","Check","Validate","Verify","Auto","CI"
+  ];
+
+  var LAST_NAMES = [
+    "User","Developer","Account","Card","Holder","Integration",
+    "Payment","Checkout","Form","Runner","Suite","Engine"
+  ];
+
+  function generateCardholder() {
+    return pick(FIRST_NAMES) + " " + pick(LAST_NAMES);
+  }
+
+  /* ═══════════════════════════════════════════
+     FULL CARD GENERATION
+     ═══════════════════════════════════════════ */
+
+  var generatedCards = [];
+
+  function generateCard(networkKey) {
+    if (networkKey === "random") {
+      networkKey = pick(NETWORK_KEYS);
+    }
+    var net = NETWORKS[networkKey];
+    return {
+      network: networkKey,
+      networkName: net.name,
+      number: generateCardNumber(networkKey),
+      expiry: generateExpiry(),
+      cvc: generateCVC(net.cvcLen),
+      holder: generateCardholder(),
+      cvcLen: net.cvcLen
+    };
+  }
+
+  /* ═══════════════════════════════════════════
+     FORMATTING
+     ═══════════════════════════════════════════ */
+
+  function formatCardNumber(number, network) {
+    /* Format with spaces: Visa/MC = groups of 4, Amex = 4-6-5 */
+    if (network === "amex" && number.length === 15) {
+      return number.slice(0, 4) + " " + number.slice(4, 10) + " " + number.slice(10);
+    }
+    /* Default: groups of 4 */
+    return number.replace(/(.{4})/g, "$1 ").trim();
+  }
+
+  /* ═══════════════════════════════════════════
+     PILL SELECTION
+     ═══════════════════════════════════════════ */
+
+  function getActivePill(groupId, dataAttr) {
+    var group = document.getElementById(groupId);
+    var active = group.querySelector(".pill.active");
+    return active ? active.getAttribute("data-" + dataAttr) : null;
+  }
+
+  /* Initialize pill click handlers */
+  function initPills(groupId) {
+    var group = document.getElementById(groupId);
+    var pills = group.querySelectorAll(".pill");
+    pills.forEach(function(pill) {
+      pill.addEventListener("click", function() {
+        pills.forEach(function(p) { p.classList.remove("active"); });
+        pill.classList.add("active");
+      });
+    });
+  }
+
+  initPills("networkGroup");
+  initPills("quantityGroup");
+
+  /* ═══════════════════════════════════════════
+     GENERATE HANDLER
+     ═══════════════════════════════════════════ */
+
+  window.handleGenerate = function() {
+    var networkKey = getActivePill("networkGroup", "network") || "visa";
+    var qty = parseInt(getActivePill("quantityGroup", "qty") || "1", 10);
+
+    generatedCards = [];
+    for (var i = 0; i < qty; i++) {
+      generatedCards.push(generateCard(networkKey));
+    }
+
+    renderResults();
+    showToast(qty + " test card" + (qty > 1 ? "s" : "") + " generated", "success");
+  };
+
+  /* ═══════════════════════════════════════════
+     RENDER RESULTS
+     ═══════════════════════════════════════════ */
+
+  function renderResults() {
+    var panel = document.getElementById("resultPanel");
+    panel.classList.remove("hidden");
+    panel.classList.add("result-panel");
+
+    var networkKey = generatedCards[0].network;
+    var net = NETWORKS[networkKey];
+
+    /* Update badges */
+    var isRandom = getActivePill("networkGroup", "network") === "random";
+    document.getElementById("resultNetwork").textContent = isRandom ? "Mixed" : net.name;
+
+    if (generatedCards.length === 1) {
+      /* Single card view */
+      document.getElementById("singleCardView").classList.remove("hidden");
+      document.getElementById("bulkCardView").classList.add("hidden");
+
+      var card = generatedCards[0];
+      var cardNet = NETWORKS[card.network];
+      document.getElementById("cardNetworkLabel").textContent = card.networkName.toUpperCase();
+      document.getElementById("cardNumber").textContent = formatCardNumber(card.number, card.network);
+      document.getElementById("cardHolder").textContent = card.holder;
+      document.getElementById("cardExpiry").textContent = card.expiry;
+      document.getElementById("cardCVC").textContent = card.cvc;
+    } else {
+      /* Bulk view */
+      document.getElementById("singleCardView").classList.add("hidden");
+      document.getElementById("bulkCardView").classList.remove("hidden");
+
+      var bulkGrid = document.getElementById("bulkGrid");
+      var html = "";
+      for (var i = 0; i < generatedCards.length; i++) {
+        var c = generatedCards[i];
+        html += '<div class="bulk-item">';
+        html += '  <div class="bulk-card-info">';
+        html += '    <span class="bulk-card-number">' + formatCardNumber(c.number, c.network) + '</span>';
+        html += '    <span class="bulk-card-meta">' + c.holder + ' &middot; ' + c.expiry + ' &middot; CVC ' + c.cvc + '</span>';
+        html += '  </div>';
+        html += '  <span class="bulk-badge">' + c.networkName + '</span>';
+        html += '  <div class="bulk-actions">';
+        html += '    <button class="btn secondary" onclick="handleCopySingle(' + i + ')" title="Copy this card">Copy</button>';
+        html += '  </div>';
+        html += '</div>';
+      }
+      bulkGrid.innerHTML = html;
+    }
+  }
+
+  /* ═══════════════════════════════════════════
+     COPY HANDLERS
+     ═══════════════════════════════════════════ */
+
+  function copyToClipboard(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function() {
+        showToast("Copied to clipboard", "success");
+      }).catch(function() {
+        fallbackCopy(text);
+      });
+    } else {
+      fallbackCopy(text);
+    }
+  }
+
+  function fallbackCopy(text) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.style.position = "fixed";
+    ta.style.left = "-9999px";
+    document.body.appendChild(ta);
+    ta.select();
+    try {
+      document.execCommand("copy");
+      showToast("Copied to clipboard", "success");
+    } catch(e) {
+      showToast("Copy failed — please select and copy manually", "error");
+    }
+    document.body.removeChild(ta);
+  }
+
+  window.handleCopyFull = function() {
+    if (generatedCards.length === 0) return;
+    var card = generatedCards[0];
+    var text = "Number: " + formatCardNumber(card.number, card.network) + "\n" +
+               "Holder: " + card.holder + "\n" +
+               "Expiry: " + card.expiry + "\n" +
+               "CVC: " + card.cvc + "\n" +
+               "Network: " + card.networkName;
+    copyToClipboard(text);
+  };
+
+  window.handleCopyNumber = function() {
+    if (generatedCards.length === 0) return;
+    copyToClipboard(generatedCards[0].number);
+  };
+
+  window.handleCopyBulk = function() {
+    if (generatedCards.length === 0) return;
+    var data = generatedCards.map(function(c) {
+      return {
+        number: c.number,
+        holder: c.holder,
+        expiry: c.expiry,
+        cvc: c.cvc,
+        network: c.networkName
+      };
+    });
+    copyToClipboard(JSON.stringify(data, null, 2));
+  };
+
+  window.handleCopySingle = function(index) {
+    var card = generatedCards[index];
+    var text = "Number: " + formatCardNumber(card.number, card.network) + "\n" +
+               "Holder: " + card.holder + "\n" +
+               "Expiry: " + card.expiry + "\n" +
+               "CVC: " + card.cvc + "\n" +
+               "Network: " + card.networkName;
+    copyToClipboard(text);
+  };
+
+  /* ═══════════════════════════════════════════
+     CLEAR HANDLER
+     ═══════════════════════════════════════════ */
+
+  window.handleClear = function() {
+    generatedCards = [];
+    document.getElementById("resultPanel").classList.add("hidden");
+    showToast("Cleared", "info");
+  };
+
+  /* ═══════════════════════════════════════════
+     CARD VALIDATOR
+     ═══════════════════════════════════════════ */
+
+  var validateTimer = null;
+
+  window.handleValidate = function() {
+    clearTimeout(validateTimer);
+    var resultEl = document.getElementById("validatorResult");
+
+    var raw = document.getElementById("validatorInput").value.replace(/\D/g, "");
+
+    if (raw.length < 2) {
+      resultEl.classList.add("hidden");
+      return;
+    }
+
+    validateTimer = setTimeout(function() {
+      var input = document.getElementById("validatorInput").value;
+      var digits = input.replace(/\D/g, "");
+
+      if (digits.length < 13) {
+        resultEl.classList.remove("hidden");
+        resultEl.className = "validator-result invalid";
+        resultEl.innerHTML = "<strong>Too short.</strong> Card numbers must be at least 13 digits. You entered " + digits.length + ".";
+        return;
+      }
+
+      if (digits.length > 19) {
+        resultEl.classList.remove("hidden");
+        resultEl.className = "validator-result invalid";
+        resultEl.innerHTML = "<strong>Too long.</strong> Card numbers are at most 19 digits. You entered " + digits.length + ".";
+        return;
+      }
+
+      var isValid = luhnValidate(digits);
+      var detectedNetwork = detectNetwork(digits);
+
+      resultEl.classList.remove("hidden");
+
+      if (isValid) {
+        resultEl.className = "validator-result valid";
+        resultEl.innerHTML = "<strong>Luhn valid.</strong> This number passes the Luhn check." +
+          (detectedNetwork ? " Detected network: <strong>" + detectedNetwork + "</strong>." : "") +
+          "<br><span style='font-size:.78rem;opacity:.7'>This does not mean the card is real or connected to a bank account.</span>";
+      } else {
+        resultEl.className = "validator-result invalid";
+        resultEl.innerHTML = "<strong>Luhn invalid.</strong> This number does not pass the Luhn check digit verification." +
+          (detectedNetwork ? " The prefix suggests " + detectedNetwork + " format." : "") +
+          "<br><span style='font-size:.78rem;opacity:.7'>Even if Luhn-valid, it does not mean the card is real or chargeable.</span>";
+      }
+    }, 300);
+  };
+
+  function detectNetwork(digits) {
+    if (digits[0] === "4") return "Visa";
+    if (digits.length >= 2) {
+      var prefix2 = digits.slice(0, 2);
+      if (["51","52","53","54","55"].indexOf(prefix2) !== -1) return "Mastercard";
+      if (["34","37"].indexOf(prefix2) !== -1) return "American Express";
+    }
+    return null;
+  }
+
+  /* ═══════════════════════════════════════════
+     HOW IT WORKS TOGGLE
+     ═══════════════════════════════════════════ */
+
+  window.toggleHow = function() {
+    var toggle = document.getElementById("howToggle");
+    var body = document.getElementById("howBody");
+    toggle.classList.toggle("open");
+    body.classList.toggle("open");
+  };
+
+  /* ═══════════════════════════════════════════
+     TOAST NOTIFICATIONS
+     ═══════════════════════════════════════════ */
+
+  var toastTimer = null;
+  function showToast(message, type) {
+    var toast = document.getElementById("toast");
+    toast.textContent = message;
+    toast.className = "toast " + type;
+    clearTimeout(toastTimer);
+    requestAnimationFrame(function() {
+      toast.classList.add("show");
+      toastTimer = setTimeout(function() { toast.classList.remove("show"); }, 2500);
+    });
+  }
+
+})();
+</script>
+<script src="../assets/js/theme.js"></script>
+</body>
+</html>
