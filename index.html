@@ -80,7 +80,9 @@
         .tool-category-line { height: 1px; flex: 1; background: linear-gradient(90deg, rgba(180, 220, 255, 0.28), transparent); }
         .light-mode .tool-category-line { background: linear-gradient(90deg, rgba(20, 20, 20, 0.16), transparent); }
         .tools-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
-        .featured-grid { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+        .tools-grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+        .featured-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        @media (max-width: 768px) { .tools-grid-3 { grid-template-columns: 1fr; } }
         .tool-card { --accent: 180, 220, 255; --accent-2: 255, 255, 255; position: relative; min-height: 254px; padding: 22px; border-radius: 24px; overflow: hidden; background: linear-gradient(145deg, rgba(255,255,255,0.070), rgba(255,255,255,0.024)); border: 1px solid rgba(var(--accent),0.13); box-shadow: 0 18px 50px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.08); backdrop-filter: blur(18px); transition: transform 0.28s ease, border-color 0.28s ease, box-shadow 0.28s ease; }
         .tool-card::before { content: ''; position: absolute; inset: -1px; background: radial-gradient(circle at 16% 12%, rgba(var(--accent), 0.18), transparent 36%), radial-gradient(circle at 88% 94%, rgba(var(--accent-2), 0.10), transparent 40%); pointer-events: none; }
         .tool-card::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: linear-gradient(90deg, transparent, rgba(var(--accent),0.65), transparent); opacity: 0.55; }
@@ -95,10 +97,11 @@
         .accent-identity { --accent: 235, 235, 235; --accent-2: 160, 220, 255; }
         .accent-security { --accent: 255, 205, 105; --accent-2: 255, 255, 255; }
         .accent-labs { --accent: 215, 150, 255; --accent-2: 110, 220, 255; }
-        .tool-card.featured { grid-column: span 3; min-height: 278px; }
-        .tool-card.hero-product { grid-column: span 6; min-height: 286px; background: linear-gradient(135deg, rgba(180, 220, 255, 0.14), rgba(255,255,255,0.035) 42%, rgba(150, 110, 255, 0.10)); }
+        .tool-card.featured { min-height: 278px; }
+        .tool-card.hero-product { grid-column: span 2; min-height: 286px; background: linear-gradient(135deg, rgba(180, 220, 255, 0.14), rgba(255,255,255,0.035) 42%, rgba(150, 110, 255, 0.10)); }
         .tool-card.compact { min-height: 226px; }
         .tool-card.labs-card { border-style: dashed; }
+        .tool-card.labs-hero { grid-column: span 2; min-height: 260px; background: linear-gradient(135deg, rgba(180, 220, 255, 0.14), rgba(255,255,255,0.035) 42%, rgba(150, 110, 255, 0.10)); } .tool-card.labs-hero .tool-name { font-size: 1.72rem; } .tool-card.labs-hero .tool-desc { font-size: 1rem; }
         .tool-top { position: relative; z-index: 2; display: flex; justify-content: space-between; gap: 14px; align-items: flex-start; margin-bottom: 17px; }
         .tool-icon { width: 44px; height: 44px; display: grid; place-items: center; border-radius: 16px; background: rgba(var(--accent), 0.10); border: 1px solid rgba(var(--accent), 0.20); font-size: 1.32rem; box-shadow: inset 0 1px 0 rgba(255,255,255,0.12), 0 0 20px rgba(var(--accent),0.08); }
         .tool-brandline { position: relative; z-index: 2; font-family: 'JetBrains Mono', monospace; font-size: 0.70rem; letter-spacing: 0.11em; text-transform: uppercase; color: rgba(var(--accent),0.86); margin: -4px 0 8px; }
@@ -118,7 +121,6 @@
         .tool-card.featured .tool-name { font-size: 1.52rem; }
         .light-mode .tool-name { color: rgba(18,18,18,0.94); }
         .tool-desc { position: relative; z-index: 2; font-size: 0.98rem; line-height: 1.64; color: rgba(255,255,255,0.68); margin-bottom: 18px; }
-        .tool-card.hero-product .tool-desc { max-width: 650px; font-size: 1.05rem; } .tool-card.labs-hero { grid-column: span 2; min-height: 260px; background: linear-gradient(135deg, rgba(180, 220, 255, 0.14), rgba(255,255,255,0.035) 42%, rgba(150, 110, 255, 0.10)); } .tool-card.labs-hero .tool-name { font-size: 1.72rem; } .tool-card.labs-hero .tool-desc { font-size: 1rem; }
         .light-mode .tool-desc { color: rgba(20,20,20,0.67); }
         .tool-features { position: relative; z-index: 2; display: flex; flex-wrap: wrap; gap: 8px; padding-bottom: 44px; }
         .tool-feature { font-family: 'JetBrains Mono', monospace; font-size: 0.70rem; color: rgba(255,255,255,0.64); border: 1px solid rgba(var(--accent),0.15); background: rgba(0,0,0,0.16); border-radius: 999px; padding: 6px 9px; }
@@ -135,7 +137,7 @@
         .ecosystem-close p { margin: 0; color: rgba(255,255,255,0.72); font-size: 1.02rem; line-height: 1.75; }
         .light-mode .ecosystem-close { border-color: rgba(0,0,0,0.07); background: rgba(255,255,255,0.62); }
         .light-mode .ecosystem-close p { color: rgba(20,20,20,0.68); }
-        @media (max-width: 768px) { .tools-grid, .featured-grid { grid-template-columns: 1fr; } .tool-card.featured, .tool-card.hero-product, .tool-card.labs-hero { grid-column: span 1; } .tool-card { min-height: auto; } .tool-card.hero-product .tool-name { font-size: 1.55rem; } .tool-card.featured .tool-name { font-size: 1.38rem; } .tool-card.labs-hero .tool-name { font-size: 1.38rem; } .tool-category h2 { font-size: 0.92rem; } .tools-subtitle { font-size: 1rem; } .tool-features { padding-bottom: 54px; } }
+        @media (max-width: 768px) { .tools-grid, .tools-grid-3, .featured-grid { grid-template-columns: 1fr; } .tool-card.featured, .tool-card.hero-product, .tool-card.labs-hero { grid-column: span 1; } .tool-card { min-height: auto; } .tool-card.hero-product .tool-name { font-size: 1.55rem; } .tool-card.featured .tool-name { font-size: 1.38rem; } .tool-card.labs-hero .tool-name { font-size: 1.38rem; } .tool-category h2 { font-size: 0.92rem; } .tools-subtitle { font-size: 1rem; } .tool-features { padding-bottom: 54px; } }
 
 
         /* Fixed GoAnon logo header */
@@ -343,8 +345,8 @@
                     </article>
                 </div>
 
-                                <div class="tool-category"><h2>Privacy Utilities</h2><div class="tool-category-line"></div></div>
-                <div class="tools-grid">
+                <div class="tool-category"><h2>Privacy Utilities</h2><div class="tool-category-line"></div></div>
+                <div class="tools-grid-3">
                     <article class="tool-card compact accent-security">
                         <div class="tool-top"><div class="tool-icon">⬡</div><span class="tool-status status-dev">Beta</span></div>
                         <div class="tool-brandline">Password vault</div>
@@ -372,7 +374,7 @@
                         <div class="tool-footer"><a class="tool-cta" href="/tools/maskana.html">Open tool</a><span class="tool-price price-free">Free</span></div>
                     </article>
 
-                    <article class="tool-card featured accent-comms">
+                    <article class="tool-card compact accent-comms">
                         <div class="tool-top"><div class="tool-icon">◈</div><span class="tool-status status-dev">Live</span></div>
                         <div class="tool-brandline">Test Card Generator</div>
                         <h3 class="tool-name">Cardana</h3>
