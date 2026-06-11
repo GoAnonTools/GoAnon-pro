@@ -1,10 +1,6 @@
-# Canonical domain
-https://www.goanon.pro/* https://goanon.pro/:splat 301
-
-# Product paths are available immediately:
-# /products/sx.html
-# /products/coder.html
-# /products/privana.html
-# /products/qryptana.html
-# /products/browser.html
-# /products/etherana.html
+/downloads/etherana-sx/windows https://github.com/GoAnonTools/Etherana-SX/releases/download/v1.12.2-desktop/Etherana-SX-windows-x64-Setup.exe 302
+/downloads/etherana-sx/windows.sha256 https://github.com/GoAnonTools/Etherana-SX/releases/download/v1.12.2-desktop/Etherana-SX-windows-x64-Setup.exe.sha256 302
+/downloads/etherana-sx/linux-appimage https://github.com/GoAnonTools/Etherana-SX/releases/download/v1.12.2-desktop/Etherana-SX-linux-x64.AppImage 302
+/downloads/etherana-sx/linux-deb https://github.com/GoAnonTools/Etherana-SX/releases/download/v1.12.2-desktop/Etherana-SX-linux-x64.deb 302
+/downloads/etherana-sx/macos-dmg https://github.com/GoAnonTools/Etherana-SX/releases/download/v1.12.2-desktop/Etherana-SX-macos-arm64.dmg 302
+/downloads/etherana-sx/macos-zip https://github.com/GoAnonTools/Etherana-SX/releases/download/v1.12.2-desktop/Etherana-SX-macos-arm64.zip 302
