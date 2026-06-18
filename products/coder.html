@@ -1,1 +1,245 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Etherana Coder — GoAnon</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="../assets/css/product.css"><style>:root{--accent:85,220,255;--accent2:150,110,255;}</style></head><body><div class="site-shell"><header class="topbar"><a class="brand" href="../index.html"><img src="../assets/images/goanon-logo.png" alt="GoAnon logo"><span>GoAnon</span></a><nav class="nav"><a href="../index.html">Ecosystem</a><a href="../tools/index.html">Tools</a><button class="theme-toggle" onclick="toggleGoAnonTheme()">Theme</button></nav></header><main class="container"><section class="hero"><div class="eyebrow">Private code editor</div><h1>Etherana Coder</h1><p>A privacy-first AI code editor based on a Void-style fork, with agents, project memory, checkpointing, universal models, and no telemetry.</p><div class="hero-actions"><a class="btn" href="../index.html">Back to GoAnon</a><a class="btn secondary" href="#details">Details</a></div></section><section class="section" id="details"><div class="grid two"><article class="card"><span class="status">Available</span><h3 style="margin-top:18px;">Current status</h3><p>This page is a ready placeholder so the product can have a home while development, downloads, pricing, screenshots, or live functionality are added.</p><span class="tag price">Freemium</span></article><article class="card"><h3>What it should communicate</h3><p>Etherana Coder gives GoAnon a serious developer product: Cursor-like power, open/private routing, BYO models, and no hidden telemetry.</p></article></div></section><section class="section"><h2>Core direction</h2><p class="section-sub">Keep the promise clear, practical, and believable. No surveillance economy. No fake magic. Strong privacy by design.</p><article class="card"><ul class="list"><li>Autonomous agents for complex multi-file codebase tasks</li><li>Persistent project memory for architecture-aware sessions</li><li>Checkpointing with diffs before changes are applied</li><li>Universal model support: provider APIs or local models</li></ul></article></section><section class="section"><div class="notice"><strong>Next content to add:</strong> screenshots, real availability, download/waitlist CTA, pricing, technical privacy notes, FAQ, and a short changelog.</div></section></main><footer class="footer"><div class="container"><a href="../index.html">GoAnon</a> · Private tools for a public internet.</div></footer></div><script src="../assets/js/theme.js"></script></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Etherana Coder — Privacy-First AI Code Editor | GoAnon</title>
+  <meta name="description" content="Download Etherana Coder, a privacy-first AI code editor with agents, project memory, checkpointing, universal model support, and manual-download-only releases.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/product.css">
+  <style>
+    :root{--accent:85,220,255;--accent2:150,110,255;}
+    .hero-download-note{margin-top:18px;color:var(--faint);font-size:.92rem;line-height:1.7;max-width:780px}
+    .download-card .btn{margin-top:18px;margin-right:8px}
+    .download-card .btn.secondary{margin-top:10px}
+    .mini-meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+    .install-code{display:block;margin-top:14px;padding:14px;border:1px solid var(--line);border-radius:16px;background:rgba(0,0,0,.22);color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:.82rem;line-height:1.6;overflow-x:auto}
+    .release-link{word-break:break-word}
+    .disabled-btn{opacity:.56;cursor:not-allowed;pointer-events:none}
+    .checksum{word-break:break-all}
+  </style>
+</head>
+<body>
+  <div class="site-shell">
+    <header class="topbar">
+      <a class="brand" href="../index.html">
+        <img src="../assets/images/goanon-logo.png" alt="GoAnon logo">
+        <span>GoAnon</span>
+      </a>
+      <nav class="nav">
+        <a href="../index.html">Ecosystem</a>
+        <a href="../tools/index.html">Tools</a>
+        <button class="theme-toggle" onclick="toggleGoAnonTheme()">Theme</button>
+      </nav>
+    </header>
+
+    <main class="container">
+      <section class="hero">
+        <div class="eyebrow">Privacy-first AI code editor</div>
+        <h1>Etherana Coder</h1>
+        <p>
+          A privacy-first AI code editor for serious development work — with
+          agents, project memory, checkpointing, built-in skills, universal model
+          support, and no hidden telemetry economy.
+        </p>
+
+        <div class="hero-actions">
+          <a class="btn" href="https://coder-downloads.goanon.pro/releases/0.1.0/etherana-coder-linux-x64.tar.gz">Download for Linux</a>
+          <a class="btn secondary" href="#downloads">All downloads</a>
+          <a class="btn secondary" href="https://github.com/GoAnonTools/Etherana-Coder">Source</a>
+        </div>
+
+        <div class="mini-meta">
+          <span class="tag">Version 0.1.0</span>
+          <span class="tag">Linux x64 available</span>
+          <span class="tag">Windows coming soon</span>
+          <span class="tag">macOS coming soon</span>
+          <span class="tag">Manual downloads</span>
+          <span class="tag">No telemetry</span>
+        </div>
+
+        <p class="hero-download-note">
+          Etherana Coder is currently available as an early Linux desktop release.
+          Windows and macOS builds are planned. Auto-update is intentionally off
+          for this release line; downloads are manual and verifiable with SHA256.
+        </p>
+      </section>
+
+      <section class="section" id="downloads">
+        <h2>Download Etherana Coder</h2>
+        <p class="section-sub">
+          Start with the Linux x64 archive. These are early public desktop builds
+          intended for testing, feedback, and real-device QA.
+        </p>
+
+        <div class="grid">
+          <article class="card download-card">
+            <span class="status">Linux</span>
+            <h3 style="margin-top:18px;">Linux x64 archive</h3>
+            <p>Portable tar.gz build for Linux x64 desktops, including Debian, Ubuntu, Pop!_OS, and Linux Mint.</p>
+            <a class="btn" href="https://coder-downloads.goanon.pro/releases/0.1.0/etherana-coder-linux-x64.tar.gz">Download tar.gz</a>
+            <a class="btn secondary" href="https://coder-downloads.goanon.pro/releases/0.1.0/SHA256SUMS">SHA256</a>
+          </article>
+
+          <article class="card download-card">
+            <span class="status">Windows</span>
+            <h3 style="margin-top:18px;">Windows x64</h3>
+            <p>Windows builds are planned for a future release after platform packaging and QA.</p>
+            <span class="btn secondary disabled-btn" aria-disabled="true">Coming soon</span>
+          </article>
+
+          <article class="card download-card">
+            <span class="status">macOS</span>
+            <h3 style="margin-top:18px;">macOS Intel + Apple Silicon</h3>
+            <p>macOS builds are planned for a future release after native packaging, signing, and launch testing.</p>
+            <span class="btn secondary disabled-btn" aria-disabled="true">Coming soon</span>
+          </article>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>Release files</h2>
+        <p class="section-sub">
+          Release metadata is public and manual-download-only. Use the manifest
+          and checksum files to verify what you install.
+        </p>
+
+        <div class="grid two">
+          <article class="card">
+            <h3>Manifest</h3>
+            <p class="release-link">https://coder-downloads.goanon.pro/releases/0.1.0/manifest.json</p>
+            <div class="tag-row">
+              <a class="tag" href="https://coder-downloads.goanon.pro/latest.json">latest.json</a>
+              <a class="tag" href="https://coder-downloads.goanon.pro/releases/0.1.0/manifest.json">manifest.json</a>
+            </div>
+          </article>
+
+          <article class="card">
+            <h3>Linux SHA256</h3>
+            <p class="checksum">9cbf9b2226ec7b5be9aa8148260966d9bc5ffdfedd7841925eb3d22985d59070</p>
+            <div class="tag-row">
+              <a class="tag" href="https://coder-downloads.goanon.pro/releases/0.1.0/SHA256SUMS">SHA256SUMS</a>
+              <a class="tag" href="https://coder-downloads.goanon.pro/releases/0.1.0/release-notes.md">Release notes</a>
+              <a class="tag" href="https://coder-downloads.goanon.pro/releases/0.1.0/privacy-summary.md">Privacy summary</a>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>What Etherana Coder gives you</h2>
+        <p class="section-sub">
+          A practical developer workspace for AI-assisted coding without turning
+          your editor into a surveillance product.
+        </p>
+
+        <div class="grid two">
+          <article class="card">
+            <h3>Agentic coding workflows</h3>
+            <p>Use AI assistance for complex multi-file codebase tasks while keeping changes reviewable and intentional.</p>
+            <div class="tag-row">
+              <span class="tag">Agents</span>
+              <span class="tag">Multi-file tasks</span>
+              <span class="tag">Diff review</span>
+            </div>
+          </article>
+
+          <article class="card">
+            <h3>Project memory and checkpoints</h3>
+            <p>Keep development context close to the project and inspect checkpointed changes before applying them.</p>
+            <div class="tag-row">
+              <span class="tag">Project memory</span>
+              <span class="tag">Checkpoints</span>
+              <span class="tag">Rollback aware</span>
+            </div>
+          </article>
+
+          <article class="card">
+            <h3>Universal model support</h3>
+            <p>Connect provider APIs or local models so teams can choose the model path that matches their privacy and budget needs.</p>
+            <div class="tag-row">
+              <span class="tag">BYO keys</span>
+              <span class="tag">Local models</span>
+              <span class="tag">Provider choice</span>
+            </div>
+          </article>
+
+          <article class="card">
+            <h3>Built-in skills</h3>
+            <p>Use focused skill modes for frontend design, testing, documentation, security review, privacy review, MCP building, and more.</p>
+            <div class="tag-row">
+              <span class="tag">Skills</span>
+              <span class="tag">Testing</span>
+              <span class="tag">Security</span>
+              <span class="tag">Privacy</span>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>Privacy model</h2>
+        <p class="section-sub">
+          Etherana Coder is designed around user control, manual setup, and
+          privacy-first defaults.
+        </p>
+
+        <article class="card">
+          <ul class="list">
+            <li>No hidden telemetry economy.</li>
+            <li>No GoAnon account required for the public Linux archive.</li>
+            <li>Manual-download-only release metadata; automatic updates are off.</li>
+            <li>Bring your own API keys when you want external model providers.</li>
+            <li>Use local models when you want the most private model path.</li>
+            <li>Partner links and external providers are user-initiated, not automatic background calls.</li>
+          </ul>
+        </article>
+      </section>
+
+      <section class="section">
+        <h2>Install notes</h2>
+        <p class="section-sub">
+          This first public build is usable, but packaging maturity will improve
+          across future releases.
+        </p>
+
+        <div class="grid">
+          <article class="card">
+            <h3>Linux archive</h3>
+            <p>Extract the tar.gz archive, open the extracted folder, and launch the included editor binary.</p>
+            <code class="install-code">tar -xzf etherana-coder-linux-x64.tar.gz
+cd VSCode-linux-x64
+./code</code>
+          </article>
+
+          <article class="card">
+            <h3>Windows SmartScreen</h3>
+            <p>Windows builds are not published yet. Early Windows builds may be unsigned and can trigger SmartScreen warnings.</p>
+          </article>
+
+          <article class="card">
+            <h3>macOS Gatekeeper</h3>
+            <p>macOS builds are not published yet. Early macOS builds may require signing and notarization before broad distribution.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="notice">
+          <strong>Linux release verified:</strong>
+          Etherana Coder 0.1.0 is available now for Linux x64. Windows and macOS
+          builds are marked pending until native packaging and QA are complete.
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="container"><a href="../index.html">GoAnon</a> · Private tools for a public internet.</div>
+    </footer>
+  </div>
+
+  <script src="../assets/js/theme.js"></script>
+</body>
+</html>
