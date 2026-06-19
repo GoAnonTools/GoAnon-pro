@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verify — Private Age Proof | GoAnon</title>
+  <meta name="description" content="Verify is a GoAnon browser extension in private alpha for privacy-preserving age proof. Prove age eligibility without uploading an ID or revealing your exact birthdate.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/product.css">
+  <style>
+    :root{--accent:180,220,255;--accent2:120,255,210;}
+    .privacy-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+    .soon-card .btn{margin-top:18px;margin-right:8px}
+    .muted-note{margin-top:18px;color:var(--faint);font-size:.92rem;line-height:1.7;max-width:780px}
+    .proof-list{display:grid;gap:12px;margin:0;padding:0;list-style:none}
+    .proof-list li{display:flex;gap:12px;color:var(--muted);line-height:1.65}
+    .proof-list li:before{flex:0 0 auto;font-weight:800}
+    .proof-list.shared li:before{content:"✓";color:rgba(120,255,190,.95)}
+    .proof-list.not-shared li:before{content:"×";color:rgba(255,120,150,.9)}
+    .status-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+    @media(max-width:900px){.privacy-grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <div class="site-shell">
+    <header class="topbar">
+      <a class="brand" href="../index.html">
+        <img src="../assets/images/goanon-logo.png" alt="GoAnon logo">
+        <span>GoAnon</span>
+      </a>
+      <nav class="nav">
+        <a href="../index.html">Ecosystem</a>
+        <a href="../tools/index.html">Tools</a>
+        <button class="theme-toggle" onclick="toggleGoAnonTheme()">Theme</button>
+      </nav>
+    </header>
+
+```
+<main class="container">
+  <section class="hero">
+    <div class="eyebrow">Private age proof</div>
+    <h1>Prove your age. Not your identity.</h1>
+    <p>
+      Verify is a GoAnon browser extension being built to let websites confirm
+      age eligibility without receiving your ID document, exact birthdate,
+      face scan, wallet identifier, or browsing trail.
+    </p>
+
+    <div class="hero-actions">
+      <a class="btn" href="#status">Coming soon</a>
+      <a class="btn secondary" href="#privacy">Privacy model</a>
+    </div>
+
+    <div class="status-row">
+      <span class="tag">Private alpha</span>
+      <span class="tag">Chromium planned</span>
+      <span class="tag">Firefox planned</span>
+      <span class="tag">EUDI research</span>
+      <span class="tag">Local-first</span>
+    </div>
+
+    <p class="muted-note">
+      Verify is not a public browser-store release yet. The extension is in
+      private alpha while the EUDI-compatible wallet path and privacy model
+      are tested.
+    </p>
+  </section>
+
+  <section class="section" id="privacy">
+    <h2>What websites should learn</h2>
+    <p class="section-sub">
+      The goal is simple: a website should learn whether you meet an age
+      requirement, not who you are.
+    </p>
+
+    <div class="privacy-grid">
+      <article class="card">
+        <span class="status">Shared</span>
+        <h3 style="margin-top:18px;">Only what is necessary</h3>
+        <ul class="proof-list shared">
+          <li>Age eligibility, for example over 18 = yes.</li>
+          <li>A cryptographic proof or wallet presentation.</li>
+          <li>A short-lived challenge bound to the requesting website.</li>
+          <li>A privacy label explaining the proof method.</li>
+        </ul>
+      </article>
+
+      <article class="card">
+        <span class="status">Not shared</span>
+        <h3 style="margin-top:18px;">No identity disclosure</h3>
+        <ul class="proof-list not-shared">
+          <li>Name.</li>
+          <li>Exact birthdate.</li>
+          <li>ID document or passport scan.</li>
+          <li>Face scan or biometric data.</li>
+          <li>Wallet identifier.</li>
+          <li>Browsing activity to issuer, government, or GoAnon.</li>
+        </ul>
+      </article>
+    </div>
+  </section>
+
+  <section class="section" id="status">
+    <h2>Current status</h2>
+    <p class="section-sub">
+      Verify is being built carefully because age verification can either
+      protect dignity or become surveillance infrastructure. GoAnon will only
+      enable official wallet support after the privacy checks are clear.
+    </p>
+
+    <div class="grid">
+      <article class="card soon-card">
+        <span class="status">Private alpha</span>
+        <h3 style="margin-top:18px;">Browser extension</h3>
+        <p>
+          Chromium and Firefox support are planned. Public store links will
+          appear here when Verify is ready for broader testing.
+        </p>
+        <a class="btn secondary" href="#">Chrome coming soon</a>
+        <a class="btn secondary" href="#">Firefox coming soon</a>
+      </article>
+
+      <article class="card">
+        <span class="status">EUDI-first</span>
+        <h3 style="margin-top:18px;">Official wallet path</h3>
+        <p>
+          Verify is being prepared for EUDI-compatible wallet age proofs.
+          The goal is to request only age eligibility, not full identity.
+        </p>
+        <div class="tag-row">
+          <span class="tag">EUDI</span>
+          <span class="tag">France Identité research</span>
+          <span class="tag">Age-only proof</span>
+        </div>
+      </article>
+
+      <article class="card">
+        <span class="status">Privacy gate</span>
+        <h3 style="margin-top:18px;">Digital Dignity checks</h3>
+        <p>
+          Official wallet support will only be enabled after confirming no
+          issuer or government callback during normal proof use, no exact
+          birthdate sharing, no stable wallet identifier, and no GoAnon
+          tracking relay.
+        </p>
+      </article>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>For websites</h2>
+    <p class="section-sub">
+      Verify is designed for cooperating websites that explicitly request a
+      privacy-preserving age proof. It is not a bypass tool and does not
+      manipulate third-party platforms.
+    </p>
+
+    <article class="card">
+      <ul class="list">
+        <li>Ask only for age eligibility, not full identity.</li>
+        <li>Use a website-bound challenge to prevent replay.</li>
+        <li>Show users what is shared and what is not shared.</li>
+        <li>Avoid central logs of where people verify age.</li>
+      </ul>
+    </article>
+  </section>
+
+  <section class="section">
+    <div class="notice">
+      <strong>Coming soon:</strong>
+      Verify is currently in private alpha inside the GoAnon ecosystem.
+      Public installation links will be added when the Chromium and Firefox
+      extension releases are ready.
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="container"><a href="../index.html">GoAnon</a> · Private tools for a public internet.</div>
+</footer>
+```
+
+  </div>
+
+  <script src="../assets/js/theme.js"></script>
+
+</body>
+</html>
